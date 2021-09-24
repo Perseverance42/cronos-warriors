@@ -1,14 +1,25 @@
 <template>
-    <v-card>
-        <v-text-field label="Warrior ID" v-model="inWarriorId"></v-text-field><v-btn @click="loadWarrior()">Load</v-btn>
-        <v-card-title>{{warriorName}}</v-card-title>
-        <v-card-text>
-            Level: {{warriorLevel}}<br/>
-            Health: {{warriorHealth}}<br/>
-            Attack: {{warriorSkills[0]}}<br/>
-            Defense: {{warriorSkills[1]}}<br/>
-            Stamina: {{warriorSkills[2]}}
-        </v-card-text>
+    <v-card class="d-flex"> 
+        <v-container>
+            <v-row><v-col><v-card-title>{{warriorName}}</v-card-title></v-col></v-row>
+            <v-card-text>
+                <v-row>
+                    <v-col><v-text-field label="Warrior ID" v-model="inWarriorId"></v-text-field><v-btn @click="loadWarrior()">Load</v-btn></v-col>
+                </v-row>
+                <v-row>
+                    <v-col>Level: {{warriorLevel}}</v-col>
+                    <v-col>Fights won: {{warriorStats[0]}}</v-col>
+                    </v-row>
+                    <v-row>
+                        <v-col>Health: {{warriorHealth}}</v-col>
+                        <v-col>Fights lost: {{warriorStats[1]}}</v-col>
+                    </v-row>
+                <v-row><v-col>Points available: {{warriorLevel-warriorStats[2]}}</v-col></v-row>                
+                <v-row><v-col><v-btn :disabled="warriorSkills[0]==null" :loading="isWaitingOnWallet" @click="increaseSkill('attack')"> Attack: {{warriorSkills[0]}}</v-btn></v-col></v-row>
+                <v-row><v-col><v-btn :disabled="warriorSkills[1]==null" :loading="isWaitingOnWallet" @click="increaseSkill('defense')">Defense: {{warriorSkills[1]}}</v-btn></v-col></v-row>
+                <v-row><v-col><v-btn :disabled="warriorSkills[2]==null" :loading="isWaitingOnWallet">Stamina: {{warriorSkills[2]}}</v-btn></v-col></v-row>
+            </v-card-text>
+        </v-container>
     </v-card>
 </template>
 
@@ -20,6 +31,36 @@ import WarriorContract from '../artifacts/CronosWarriors.json';
         "wallet","warriorId"
     ],
     methods:{
+        increaseSkill(skill){
+            this.isWaitingOnWallet = true;
+            const web3 = new this.$Web3(this.wallet.web3.currentProvider);
+            const contractInstance = new web3.eth.Contract(WarriorContract.abi, "0x5FbDB2315678afecb367f032d93F642f64180aa3");
+            switch(skill){
+                case 'attack':
+                    contractInstance.methods.increaseAttack(this.inWarriorId).send({from: this.wallet.metaMaskAddress}).then(result=>{
+                        console.log("attack increase: ", result);
+                        setTimeout(this.loadWarrior, 2000);
+                        this.isWaitingOnWallet = false;
+                    }).catch(e=>{
+                        alert("Failed to increase attack!");
+                        console.log("attack increase error", e);
+                        this.isWaitingOnWallet = false;
+                    });
+                    break;
+                case 'defense':
+                    this.loadingState[1] = true;
+                    contractInstance.methods.increaseDefense(this.inWarriorId).send({from: this.wallet.metaMaskAddress}).then(result=>{
+                        console.log("attack increase: ", result);
+                        setTimeout(this.loadWarrior, 2000);
+                        this.isWaitingOnWallet = false;
+                    }).catch(e=>{
+                        alert("Failed to increase attack!");
+                        console.log("attack increase error", e);
+                        this.isWaitingOnWallet = false;
+                    });
+                    break;
+            }
+        },
         async loadWarrior(){
             const web3 = new this.$Web3(this.wallet.web3.currentProvider);
             const contractInstance = new web3.eth.Contract(WarriorContract.abi, "0x5FbDB2315678afecb367f032d93F642f64180aa3");
@@ -34,6 +75,13 @@ import WarriorContract from '../artifacts/CronosWarriors.json';
                 if(result!== null){
                     console.log("Warrion result", result);
                     this.warriorSkills = result;
+                }
+            });
+
+            contractInstance.methods.warriorStats(this.inWarriorId).call().then(result=>{
+                if(result!== null){
+                    console.log("Warrion result", result);
+                    this.warriorStats = result;
                 }
             });
 
@@ -55,12 +103,17 @@ import WarriorContract from '../artifacts/CronosWarriors.json';
     mounted(){
         
     },
+    computed:{
+        
+    },
     data: () => ({
         inWarriorId: null,
         warriorName: "Unkown",
         warriorLevel: 0,
         warriorHealth: 0,
-        warriorSkills: []
+        warriorSkills: [null,null,null],
+        warriorStats: [null,null,null],
+        isWaitingOnWallet : false
     }),
   }
 </script>

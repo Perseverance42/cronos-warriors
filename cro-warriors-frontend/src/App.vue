@@ -49,7 +49,16 @@
             @onComplete="onComplete"
         >
       </vue-metamask>
-      <WarriorCard :wallet="this.wallet"/>
+      <v-container>
+        <v-row>
+          <v-col cols="6">
+            <WarriorCard :wallet="this.wallet"/>
+          </v-col>
+          <v-col>
+            <WarriorCard :wallet="this.wallet"/>
+          </v-col>
+        </v-row>
+      </v-container>
     </v-main>
   </v-app>
 </template>

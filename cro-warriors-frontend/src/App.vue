@@ -49,15 +49,21 @@
             @onComplete="onComplete"
         >
       </vue-metamask>
-      <v-container>
-        <v-row>
-          <v-col cols="6">
-            <WarriorCard :wallet="this.wallet"/>
-          </v-col>
-          <v-col>
-            <WarriorCard :wallet="this.wallet"/>
+      <v-container fluid>
+        <v-row justify="center">
+          <v-col cols="4">
+            <v-btn color="error" block :disabled="!isAbleToFight" :loading="isWaitingForWallet" @click="startFight()">Fight</v-btn>
           </v-col>
         </v-row>
+        <v-row>
+          <v-col cols="6">
+            <WarriorCard :wallet="this.wallet" v-on:warriorUpdated="updateAttacker"/>
+          </v-col>
+          <v-col>
+            <WarriorCard :wallet="this.wallet" v-on:warriorUpdated="updateDefender"/>
+          </v-col>
+        </v-row>
+        
       </v-container>
     </v-main>
   </v-app>
@@ -66,6 +72,7 @@
 <script>
 import VueMetamask from 'vue-metamask';
 import WarriorCard from './components/WarriorCard.vue';
+import WarriorContract from './artifacts/CronosWarriors.json';
 
 export default {
   name: 'App',
@@ -73,14 +80,34 @@ export default {
   components: {
     VueMetamask,
     WarriorCard
-  },methods:{
-    readContract(){
-      
+  },
+  computed:{
+    isAbleToFight(){
+      return this.attackerId !== null && this.defenderId !== null;
+    }
+  },
+  methods:{
+    async startFight(){
+      this.isWaitingForWallet = true;
+      const web3 = new this.$Web3(this.wallet.web3.currentProvider);
+      const contractInstance = new web3.eth.Contract(WarriorContract.abi, "0x5FbDB2315678afecb367f032d93F642f64180aa3");
+      contractInstance.methods.fight(this.attackerId, this.defenderId).send({from: this.wallet.metaMaskAddress}).then(result=>{
+        console.log("fight: ", result);
+        this.isWaitingForWallet = false;
+      }).catch(e=>{
+        alert("Failed to fight!");
+        console.log("fight failed", e);
+        this.isWaitingForWallet = false;
+      });
+    },
+    updateAttacker(id){
+      this.attackerId = id;
+    },
+    updateDefender(id){
+      this.defenderId = id;
     }
     ,onComplete(data){
-      this.wallet = data;
-
-      
+      this.wallet = data;     
     }
   },watch:{
     'wallet' : function(){
@@ -92,7 +119,10 @@ export default {
   },
   data: () => ({
     msg: "Please enable this website to connect to meta mask.",
-    wallet: null
+    wallet: null,
+    attackerId: null,
+    defenderId: null,
+    isWaitingForWallet : false
   }),
 };
 </script>

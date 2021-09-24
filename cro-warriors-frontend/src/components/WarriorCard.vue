@@ -17,7 +17,7 @@
                 <v-row><v-col>Points available: {{warriorLevel-warriorStats[2]}}</v-col></v-row>                
                 <v-row><v-col><v-btn :disabled="warriorSkills[0]==null" :loading="isWaitingOnWallet" @click="increaseSkill('attack')"> Attack: {{warriorSkills[0]}}</v-btn></v-col></v-row>
                 <v-row><v-col><v-btn :disabled="warriorSkills[1]==null" :loading="isWaitingOnWallet" @click="increaseSkill('defense')">Defense: {{warriorSkills[1]}}</v-btn></v-col></v-row>
-                <v-row><v-col><v-btn :disabled="warriorSkills[2]==null" :loading="isWaitingOnWallet">Stamina: {{warriorSkills[2]}}</v-btn></v-col></v-row>
+                <v-row><v-col><v-btn :disabled="warriorSkills[2]==null" :loading="isWaitingOnWallet" @click="increaseSkill('stamina')">Stamina: {{warriorSkills[2]}}</v-btn></v-col></v-row>
             </v-card-text>
         </v-container>
     </v-card>
@@ -28,7 +28,7 @@ import WarriorContract from '../artifacts/CronosWarriors.json';
   export default {
     name: 'WarriorCard',
     props:[
-        "wallet","warriorId"
+        "wallet"
     ],
     methods:{
         increaseSkill(skill){
@@ -48,20 +48,31 @@ import WarriorContract from '../artifacts/CronosWarriors.json';
                     });
                     break;
                 case 'defense':
-                    this.loadingState[1] = true;
                     contractInstance.methods.increaseDefense(this.inWarriorId).send({from: this.wallet.metaMaskAddress}).then(result=>{
-                        console.log("attack increase: ", result);
+                        console.log("defense increase: ", result);
                         setTimeout(this.loadWarrior, 2000);
                         this.isWaitingOnWallet = false;
                     }).catch(e=>{
-                        alert("Failed to increase attack!");
-                        console.log("attack increase error", e);
+                        alert("Failed to increase defense!");
+                        console.log("defense increase error", e);
+                        this.isWaitingOnWallet = false;
+                    });
+                    break;
+                case 'stamina':
+                    contractInstance.methods.increaseStamina(this.inWarriorId).send({from: this.wallet.metaMaskAddress}).then(result=>{
+                        console.log("stamina increase: ", result);
+                        setTimeout(this.loadWarrior, 2000);
+                        this.isWaitingOnWallet = false;
+                    }).catch(e=>{
+                        alert("Failed to increase stamina!");
+                        console.log("stamina increase error", e);
                         this.isWaitingOnWallet = false;
                     });
                     break;
             }
         },
         async loadWarrior(){
+            this.$emit('warriorUpdated', this.inWarriorId);
             const web3 = new this.$Web3(this.wallet.web3.currentProvider);
             const contractInstance = new web3.eth.Contract(WarriorContract.abi, "0x5FbDB2315678afecb367f032d93F642f64180aa3");
             contractInstance.methods.warriorName(this.inWarriorId).call().then(result=>{

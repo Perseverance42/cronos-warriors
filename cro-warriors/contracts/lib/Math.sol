@@ -1,7 +1,7 @@
 pragma solidity ^0.8.0;
 
 library Math {
-    function sqrt(uint x) internal pure returns (uint y) {
+    function sqrt(uint x) public pure returns (uint y) {
         if(x==0){
             return 0;
         }
@@ -22,5 +22,13 @@ library Math {
             block.number
         )));
         return (seed - ((seed / 1000) * 1000));
+    }
+    
+    function secMinus(uint256 a, uint256 b) public pure returns(uint256){
+        if(b>=a){
+            return 0;
+        }else{
+            return a-b;
+        }
     }
 }

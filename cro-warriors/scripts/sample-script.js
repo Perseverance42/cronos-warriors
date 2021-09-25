@@ -18,10 +18,19 @@ async function main() {
   const MathLib = await hre.ethers.getContractFactory("Math");
   const mathlib = await MathLib.deploy();
   await mathlib.deployed();
+
+  const ComputeLib = await hre.ethers.getContractFactory("Compute",{
+    libraries: {
+      Math: mathlib.address,
+    },
+    });
+  const computelib = await ComputeLib.deploy();
+  await computelib.deployed();
   
   const CronosWarriors = await hre.ethers.getContractFactory("CronosWarriors", {
   libraries: {
     Math: mathlib.address,
+    Compute: computelib.address
   },
   });
   
@@ -34,8 +43,23 @@ async function main() {
   const battleBoard = await BattleBoard.deploy(warriors.address);
   await battleBoard.deployed();
 
-  let updateWarriors = await warriors.setBattleBoard(battleBoard.address);
+  const CombatModule = await hre.ethers.getContractFactory("CombatModule", {
+    libraries: {
+      Math: mathlib.address,
+      Compute: computelib.address
+    },
+  });
+  const combatModule = await CombatModule.deploy(battleBoard.address, warriors.address);
+  await combatModule.deployed();
+
+  let updateBattleBoard = await battleBoard.setCombatModule(combatModule.address);
+  await updateBattleBoard.wait();
+
+  let updateWarriors = await warriors.setModule(battleBoard.address, true);
   await updateWarriors.wait();
+  updateWarriors = await warriors.setModule(combatModule.address, true);
+
+  //Modules are initialized now
 
   const w1 = await(warriors.mint('Warrior 1',
     {

@@ -1,32 +1,33 @@
 pragma solidity ^0.8.0;
 
-import "./CronosWarriors.sol";
+import "./Module.sol";
+import "./CombatModule.sol";
 
-contract BattleBoard { 
+contract BattleBoard is Module{ 
     
     event FightRequested(uint256 attacker, uint256 defender);
     event FightRequestResponded(uint256 attacker, uint256 defender, bool accepted);
     event FightRequestWithdrawn(uint256 attacker, uint256 defender);
     
-    CronosWarriors _warriorsContract;
     uint256 _battleRequestTimeout = 500;
     
     //battle requests
     mapping (uint256 => mapping(uint256 => uint256)) _offensiveBattleRequests; //maps attacker to defender
     mapping (uint256 => mapping(uint256 => uint256)) _defensiveBattleRequests; //maps defneder to attacker
     
-    modifier senderWarriors(){
-        assert(msg.sender==address(_warriorsContract));
-        _;
-    }
-    
+    CombatModule private _combatModule;
+
     modifier isOwner(uint256 id){
-        require(_warriorsContract.ownerOf(id)==msg.sender, 'Only owner can do this!');
+        require(warriorContract().ownerOf(id)==msg.sender, 'Only owner can do this!');
         _;
     }
     
-    constructor (address warriorsContract){
-        _warriorsContract = CronosWarriors(warriorsContract);
+    constructor (address warriorsContract) Module(warriorsContract, warriorsContract){
+    }
+    
+    function setCombatModule(address moduleAddr) external{
+        require(msg.sender==warriorContract().admin(), 'Not admin!');
+        _combatModule = CombatModule(moduleAddr);
     }
     
     function _createBattleRequest(uint256 attacker, uint256 defender) internal {
@@ -70,7 +71,7 @@ contract BattleBoard {
         
         _deleteBattleRequest(attacker, defender);
         emit FightRequestResponded(attacker, defender, true);
-         _warriorsContract.fight(attacker, defender);
+        _combatModule.fight(attacker, defender);
     }
     
     function withdrawBattleRequest(uint256 attacker, uint256 defender) external isOwner(attacker){

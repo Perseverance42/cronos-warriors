@@ -42,7 +42,7 @@ async function main() {
 
   const fight = await warriors.fight(1,2);
   await fight.wait();
-  expect(await warriors.warriorLevel(2)).to.equals(2);
+  console.log(fight);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -49,18 +49,12 @@ contract CronosWarriors is ERC721Enumerable  {
     }
     
     address private _admin;
+    address private _battleBoardContract;
     uint256 private _mintFee;
     uint256 private _strategicReserve;
-    
-    address private _battleBoardContract;
-    
+
     mapping (uint256 => Warrior) private _warriors;
-    
-    //battle requests
-    mapping (uint256 => mapping(uint256 => uint256)) _offensiveBattleRequests; //maps attacker to defender
-    mapping (uint256 => mapping(uint256 => uint256)) _defensiveBattleRequests; //maps defneder to attacker
-    
-    
+
     constructor() ERC721( "Cronos Warriors", "WAR" ) {
         _mintFee = (10**decimalsEth); //1CRO
         _admin = msg.sender;

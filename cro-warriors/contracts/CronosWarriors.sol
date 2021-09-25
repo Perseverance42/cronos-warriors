@@ -10,6 +10,10 @@ contract CronosWarriors is ERC721Enumerable  {
     uint256 public epScale = 10**decimalsEp;
     uint256 public epS1 = 10**(decimalsEth-decimalsEp);
     uint256 public epS1Root = sqrt(epS1);
+    
+    event Mint(uint256 id);
+    event Burn(uint256 id, uint256 released);
+    event FightDone(uint256 winner, uint256 loser);
 
     struct Stats {
         uint256 battlesWon;
@@ -48,6 +52,19 @@ contract CronosWarriors is ERC721Enumerable  {
         Stats  memory s1 = Stats(0,0,0);
         Skills memory s2 = Skills(1,1,1);
         _warriors[id] = Warrior(s1, s2, name, msg.value);
+        emit Mint(id);
+    }
+    
+    function burn(uint256 id) public {
+        require(_exists(id), 'Warrior does not exist');
+        require(ownerOf(id)==msg.sender, 'Only owner can do this!');
+        uint256 balance = _warriors[id].experience;
+        delete _warriors[id].skills;
+        delete _warriors[id].stats;
+        delete _warriors[id];
+        _burn(id);
+        payable(msg.sender).transfer(balance);
+        emit Burn(id, balance);
     }
     
     function mintFee() external view returns (uint256){
@@ -56,7 +73,6 @@ contract CronosWarriors is ERC721Enumerable  {
     
     function warriorPointsAvailable(uint256 id) external view returns(uint256){
         assert(_exists(id));
-        
         return _warriorLevel(id) - _warriors[id].stats.pointsSpend;
     }
     
@@ -155,7 +171,6 @@ contract CronosWarriors is ERC721Enumerable  {
         uint256 expToSwap = _experienceToSwap(w1, w2);
         _subExperienceSafe(attacker, expToSwap);
         _addExperienceSafe(defender, expToSwap);
-        
     }
     
     function increaseAttack(uint256 id) external {

@@ -31,7 +31,7 @@ contract CombatModule is Module{
         //health map
         uint256[2] memory health;
         health[0] = Compute.warriorHealth(fighters[0].experience, fighters[0].skills.stamina);
-        health[0] = Compute.warriorHealth(fighters[1].experience, fighters[1].skills.stamina);
+        health[1] = Compute.warriorHealth(fighters[1].experience, fighters[1].skills.stamina);
     
         _activeFights[w1] = true;
         _activeFights[w2] = true;
@@ -60,7 +60,6 @@ contract CombatModule is Module{
             }
         }
         //calculate experience swap
-        require(fighters[0].experience > 0, 'hit' );
         uint256 expToSwap = Compute.experienceToSwap(fighters[0].experience, fighters[1].experience);
         uint256 battleTax = expToSwap >= 1000 ? expToSwap / 1000 : 0;
         expToSwap = Math.secMinus(expToSwap, battleTax);

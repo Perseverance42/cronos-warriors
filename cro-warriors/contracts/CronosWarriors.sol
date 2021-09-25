@@ -17,10 +17,6 @@ contract CronosWarriors is ERC721Enumerable  {
     event Burn(uint256 id, uint256 released);
     event FightStarted(uint256 attacker, uint256 defender);
     event FightDone(uint256 winner, uint256 loser);
-    event FightRequested(uint256 attacker, uint256 defender);
-    event FightRequestResponded(uint256 attacker, uint256 defender, bool accepted);
-    event FightRequestWithdrawn(uint256 attacker, uint256 defender);
-    
 
     struct Stats {
         uint256 battlesWon;
@@ -47,12 +43,18 @@ contract CronosWarriors is ERC721Enumerable  {
         _;
     }
     
+    modifier isAdmin() {
+        require(msg.sender==_admin, 'Only the admin can do this!');
+        _;
+    }
+    
     address private _admin;
     uint256 private _mintFee;
     uint256 private _strategicReserve;
     
+    address private _battleBoardContract;
+    
     mapping (uint256 => Warrior) private _warriors;
-    mapping (uint256 => mapping(uint8 => address)) _gear;
     
     //battle requests
     mapping (uint256 => mapping(uint256 => uint256)) _offensiveBattleRequests; //maps attacker to defender
@@ -62,6 +64,10 @@ contract CronosWarriors is ERC721Enumerable  {
     constructor() ERC721( "Cronos Warriors", "WAR" ) {
         _mintFee = (10**decimalsEth); //1CRO
         _admin = msg.sender;
+    }
+    
+    function setBattleBoard(address addr) external isAdmin(){
+        _battleBoardContract = addr;
     }
 
     function mint(string memory name) public payable {
@@ -152,7 +158,8 @@ contract CronosWarriors is ERC721Enumerable  {
         _warriors[id].experience = ep;
     }
     
-    function _fight(uint256 w1, uint256 w2) internal {
+    function fight(uint256 w1, uint256 w2) external {
+        assert(msg.sender == _battleBoardContract);
         require(_exists(w1), 'does not exist');
         require(_exists(w2), 'does not exist');
         require(w1!=w2, 'can not fight itself!');
@@ -208,53 +215,6 @@ contract CronosWarriors is ERC721Enumerable  {
         _warriors[w1].inFight = false;
         _warriors[w2].inFight = false;
         emit FightDone(attacker, defender);
-    }
-    
-    function _createBattleRequest(uint256 attacker, uint256 defender) internal {
-        uint256 timeout = block.number + battleRequestTimeout;
-        _offensiveBattleRequests[attacker][defender] = timeout;
-        _defensiveBattleRequests[defender][attacker] = timeout;
-        emit FightRequested(attacker, defender);
-    }
-    
-    function _deleteBattleRequest(uint256 attacker, uint256 defender) internal {
-        delete _offensiveBattleRequests[attacker][defender];
-        delete _defensiveBattleRequests[defender][attacker];
-    }
-    
-    function doesBattleRequestExist(uint256 attacker, uint256 defender) external view returns(bool){
-        return _doesBattleRequestExist(attacker, defender);   
-    }
-    
-    function _doesBattleRequestExist(uint256 attacker, uint256 defender) internal view returns(bool){
-        return _offensiveBattleRequests[attacker][defender] != 0;
-    }
-    
-    function challangeWarrior(uint256 attacker, uint256 defender) external isOwner(attacker) {
-        require(_exists(defender), "Defender does not exist");
-        require(attacker!=defender, "Attacker can not attack itself!");
-        _createBattleRequest(attacker, defender);
-    }
-    
-    function denyBattleRequest(uint256 defender, uint256 attacker) external isOwner(defender) {
-        require(_doesBattleRequestExist(attacker, defender), 'This battle does not exist');
-        _deleteBattleRequest(attacker, defender);
-        emit FightRequestResponded(attacker, defender, false);
-    }
-    
-    function acceptBattleRequest(uint256 defender, uint256 attacker) external isOwner(defender){
-        require(_doesBattleRequestExist(attacker, defender), 'This battle was not requested!');
-        require(_offensiveBattleRequests[attacker][defender] > block.number, 'Battle request timed out');
-        
-        _deleteBattleRequest(attacker, defender);
-        emit FightRequestResponded(attacker, defender, true);
-        _fight(attacker, defender);
-    }
-    
-    function withdrawBattleRequest(uint256 attacker, uint256 defender) external isOwner(attacker){
-        require(_doesBattleRequestExist(attacker, defender), 'This battle does not exist');
-        _deleteBattleRequest(attacker, defender);
-        emit FightRequestWithdrawn(attacker, defender);
     }
     
     function increaseAttack(uint256 id) external isOwner(id){

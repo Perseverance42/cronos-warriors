@@ -26,10 +26,16 @@ async function main() {
   });
   
   const warriors = await CronosWarriors.deploy();
-
   await warriors.deployed();
 
   console.log("Greeter deployed to:", warriors.address);
+
+  const BattleBoard = await hre.ethers.getContractFactory("BattleBoard");
+  const battleBoard = await BattleBoard.deploy(warriors.address);
+  await battleBoard.deployed();
+
+  let updateWarriors = await warriors.setBattleBoard(battleBoard.address);
+  await updateWarriors.wait();
 
   const w1 = await(warriors.mint('Warrior 1',
     {
@@ -49,12 +55,12 @@ async function main() {
   expect(await warriors.warriorLevel(2)).to.equals(1);
   console.log("Minted second Warrior");
 
-  let battleRequest = await warriors.challangeWarrior(1,2);
+  let battleRequest = await battleBoard.challangeWarrior(1,2);
   await battleRequest.wait();
 
   console.log('Battle was requested');
 
-  const battleAccept = await warriors.acceptBattleRequest(2,1);
+  const battleAccept = await battleBoard.acceptBattleRequest(2,1);
   await battleAccept.wait();
 
   let ep = await warriors.warriorExperience(1);
@@ -67,22 +73,22 @@ async function main() {
   expect(reserve.toNumber()).to.greaterThan(0);
   console.log("Strategic reserve: " + reserve);
 
-  let noBattleAnymore = await warriors.doesBattleRequestExist(1,2);
+  let noBattleAnymore = await battleBoard.doesBattleRequestExist(1,2);
   expect(noBattleAnymore).to.equal(false);
   console.log("Battle request was cleared");
 
-  battleRequest = await warriors.challangeWarrior(1,2);
+  battleRequest = await battleBoard.challangeWarrior(1,2);
   await battleRequest.wait();
 
-  battleRequest = await warriors.doesBattleRequestExist(1,2);
+  battleRequest = await battleBoard.doesBattleRequestExist(1,2);
   expect(battleRequest).to.equal(true);
 
   console.log("New battle request was submited")
 
-  let battleDeny = await warriors.denyBattleRequest(2,1);
+  let battleDeny = await battleBoard.denyBattleRequest(2,1);
   await battleDeny.wait();
 
-  battleRequest = await warriors.doesBattleRequestExist(1,2);
+  battleRequest = await battleBoard.doesBattleRequestExist(1,2);
   expect(battleRequest).to.equal(false);
 
   console.log("Battle request was successfully denied");

@@ -23,13 +23,17 @@ contract CronosWarriors is ERC721Enumerable  {
         uint256 stamina;
     }
     
+    struct Warrior {
+        Stats stats;
+        Skills skills;
+        string name;
+        uint256 experience;
+    }
+    
     address private _admin;
     uint256 private _mintFee;
     
-    mapping (uint256 => uint256) private _wrExperience;
-    mapping (uint256 => string)  private _wrNames;
-    mapping (uint256 => Skills)  private _wrSkills;
-    mapping (uint256 => Stats)   private _wrStats;
+    mapping (uint256 => Warrior) private _warriors;
     
     constructor() ERC721( "Cronos Warriors", "WAR" ) {
         _mintFee = (10**decimalsEth); //1CRO
@@ -40,11 +44,10 @@ contract CronosWarriors is ERC721Enumerable  {
         require(msg.value == _mintFee, 'Invalid mint fee!');
         uint id = totalSupply() + 1;
         _safeMint(msg.sender, id );
-        _wrNames[id] = name;
-        _wrExperience[id] = msg.value;
         
-        _wrSkills[id]= Skills(1,1,1);
-        _wrStats[id] = Stats(0,0,0);
+        Stats  memory s1 = Stats(0,0,0);
+        Skills memory s2 = Skills(1,1,1);
+        _warriors[id] = Warrior(s1, s2, name, msg.value);
     }
     
     function mintFee() external view returns (uint256){
@@ -54,24 +57,24 @@ contract CronosWarriors is ERC721Enumerable  {
     function warriorPointsAvailable(uint256 id) external view returns(uint256){
         assert(_exists(id));
         
-        return _warriorLevel(id) - _wrStats[id].pointsSpend;
+        return _warriorLevel(id) - _warriors[id].stats.pointsSpend;
     }
     
     function warriorSkills(uint256 id) external view returns(uint256, uint256, uint256){
         assert(_exists(id));
-        Skills memory s = _wrSkills[id];
+        Skills memory s = _warriors[id].skills;
         return (s.attack, s.defense, s.stamina);
     }
     
     function warriorStats(uint256 id) external view returns(uint256, uint256, uint256){
         assert(_exists(id));
-        Stats memory s = _wrStats[id];
+        Stats memory s = _warriors[id].stats;
         return (s.battlesWon, s.battlesLost, s.pointsSpend);
     }
     
     function warriorName(uint256 id) external view returns(string memory){
         require(_exists(id), 'unkown warrior');
-        return _wrNames[id];
+        return _warriors[id].name;
     }
     
     function damage(uint256 w1, uint256 w2) external view returns (uint256){
@@ -82,7 +85,7 @@ contract CronosWarriors is ERC721Enumerable  {
     
     function _damage(uint256 w1, uint256 w2) internal view returns(uint256) {
         uint256 dmg = (2 * _warriorLevel(w1) + 10) * 10000000000;
-        uint256 def = (_wrSkills[w1].attack * 10000000000) / (_wrSkills[w2].defense * 10000000000);
+        uint256 def = (_warriors[w1].skills.attack * 10000000000) / (_warriors[w2].skills.defense * 10000000000);
         dmg = dmg / 2;
         dmg = dmg * def;
         dmg = dmg / 10000000000;
@@ -90,87 +93,94 @@ contract CronosWarriors is ERC721Enumerable  {
     }
     
     function _experienceToSwap(uint256 w1, uint256 w2) internal view returns (uint256){
-        uint256 exp = _wrExperience[w1] + _wrExperience[w2];
+        uint256 exp = _warriors[w1].experience + _warriors[w2].experience;
         exp = exp / 2;
         exp = exp / 10;
         return exp;
     }
     
     function _subExperienceSafe(uint256 id, uint256 amount) internal {
-        uint256 ep = _wrExperience[id];
+        uint256 ep = _warriors[id].experience;
         ep = ep - amount;
-        if( ep > _wrExperience[id] ){ //underflow check
+        if( ep > _warriors[id].experience ){ //underflow check
             revert('To much ep lost!');
         }
-        _wrExperience[id] = ep;
+        _warriors[id].experience = ep;
     }
     
     function _addExperienceSafe(uint256 id, uint amount) internal {
-        uint256 ep = _wrExperience[id];
+        uint256 ep = _warriors[id].experience;
         ep = ep + amount;
-        if(ep < _wrExperience[id]){
+        if(ep < _warriors[id].experience){
             revert('To much ep gained!');
         }
-        _wrExperience[id] = ep;
+        _warriors[id].experience = ep;
     }
     
-    function fight(uint256 w1, uint256 w2) external returns(uint256){
+    function fight(uint256 w1, uint256 w2) external {
         require(_exists(w1), 'Warrior 1 does not exist');
         require(_exists(w1), 'Warrior 2 does not exist');
-        uint256 h1 = _warriorHealth(w1);
-        uint256 h2 = _warriorHealth(w2);
+        require(w1!=w2, 'Warrior can nor fight itself!');
+        
+        //health map
+        uint256[2] memory health;
+        health[0] = _warriorHealth(w1);
+        health[1] = _warriorHealth(w2);
+        
+        //combat state
         bool fighting = true;
-        uint256 winner = w2;
-        uint256 looser = w1; 
         uint256 dmg;
+        
+        //combat starting state
+        uint256 r = rand();
+        
+        uint256 attacker = r < 499 ? w1 : w2;
+        uint256 defender = r < 499 ? w2 : w1;
+        
+        //combat loop iterates until health of on fighter is 0
         while(fighting){
-            dmg = _damage(w2, w1);
-            if(dmg<h1){
-                h1 = h1 - dmg;
+            uint256 h = health[ w1==attacker ? 1 : 0 ];
+            dmg = _damage(attacker, defender);
+            if(dmg < h){
+                health[w1==attacker ? 1 : 0] = h - dmg;
                 
-                //opponent dmg
-                dmg = _damage(w1, w2);
-                if(dmg<h2){
-                    h2=h2-dmg;
-                }else{
-                    fighting = false;
-                    winner = w1;
-                    looser = w2;
-                }
+                attacker = w1 == attacker ? defender : attacker;
+                defender = w1 == defender ? attacker : defender;
             }else{
-                fighting = false;
+                fighting = false; 
+                //current defender is the loser
             }
         }
         //calculate experience swap
         uint256 expToSwap = _experienceToSwap(w1, w2);
-        _subExperienceSafe(looser, expToSwap);
-        _addExperienceSafe(winner, expToSwap);
-        return winner;
+        _subExperienceSafe(attacker, expToSwap);
+        _addExperienceSafe(defender, expToSwap);
+        
     }
     
     function increaseAttack(uint256 id) external {
         require(ownerOf(id) == msg.sender, 'Only the owner can do this');
-        require(_warriorLevel(id) - _wrStats[id].pointsSpend > 0, 'No spendable points');
-        _wrSkills[id].attack = _wrSkills[id].attack + 1;
-        _wrStats[id].pointsSpend = _wrStats[id].pointsSpend + 1;
+        require(_warriorLevel(id) - _warriors[id].stats.pointsSpend > 0, 'No spendable points');
+        _warriors[id].skills.attack = _warriors[id].skills.attack + 1;
+        _warriors[id].stats.pointsSpend = _warriors[id].stats.pointsSpend + 1;
     }
     
     function increaseDefense(uint256 id) external {
         require(ownerOf(id) == msg.sender, 'Only the owner can do this');
-        require(_warriorLevel(id) - _wrStats[id].pointsSpend > 0, 'No spendable points');
-        _wrSkills[id].defense = _wrSkills[id].defense + 1;
-        _wrStats[id].pointsSpend = _wrStats[id].pointsSpend + 1;
+        require(_warriorLevel(id) - _warriors[id].stats.pointsSpend > 0, 'No spendable points');
+        _warriors[id].skills.defense = _warriors[id].skills.defense + 1;
+        _warriors[id].stats.pointsSpend = _warriors[id].stats.pointsSpend + 1;
     }
     
     function increaseStamina(uint256 id) external {
         require(ownerOf(id) == msg.sender, 'Only the owner can do this');
-        require(_warriorLevel(id) - _wrStats[id].pointsSpend > 0, 'No spendable points');
-        _wrSkills[id].stamina = _wrSkills[id].stamina + 1;
-        _wrStats[id].pointsSpend = _wrStats[id].pointsSpend + 1;
+        require(_warriorLevel(id) - _warriors[id].stats.pointsSpend > 0, 'No spendable points');
+        _warriors[id].skills.stamina = _warriors[id].skills.stamina + 1;
+        _warriors[id].stats.pointsSpend = _warriors[id].stats.pointsSpend + 1;
     }
     
     function _warriorLevel(uint256 id) internal view returns(uint256){
-        uint256 lvl = _secureMinus(_wrExperience[id], _mintFee);
+        uint256 lvl = _secureMinus(_warriors[id].experience, _mintFee);
         lvl = lvl/epScale;
         lvl = lvl*10;
         lvl = sqrt(lvl);
@@ -193,11 +203,11 @@ contract CronosWarriors is ERC721Enumerable  {
     
     function warriorExperience(uint256 id) external view returns(uint256){
         assert(_exists(id));
-        return _wrExperience[id];
+        return _warriors[id].experience;
     }
     
     function _warriorHealth(uint256 id) internal view returns(uint256){
-        return 10 * (_warriorLevel(id) + _wrSkills[id].stamina);
+        return 10 * (_warriorLevel(id) + _warriors[id].skills.stamina);
     }
     
     function warriorHealth(uint256 id) external view returns(uint256){
@@ -215,5 +225,16 @@ contract CronosWarriors is ERC721Enumerable  {
             y = z;
             z = (x / z + z) / 2;
         }
+    }
+    
+    function rand() public view returns(uint256) {
+        uint256 seed = uint256(keccak256(abi.encodePacked(
+            block.timestamp + block.difficulty +
+            ((uint256(keccak256(abi.encodePacked(block.coinbase)))) / (block.timestamp)) +
+            block.gaslimit + 
+            ((uint256(keccak256(abi.encodePacked(msg.sender)))) / (block.timestamp)) +
+            block.number
+        )));
+        return (seed - ((seed / 1000) * 1000));
     }
 }

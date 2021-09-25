@@ -1,35 +1,33 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./Module.sol";
 import "./CombatModule.sol";
 
-contract BattleBoard is Module{ 
+contract BattleBoard { 
     
     event FightRequested(uint256 attacker, uint256 defender);
     event FightRequestResponded(uint256 attacker, uint256 defender, bool accepted);
     event FightRequestWithdrawn(uint256 attacker, uint256 defender);
     
-    uint256 _battleRequestTimeout = 500;
+    uint256 private _battleRequestTimeout = 500;
     
     //battle requests
     mapping (uint256 => mapping(uint256 => uint256)) _offensiveBattleRequests; //maps attacker to defender
     mapping (uint256 => mapping(uint256 => uint256)) _defensiveBattleRequests; //maps defneder to attacker
     
-    CombatModule private _combatModule;
+    CronosWarriors public cronosWarriors;
+    CombatModule   public combatModule;
 
-    modifier isOwner(uint256 id){
-        require(warriorContract().ownerOf(id)==msg.sender, 'Only owner can do this!');
+    modifier isOwnerOf(uint256 id){
+        require(cronosWarriors.ownerOf(id)==msg.sender, 'Only owner can do this!');
         _;
     }
     
-    constructor (address warriorsContract) Module(warriorsContract, warriorsContract){
+    constructor (address warriorSkillsAddr, address warriorStatsAddr, address treasuryAddr){
+        cronosWarriors = CronosWarriors(msg.sender);
+        combatModule = new CombatModule(warriorSkillsAddr, warriorStatsAddr, treasuryAddr);
     }
-    
-    function setCombatModule(address moduleAddr) external{
-        require(msg.sender==warriorContract().admin(), 'Not admin!');
-        _combatModule = CombatModule(moduleAddr);
-    }
-    
+
     function _createBattleRequest(uint256 attacker, uint256 defender) internal {
         uint256 timeout = block.number + _battleRequestTimeout;
         _offensiveBattleRequests[attacker][defender] = timeout;
@@ -54,27 +52,27 @@ contract BattleBoard is Module{
         return _battleRequestTimeout;
     }
     
-    function challangeWarrior(uint256 attacker, uint256 defender) external isOwner(attacker) {
+    function challangeWarrior(uint256 attacker, uint256 defender) external isOwnerOf(attacker) {
         require(attacker!=defender, "Attacker can not attack itself!");
         _createBattleRequest(attacker, defender);
     }
     
-    function denyBattleRequest(uint256 defender, uint256 attacker) external isOwner(defender) {
+    function denyBattleRequest(uint256 defender, uint256 attacker) external isOwnerOf(defender) {
         require(_doesBattleRequestExist(attacker, defender), 'This battle does not exist');
         _deleteBattleRequest(attacker, defender);
         emit FightRequestResponded(attacker, defender, false);
     }
     
-    function acceptBattleRequest(uint256 defender, uint256 attacker) external isOwner(defender){
+    function acceptBattleRequest(uint256 defender, uint256 attacker) external isOwnerOf(defender){
         require(_doesBattleRequestExist(attacker, defender), 'This battle was not requested!');
         require(_offensiveBattleRequests[attacker][defender] > block.number, 'Battle request timed out');
         
         _deleteBattleRequest(attacker, defender);
         emit FightRequestResponded(attacker, defender, true);
-        _combatModule.fight(attacker, defender);
+        combatModule.fight(attacker, defender);
     }
     
-    function withdrawBattleRequest(uint256 attacker, uint256 defender) external isOwner(attacker){
+    function withdrawBattleRequest(uint256 attacker, uint256 defender) external isOwnerOf(attacker){
         require(_doesBattleRequestExist(attacker, defender), 'This battle does not exist');
         _deleteBattleRequest(attacker, defender);
         emit FightRequestWithdrawn(attacker, defender);

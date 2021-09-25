@@ -15,7 +15,16 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const CronosWarriors = await hre.ethers.getContractFactory("CronosWarriors");
+  const MathLib = await hre.ethers.getContractFactory("Math");
+  const mathlib = await MathLib.deploy();
+  await mathlib.deployed();
+  
+  const CronosWarriors = await hre.ethers.getContractFactory("CronosWarriors", {
+  libraries: {
+    Math: mathlib.address,
+  },
+  });
+  
   const warriors = await CronosWarriors.deploy();
 
   await warriors.deployed();
@@ -40,9 +49,45 @@ async function main() {
   expect(await warriors.warriorLevel(2)).to.equals(1);
   console.log("Minted second Warrior");
 
-  const fight = await warriors.fight(1,2);
-  await fight.wait();
-  console.log(fight);
+  let battleRequest = await warriors.challangeWarrior(1,2);
+  await battleRequest.wait();
+
+  console.log('Battle was requested');
+
+  const battleAccept = await warriors.acceptBattleRequest(2,1);
+  await battleAccept.wait();
+
+  let ep = await warriors.warriorExperience(1);
+  console.log("Ep Warrior 1 " + ep.toString());
+
+  ep = await warriors.warriorExperience(2);
+  console.log("Ep Warrior 2 " + ep.toString());
+
+  let reserve = await warriors.strategicReserve();
+  expect(reserve.toNumber()).to.greaterThan(0);
+  console.log("Strategic reserve: " + reserve);
+
+  let noBattleAnymore = await warriors.doesBattleRequestExist(1,2);
+  expect(noBattleAnymore).to.equal(false);
+  console.log("Battle request was cleared");
+
+  battleRequest = await warriors.challangeWarrior(1,2);
+  await battleRequest.wait();
+
+  battleRequest = await warriors.doesBattleRequestExist(1,2);
+  expect(battleRequest).to.equal(true);
+
+  console.log("New battle request was submited")
+
+  let battleDeny = await warriors.denyBattleRequest(2,1);
+  await battleDeny.wait();
+
+  battleRequest = await warriors.doesBattleRequestExist(1,2);
+  expect(battleRequest).to.equal(false);
+
+  console.log("Battle request was successfully denied");
+
+  console.log("done!");
 }
 
 // We recommend this pattern to be able to use async/await everywhere

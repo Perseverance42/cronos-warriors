@@ -26,5 +26,11 @@ module.exports = {
     devnode: {
       url:"http://localhost:8545"
     }
-  }
+  },
+  settings: {
+    optimizer: {
+      enabled: true,
+      runs: 200,
+    },
+  },
 };

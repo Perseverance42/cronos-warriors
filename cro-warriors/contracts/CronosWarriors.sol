@@ -2,6 +2,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "./lib/Math.sol";
 
 contract CronosWarriors is ERC721Enumerable  {
     
@@ -9,11 +10,17 @@ contract CronosWarriors is ERC721Enumerable  {
     uint256 public decimalsEp = 8; 
     uint256 public epScale = 10**decimalsEp;
     uint256 public epS1 = 10**(decimalsEth-decimalsEp);
-    uint256 public epS1Root = sqrt(epS1);
+    uint256 public epS1Root = Math.sqrt(epS1);
+    uint256 public battleRequestTimeout = 500;
     
     event Mint(uint256 id);
     event Burn(uint256 id, uint256 released);
+    event FightStarted(uint256 attacker, uint256 defender);
     event FightDone(uint256 winner, uint256 loser);
+    event FightRequested(uint256 attacker, uint256 defender);
+    event FightRequestResponded(uint256 attacker, uint256 defender, bool accepted);
+    event FightRequestWithdrawn(uint256 attacker, uint256 defender);
+    
 
     struct Stats {
         uint256 battlesWon;
@@ -32,12 +39,25 @@ contract CronosWarriors is ERC721Enumerable  {
         Skills skills;
         string name;
         uint256 experience;
+        bool inFight;
+    }
+    
+    modifier isOwner(uint256 id) {
+        require(msg.sender==ownerOf(id), 'Only the owner can do this!');
+        _;
     }
     
     address private _admin;
     uint256 private _mintFee;
+    uint256 private _strategicReserve;
     
     mapping (uint256 => Warrior) private _warriors;
+    mapping (uint256 => mapping(uint8 => address)) _gear;
+    
+    //battle requests
+    mapping (uint256 => mapping(uint256 => uint256)) _offensiveBattleRequests; //maps attacker to defender
+    mapping (uint256 => mapping(uint256 => uint256)) _defensiveBattleRequests; //maps defneder to attacker
+    
     
     constructor() ERC721( "Cronos Warriors", "WAR" ) {
         _mintFee = (10**decimalsEth); //1CRO
@@ -51,13 +71,12 @@ contract CronosWarriors is ERC721Enumerable  {
         
         Stats  memory s1 = Stats(0,0,0);
         Skills memory s2 = Skills(1,1,1);
-        _warriors[id] = Warrior(s1, s2, name, msg.value);
+        _warriors[id] = Warrior(s1, s2, name, msg.value, false);
         emit Mint(id);
     }
     
-    function burn(uint256 id) public {
+    function burn(uint256 id) public isOwner(id) {
         require(_exists(id), 'Warrior does not exist');
-        require(ownerOf(id)==msg.sender, 'Only owner can do this!');
         uint256 balance = _warriors[id].experience;
         delete _warriors[id].skills;
         delete _warriors[id].stats;
@@ -95,7 +114,7 @@ contract CronosWarriors is ERC721Enumerable  {
     
     function damage(uint256 w1, uint256 w2) external view returns (uint256){
         require(_exists(w1), 'Warrior 1 does not exist');
-        require(_exists(w1), 'Warrior 2 does not exist');
+        require(_exists(w2), 'Warrior 2 does not exist');
         return _damage(w1, w2);
     }
     
@@ -133,10 +152,12 @@ contract CronosWarriors is ERC721Enumerable  {
         _warriors[id].experience = ep;
     }
     
-    function fight(uint256 w1, uint256 w2) external {
-        require(_exists(w1), 'Warrior 1 does not exist');
-        require(_exists(w1), 'Warrior 2 does not exist');
-        require(w1!=w2, 'Warrior can nor fight itself!');
+    function _fight(uint256 w1, uint256 w2) internal {
+        require(_exists(w1), 'does not exist');
+        require(_exists(w2), 'does not exist');
+        require(w1!=w2, 'can not fight itself!');
+        require(!_warriors[w1].inFight, 'already fighting');
+        require(!_warriors[w2].inFight, 'already fighting');
         
         //health map
         uint256[2] memory health;
@@ -148,47 +169,107 @@ contract CronosWarriors is ERC721Enumerable  {
         uint256 dmg;
         
         //combat starting state
-        uint256 r = rand();
+        uint256 r = Math.rand();
         
         uint256 attacker = r < 499 ? w1 : w2;
-        uint256 defender = r < 499 ? w2 : w1;
+        uint256 defender = attacker == w1 ? w2 : w1;
+        _warriors[w1].inFight = true;
+        _warriors[w2].inFight = true;
+        
+        emit FightStarted(w1, w2);
         
         //combat loop iterates until health of on fighter is 0
         while(fighting){
-            uint256 h = health[ w1==attacker ? 1 : 0 ];
+            uint256 h = health[ defender == w1 ? 0 : 1 ];
             dmg = _damage(attacker, defender);
             if(dmg < h){
-                health[w1==attacker ? 1 : 0] = h - dmg;
+                health[defender==w1 ? 0 : 1] = h - dmg;
                 
-                attacker = w1 == attacker ? defender : attacker;
-                defender = w1 == defender ? attacker : defender;
+                attacker = w1 == attacker ? w2 : w1;
+                defender = w1 == defender ? w2 : w1;
             }else{
                 fighting = false; 
                 //current defender is the loser
             }
         }
         //calculate experience swap
+        
         uint256 expToSwap = _experienceToSwap(w1, w2);
-        _subExperienceSafe(attacker, expToSwap);
-        _addExperienceSafe(defender, expToSwap);
+        uint256 battleTax = expToSwap >= 1000 ? expToSwap / 1000 : 0;
+        expToSwap = expToSwap - battleTax;
+        require(battleTax < expToSwap, 'math error');
+        require(expToSwap > 0, 'No ep to swap in this fight');
+        
+        _strategicReserve = _strategicReserve + battleTax;
+        _subExperienceSafe(defender, 100);
+        _addExperienceSafe(attacker, expToSwap);
+        _warriors[attacker].stats.battlesWon = _warriors[attacker].stats.battlesWon + 1;
+        _warriors[defender].stats.battlesLost = _warriors[defender].stats.battlesLost + 1;
+        _warriors[w1].inFight = false;
+        _warriors[w2].inFight = false;
+        emit FightDone(attacker, defender);
     }
     
-    function increaseAttack(uint256 id) external {
-        require(ownerOf(id) == msg.sender, 'Only the owner can do this');
+    function _createBattleRequest(uint256 attacker, uint256 defender) internal {
+        uint256 timeout = block.number + battleRequestTimeout;
+        _offensiveBattleRequests[attacker][defender] = timeout;
+        _defensiveBattleRequests[defender][attacker] = timeout;
+        emit FightRequested(attacker, defender);
+    }
+    
+    function _deleteBattleRequest(uint256 attacker, uint256 defender) internal {
+        delete _offensiveBattleRequests[attacker][defender];
+        delete _defensiveBattleRequests[defender][attacker];
+    }
+    
+    function doesBattleRequestExist(uint256 attacker, uint256 defender) external view returns(bool){
+        return _doesBattleRequestExist(attacker, defender);   
+    }
+    
+    function _doesBattleRequestExist(uint256 attacker, uint256 defender) internal view returns(bool){
+        return _offensiveBattleRequests[attacker][defender] != 0;
+    }
+    
+    function challangeWarrior(uint256 attacker, uint256 defender) external isOwner(attacker) {
+        require(_exists(defender), "Defender does not exist");
+        require(attacker!=defender, "Attacker can not attack itself!");
+        _createBattleRequest(attacker, defender);
+    }
+    
+    function denyBattleRequest(uint256 defender, uint256 attacker) external isOwner(defender) {
+        require(_doesBattleRequestExist(attacker, defender), 'This battle does not exist');
+        _deleteBattleRequest(attacker, defender);
+        emit FightRequestResponded(attacker, defender, false);
+    }
+    
+    function acceptBattleRequest(uint256 defender, uint256 attacker) external isOwner(defender){
+        require(_doesBattleRequestExist(attacker, defender), 'This battle was not requested!');
+        require(_offensiveBattleRequests[attacker][defender] > block.number, 'Battle request timed out');
+        
+        _deleteBattleRequest(attacker, defender);
+        emit FightRequestResponded(attacker, defender, true);
+        _fight(attacker, defender);
+    }
+    
+    function withdrawBattleRequest(uint256 attacker, uint256 defender) external isOwner(attacker){
+        require(_doesBattleRequestExist(attacker, defender), 'This battle does not exist');
+        _deleteBattleRequest(attacker, defender);
+        emit FightRequestWithdrawn(attacker, defender);
+    }
+    
+    function increaseAttack(uint256 id) external isOwner(id){
         require(_warriorLevel(id) - _warriors[id].stats.pointsSpend > 0, 'No spendable points');
         _warriors[id].skills.attack = _warriors[id].skills.attack + 1;
         _warriors[id].stats.pointsSpend = _warriors[id].stats.pointsSpend + 1;
     }
     
-    function increaseDefense(uint256 id) external {
-        require(ownerOf(id) == msg.sender, 'Only the owner can do this');
+    function increaseDefense(uint256 id) external isOwner(id){
         require(_warriorLevel(id) - _warriors[id].stats.pointsSpend > 0, 'No spendable points');
         _warriors[id].skills.defense = _warriors[id].skills.defense + 1;
         _warriors[id].stats.pointsSpend = _warriors[id].stats.pointsSpend + 1;
     }
     
-    function increaseStamina(uint256 id) external {
-        require(ownerOf(id) == msg.sender, 'Only the owner can do this');
+    function increaseStamina(uint256 id) external isOwner(id){
         require(_warriorLevel(id) - _warriors[id].stats.pointsSpend > 0, 'No spendable points');
         _warriors[id].skills.stamina = _warriors[id].skills.stamina + 1;
         _warriors[id].stats.pointsSpend = _warriors[id].stats.pointsSpend + 1;
@@ -198,7 +279,7 @@ contract CronosWarriors is ERC721Enumerable  {
         uint256 lvl = _secureMinus(_warriors[id].experience, _mintFee);
         lvl = lvl/epScale;
         lvl = lvl*10;
-        lvl = sqrt(lvl);
+        lvl = Math.sqrt(lvl);
         lvl = lvl/epS1Root + 1;
         return lvl;
     }
@@ -230,26 +311,15 @@ contract CronosWarriors is ERC721Enumerable  {
         return _warriorHealth(id);
     }
     
-    function sqrt(uint x) internal pure returns (uint y) {
-        if(x==0){
-            return 0;
-        }
-        uint z = (x + 1) / 2;
-        y = x;
-        while (z < y) {
-            y = z;
-            z = (x / z + z) / 2;
-        }
+    function withdrawFromReserve(address payable to, uint256 amount) external{
+        assert(msg.sender==_admin);
+        require(amount <= _strategicReserve, 'amount to high');
+        to.transfer(amount);
     }
     
-    function rand() public view returns(uint256) {
-        uint256 seed = uint256(keccak256(abi.encodePacked(
-            block.timestamp + block.difficulty +
-            ((uint256(keccak256(abi.encodePacked(block.coinbase)))) / (block.timestamp)) +
-            block.gaslimit + 
-            ((uint256(keccak256(abi.encodePacked(msg.sender)))) / (block.timestamp)) +
-            block.number
-        )));
-        return (seed - ((seed / 1000) * 1000));
+    function strategicReserve() external view returns(uint256){
+        return _strategicReserve;
     }
+    
+    
 }

@@ -35,9 +35,11 @@ contract WarriorFactory is Modular {
     /*
         only gets called by treasury
     */
-    function mint(string memory name) external onlyModules() returns(uint256){
+    function mint(string memory name) external payable returns(uint256){
         uint256 newId = maxId = maxId + 1;
         assert(!cronosWarriors.exists(newId));
+        
+        treasury.mint{value:msg.value}(newId);
         
         warriorVisuals.mint(newId, name);
         warriorSkills.mint(newId);

@@ -108,10 +108,6 @@ async function main() {
   await warriorFactory.deployed();
   console.log("Warrior Factory deployed to:", warriorFactory.address);
   
-  //inject warriorFactory into treasury to have payments reside in treasury
-  let update = await treasury.setWarriorFactory(warriorFactory.address);
-  await update.wait();
-  
     /**
      * 
      * Deployments done 
@@ -127,8 +123,7 @@ async function main() {
   await addModuleAccess(warriorStats, warriorFactory);
   await addModuleAccess(warriorVisuals, warriorFactory);
   
-  //treasury and factory need to cross access, becuase funds should stay in treasury
-  await addModuleAccess(warriorFactory, treasury);
+  //Factory needs access to Treasury
   await addModuleAccess(treasury, warriorFactory);
  
   //Battle Board starts fights in combat module
@@ -140,22 +135,24 @@ async function main() {
  
   //Modules are initialized now
 
-  const w1 = await(treasury.mintWarrior('Warrior 1',
+  const w1 = await(warriorFactory.mint('Warrior 1',
     {
       value: "1000000000000000000"
     }
   ));
   await w1.wait();
-  expect(await warriors.warriorLevel(1)).to.equals(1);
+  let exp = await treasury.experience(1);
+  expect(exp.toString()).to.equal("1000000000000000000");
   console.log("Minted first Warrior");
 
-  const w2 = await(treasury.mintWarrior('Warrior 2',
+  const w2 = await(warriorFactory.mint('Warrior 2',
     {
       value: "1000000000000000000"
     }
   ));
   await w2.wait();
-  expect(await warriors.warriorLevel(2)).to.equals(1);
+  exp = await treasury.experience(2);
+  expect(exp.toString()).to.equal("1000000000000000000");
   console.log("Minted second Warrior");
 
   let battleRequest = await battleBoard.challangeWarrior(1,2);
@@ -166,13 +163,13 @@ async function main() {
   const battleAccept = await battleBoard.acceptBattleRequest(2,1);
   await battleAccept.wait();
 
-  let ep = await warriors.warriorExperience(1);
+  let ep = await treasury.experience(1);
   console.log("Ep Warrior 1 " + ep.toString());
 
-  ep = await warriors.warriorExperience(2);
+  ep = await treasury.experience(2);
   console.log("Ep Warrior 2 " + ep.toString());
 
-  let reserve = await warriors.strategicReserve();
+  let reserve = await treasury.reserve();
   expect(reserve.toNumber()).to.greaterThan(0);
   console.log("Strategic reserve: " + reserve);
 

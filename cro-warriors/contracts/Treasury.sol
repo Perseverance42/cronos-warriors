@@ -11,17 +11,18 @@ contract Treasury is Modular {
     event FundsAdded(uint256 id, uint256 amount);
     event FundsWithdrawn(uint256 id, uint256 amount);
     
-    WarriorFactory public warriorFactory;
-    
     uint256 private _reserve;
     mapping (uint256 => uint256) private _experience;
     
-    /** Paybles **/
-    function mintWarrior(string memory name) payable external returns(uint256){
+    //gets accessed by WarriorFactory
+    function mint(uint256 id) payable external onlyModules(){
         require(msg.value == Compute.mintFee, 'Invalid mint fee!');
-        uint256 id = warriorFactory.mint(name);
-        emit FundsAdded(id, msg.value);
-        return id;
+        
+        uint256 exp = _experience[id]; //should be 0 in all cases!
+        require(exp == 0, 'already exists');
+        
+        _experience[id] = msg.value;
+        emit FundsAdded(id, _experience[id]);
     }
     
     /** Getters **/
@@ -29,13 +30,13 @@ contract Treasury is Modular {
         return _experience[id];
     }
     
+    function reserve() external view returns(uint256){
+        return _reserve;
+    }
+    
     /** Setters **/
     function _increaseReserve(uint256 amount) internal {
         _reserve = _reserve + amount;
-    }
-    
-    function setWarriorFactory(address warriorFactoryAddr) external onlyOwner() {
-        warriorFactory = WarriorFactory(warriorFactoryAddr);
     }
     
     //gets accessed by CombatModule
@@ -52,14 +53,6 @@ contract Treasury is Modular {
         _increaseReserve(battleTax);
         _experience[winner] = _experience[winner] + expToSwap;
         _experience[loser]  = _experience[loser]  - expToSwap;
-    }
-    
-    //gets accessed by WarriorFactory
-    function addExperience(uint256 id) external payable onlyModules() {
-        uint256 exp = _experience[id];
-        exp = exp + msg.value;
-        _experience[id] = exp;
-        emit FundsAdded(id, msg.value);
     }
     
     //gets accessed by WarriorFactory

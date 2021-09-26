@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import WarriorContract from '../artifacts/CronosWarriors.json';
+import WarriorSkillsContract from '../artifacts/WarriorSkills.json';
   export default {
     name: 'WarriorCard',
     props:[
@@ -34,7 +34,7 @@ import WarriorContract from '../artifacts/CronosWarriors.json';
         increaseSkill(skill){
             this.isWaitingOnWallet = true;
             const web3 = new this.$Web3(this.wallet.web3.currentProvider);
-            const contractInstance = new web3.eth.Contract(WarriorContract.abi, "0x5FbDB2315678afecb367f032d93F642f64180aa3");
+            const contractInstance = new web3.eth.Contract(WarriorSkillsContract.abi, "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318");
             switch(skill){
                 case 'attack':
                     contractInstance.methods.increaseAttack(this.inWarriorId).send({from: this.wallet.metaMaskAddress}).then(result=>{
@@ -74,25 +74,12 @@ import WarriorContract from '../artifacts/CronosWarriors.json';
         async loadWarrior(){
             this.$emit('warriorUpdated', this.inWarriorId);
             const web3 = new this.$Web3(this.wallet.web3.currentProvider);
-            const contractInstance = new web3.eth.Contract(WarriorContract.abi, "0x5FbDB2315678afecb367f032d93F642f64180aa3");
-            contractInstance.methods.warriorName(this.inWarriorId).call().then(result=>{
-                if(result !== null){
-                    console.log("Warrion result", result);
-                    this.warriorName = result;
-                }
-            });
+            const contractInstance = new web3.eth.Contract(WarriorSkillsContract.abi, "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318");
 
             contractInstance.methods.warriorSkills(this.inWarriorId).call().then(result=>{
                 if(result!== null){
-                    console.log("Warrion result", result);
+                    console.log("Warrior result", result);
                     this.warriorSkills = result;
-                }
-            });
-
-            contractInstance.methods.warriorStats(this.inWarriorId).call().then(result=>{
-                if(result!== null){
-                    console.log("Warrion result", result);
-                    this.warriorStats = result;
                 }
             });
 

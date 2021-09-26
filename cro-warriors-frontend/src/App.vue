@@ -6,80 +6,47 @@
       dark
     >
       <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
+        <v-btn class="mx-4" to="/">Home</v-btn>
+        <v-btn class="mx-4" to="/leaderboard">Leaderboard</v-btn>
+        <v-btn class="mx-4" to="/mint">Minting</v-btn>
+        <v-btn class="mx-4" to="/army">Army</v-btn>
+        <v-btn class="mx-4" to="/arena">Arena</v-btn>
       </div>
 
       <v-spacer></v-spacer>
 
       <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
+        href="https://github.com/Perseverance42/cronos-warriors"
         target="_blank"
         text
       >
-        <span class="mr-2">Latest Release</span>
+        <span class="mr-2">GitHub</span>
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
     </v-app-bar>
 
     <v-main>
-      <v-card :loading="this.wallet == null" min-height="100">
-        <div v-if="this.wallet">
-          <h1>Your wallet address: {{this.wallet.metaMaskAddress}}</h1>
-        </div>
-      </v-card>
-      
+      <router-view></router-view>
+
       <vue-metamask 
-            :userMessage="msg" 
-            @onComplete="onComplete"
-        >
+        :userMessage="mmMsg" 
+        @onComplete="onMMComplete"
+      >
       </vue-metamask>
-      <v-container fluid>
-        <v-row justify="center">
-          <v-col cols="4">
-            <v-btn color="error" block :disabled="!isAbleToFight" :loading="isWaitingForWallet" @click="startFight()">Fight</v-btn>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="6">
-            <WarriorCard :wallet="this.wallet" v-on:warriorUpdated="updateAttacker"/>
-          </v-col>
-          <v-col>
-            <WarriorCard :wallet="this.wallet" v-on:warriorUpdated="updateDefender"/>
-          </v-col>
-        </v-row>
-        
-      </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
 import VueMetamask from 'vue-metamask';
-import WarriorCard from './components/WarriorCard.vue';
-import WarriorContract from './artifacts/CronosWarriors.json';
+import BattleBoard from './artifacts/BattleBoard.json';
 
 export default {
   name: 'App',
 
   components: {
     VueMetamask,
-    WarriorCard
+  //  WarriorCard
   },
   computed:{
     isAbleToFight(){
@@ -90,8 +57,8 @@ export default {
     async startFight(){
       this.isWaitingForWallet = true;
       const web3 = new this.$Web3(this.wallet.web3.currentProvider);
-      const contractInstance = new web3.eth.Contract(WarriorContract.abi, "0x5FbDB2315678afecb367f032d93F642f64180aa3");
-      contractInstance.methods.fight(this.attackerId, this.defenderId).send({from: this.wallet.metaMaskAddress}).then(result=>{
+      const contractInstance = new web3.eth.Contract(BattleBoard.abi, "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318");
+      contractInstance.methods.challangeWarrior(this.attackerId, this.defenderId).send({from: this.wallet.metaMaskAddress}).then(result=>{
         console.log("fight: ", result);
         this.isWaitingForWallet = false;
       }).catch(e=>{
@@ -106,8 +73,9 @@ export default {
     updateDefender(id){
       this.defenderId = id;
     }
-    ,onComplete(data){
-      this.wallet = data;     
+    ,onMMComplete(data){
+      this.wallet = data; 
+      window.wallet = data;    
     }
   },watch:{
     'wallet' : function(){
@@ -118,7 +86,7 @@ export default {
     
   },
   data: () => ({
-    msg: "Please enable this website to connect to meta mask.",
+    mmMsg: "Please enable this website to connect to meta mask.",
     wallet: null,
     attackerId: null,
     defenderId: null,

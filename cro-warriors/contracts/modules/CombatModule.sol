@@ -19,11 +19,9 @@ contract CombatModule is Modular{
     mapping(uint256=>bool) private _activeFights;
     
     constructor(address warriorSkillsAddr, address warriorStatsAddr, address treasuryAddr){
-        setModule(msg.sender, true);
         warriorSkills   = WarriorSkills(warriorSkillsAddr);
         warriorStats    = WarriorStats(warriorStatsAddr);
         treasury        = Treasury(treasuryAddr);
-        transferOwnership(tx.origin);
     }
     
     function fight(uint256 w1, uint256 w2) external onlyModules(){

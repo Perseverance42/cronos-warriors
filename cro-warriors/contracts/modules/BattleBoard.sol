@@ -18,14 +18,14 @@ contract BattleBoard {
     CronosWarriors public cronosWarriors;
     CombatModule   public combatModule;
 
-    modifier isOwnerOf(uint256 id){
+    modifier onlyOwnerOf(uint256 id){
         require(cronosWarriors.ownerOf(id)==msg.sender, 'Only owner can do this!');
         _;
     }
     
-    constructor (address warriorSkillsAddr, address warriorStatsAddr, address treasuryAddr){
-        cronosWarriors = CronosWarriors(msg.sender);
-        combatModule = new CombatModule(warriorSkillsAddr, warriorStatsAddr, treasuryAddr);
+    constructor (address cronosWarriorsAddr, address combatModuleAddr){
+        cronosWarriors = CronosWarriors(cronosWarriorsAddr);
+        combatModule   = CombatModule(combatModuleAddr);
     }
 
     function _createBattleRequest(uint256 attacker, uint256 defender) internal {
@@ -52,18 +52,18 @@ contract BattleBoard {
         return _battleRequestTimeout;
     }
     
-    function challangeWarrior(uint256 attacker, uint256 defender) external isOwnerOf(attacker) {
+    function challangeWarrior(uint256 attacker, uint256 defender) external onlyOwnerOf(attacker) {
         require(attacker!=defender, "Attacker can not attack itself!");
         _createBattleRequest(attacker, defender);
     }
     
-    function denyBattleRequest(uint256 defender, uint256 attacker) external isOwnerOf(defender) {
+    function denyBattleRequest(uint256 defender, uint256 attacker) external onlyOwnerOf(defender) {
         require(_doesBattleRequestExist(attacker, defender), 'This battle does not exist');
         _deleteBattleRequest(attacker, defender);
         emit FightRequestResponded(attacker, defender, false);
     }
     
-    function acceptBattleRequest(uint256 defender, uint256 attacker) external isOwnerOf(defender){
+    function acceptBattleRequest(uint256 defender, uint256 attacker) external onlyOwnerOf(defender){
         require(_doesBattleRequestExist(attacker, defender), 'This battle was not requested!');
         require(_offensiveBattleRequests[attacker][defender] > block.number, 'Battle request timed out');
         
@@ -72,7 +72,7 @@ contract BattleBoard {
         combatModule.fight(attacker, defender);
     }
     
-    function withdrawBattleRequest(uint256 attacker, uint256 defender) external isOwnerOf(attacker){
+    function withdrawBattleRequest(uint256 attacker, uint256 defender) external onlyOwnerOf(attacker){
         require(_doesBattleRequestExist(attacker, defender), 'This battle does not exist');
         _deleteBattleRequest(attacker, defender);
         emit FightRequestWithdrawn(attacker, defender);

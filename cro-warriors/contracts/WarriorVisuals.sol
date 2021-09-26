@@ -5,12 +5,11 @@ import './CronosWarriors.sol';
 import './modules/Modular.sol';
 import './lib/structs/VisualsLib.sol';
 
-contract WarriorVisuals is Modular { //is owned by warrior contract for now (no admin access needed)
+contract WarriorVisuals is Modular {
     
     mapping(uint256 => VisualsLib.Visuals) private _visuals;
     
     constructor(){
-        setModule(msg.sender, true);
     }
     
     function _exists(uint256 id) internal view returns(bool){
@@ -18,7 +17,6 @@ contract WarriorVisuals is Modular { //is owned by warrior contract for now (no 
     }
     
     function mint(uint256 id, string memory name) external onlyModules() {
-        assert(!_exists(id));
         require(VisualsLib.isValidName(name), 'Name is not valid');
         _visuals[id] = VisualsLib.Visuals(name);
     }

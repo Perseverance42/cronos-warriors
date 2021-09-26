@@ -5,12 +5,12 @@ import './CronosWarriors.sol';
 import './modules/Modular.sol';
 import './lib/structs/StatsLib.sol';
 
-contract WarriorStats is Modular { //is owned by warrior contract for now (no admin access needed)
+contract WarriorStats is Modular {
     
     mapping(uint256 => StatsLib.Stats) private _stats;
     
     constructor(){
-        setModule(msg.sender,true);
+        
     }
     
     function _exists(uint256 id) internal view returns(bool){
@@ -18,7 +18,6 @@ contract WarriorStats is Modular { //is owned by warrior contract for now (no ad
     }
     
     function mint(uint256 id) external onlyModules() {
-        assert(!_exists(id));
         _stats[id] = StatsLib.Stats(0,0,true);
     }
     

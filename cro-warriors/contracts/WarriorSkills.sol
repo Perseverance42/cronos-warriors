@@ -2,16 +2,19 @@
 pragma solidity ^0.8.0;
 
 import './CronosWarriors.sol';
+import './Treasury.sol';
 import './modules/Modular.sol';
 import './lib/structs/SkillsLib.sol';
 
 contract WarriorSkills is Modular {
     
-    CronosWarriors private _cronosWarriors;
+    CronosWarriors public cronosWarriors;
+    Treasury       public treasury;
+    
     mapping(uint256 => SkillsLib.Skills) private _skills;
     
     modifier warriorOwnerOnly(uint256 id){
-        require(_cronosWarriors.ownerOf(id)==msg.sender, 'Only the owner can do this!');
+        require(cronosWarriors.ownerOf(id)==msg.sender, 'Only the owner can do this!');
         _;
     }
     
@@ -20,13 +23,13 @@ contract WarriorSkills is Modular {
         _;
     }
     
-    constructor(){
-        _cronosWarriors = CronosWarriors(msg.sender);
-        setModule(msg.sender, true);
+    constructor(address cronosWarriorsAddr, address treasuryAddr){
+        cronosWarriors = CronosWarriors(cronosWarriorsAddr);
+        treasury = Treasury(treasuryAddr);
     }
     
     function _exists(uint256 id) internal view returns(bool){
-        return SkillsLib.isNull(_skills[id]);
+        return !SkillsLib.isNull(_skills[id]);
     }
     
     function mint(uint256 id) external onlyModules() {

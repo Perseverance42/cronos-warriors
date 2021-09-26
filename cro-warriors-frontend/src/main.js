@@ -10,6 +10,14 @@ Vue.prototype.$Web3 = Web3;
 import Router from 'vue-router';
 import router from './plugins/router'
 
+const wallet = Vue.observable({wallet:null});
+
+Object.defineProperty(Vue.prototype, '$wallet', {
+  get(){return wallet.wallet},
+  set(value){wallet.wallet=value}
+})
+
+Vue.prototype.$wallet = "cake";
 Vue.use(Router)
 new Vue({
   vuetify,

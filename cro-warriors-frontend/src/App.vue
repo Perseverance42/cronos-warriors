@@ -74,22 +74,17 @@ export default {
       this.defenderId = id;
     }
     ,onMMComplete(data){
-      this.wallet = data; 
-      window.wallet = data;    
+      this.$wallet = data;    
     }
   },watch:{
-    'wallet' : function(){
+    '$wallet' : function(){
       console.log("Wallet was updated!", this.wallet);
     }
   }
   ,mounted(){
-    
   },
   data: () => ({
     mmMsg: "Please enable this website to connect to meta mask.",
-    wallet: null,
-    attackerId: null,
-    defenderId: null,
     isWaitingForWallet : false
   }),
 };

@@ -9,34 +9,31 @@ import "./modules/Modular.sol";
 import "./modules/BattleBoard.sol";
 import "./WarriorSkills.sol";
 import "./WarriorStats.sol";
+import "./WarriorVisuals.sol";
 import "./Treasury.sol";
 
 contract CronosWarriors is ERC721Enumerable, Modular  {
     
-    uint256 public decimalsEth = 18;
-    uint256 public decimalsEp = 8; 
-    uint256 public epScale = 10**decimalsEp;
-    uint256 public epS1 = 10**(decimalsEth-decimalsEp);
-    uint256 public epS1Root = Math.sqrt(epS1);
-    uint256 public battleRequestTimeout = 500;
-    
-    event Mint(uint256 id);
-    event Burn(uint256 id);
+    event Minted(uint256 id);
+    event Burned(uint256 id);
 
     modifier onlyOwnerOf(uint256 id) {
         require(msg.sender==ownerOf(id), 'Only the owner can do this!');
         _;
     }
 
-    WarriorSkills public warriorSkills;
-    WarriorStats  public warriorStats;
-    Treasury      public treasury;
-    BattleBoard   public battleBoard;
+    WarriorSkills  public warriorSkills;
+    WarriorStats   public warriorStats;
+    WarriorVisuals public warriorVisuals;
+    Treasury       public treasury;
+    BattleBoard    public battleBoard;
     
     constructor() ERC721( "Cronos Warriors", "WAR" ) {
+        //TODO move entire construction of contracts and and module linking into deployment scripts
         treasury = new Treasury();
         warriorSkills = new WarriorSkills();
         warriorStats = new WarriorStats();
+        warriorVisuals = new WarriorVisuals();
         battleBoard = new BattleBoard(address(warriorSkills), address(warriorStats), address(treasury));
         
         address bbAddr = address(battleBoard);
@@ -49,16 +46,18 @@ contract CronosWarriors is ERC721Enumerable, Modular  {
         warriorStats.setModule(bbAddr,  true);
     }
 
+    //TODO move payable tx into treasury
     function mint(string memory name) public payable {
         require(msg.value == Compute.mintFee, 'Invalid mint fee!');
         uint id = totalSupply() + 1;
         
         warriorSkills.mint(id);
         warriorStats.mint(id);
+        warriorVisuals.mint(id, name);
         treasury.addExperience{value:msg.value}(id); //transfer 
         
         _safeMint(msg.sender, id );
-        emit Mint(id);
+        emit Minted(id);
     }
     
     function burn(uint256 id) public onlyOwnerOf(id) {
@@ -66,12 +65,15 @@ contract CronosWarriors is ERC721Enumerable, Modular  {
         
         warriorSkills.burn(id);
         warriorStats.burn(id);
+        warriorVisuals.burn(id);
         _burn(id);
         
         treasury.withdrawExperience(id, payable(msg.sender));
         
-        emit Burn(id);
+        emit Burned(id);
     }
+    
+    /** Getters **/
     
     function exists(uint256 id) external view returns(bool){
         return _exists(id);

@@ -9,6 +9,10 @@ contract WarriorStats is Modular { //is owned by warrior contract for now (no ad
     
     mapping(uint256 => StatsLib.Stats) private _stats;
     
+    constructor(){
+        setModule(msg.sender,true);
+    }
+    
     function _exists(uint256 id) internal view returns(bool){
         return StatsLib.isNull(_stats[id]);
     }

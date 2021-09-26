@@ -30,6 +30,10 @@ contract WarriorVisuals is Modular {
     function visuals(uint256 id) external view returns (VisualsLib.Visuals memory){
         return _visuals[id];
     }
+
+    function warriorName(uint256 id) external view returns (string memory){
+        return _visuals[id].name;
+    }
     
     /* Setters */
 

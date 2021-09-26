@@ -73,12 +73,14 @@ export default {
     updateDefender(id){
       this.defenderId = id;
     }
-    ,onMMComplete(data){
+    ,async onMMComplete(data){
+      await data.web3;
+      await data.web3.currentProvider;
       this.$wallet = data;    
     }
   },watch:{
     '$wallet' : function(){
-      console.log("Wallet was updated!", this.wallet);
+      console.log("Wallet was updated!", this.$wallet);
     }
   }
   ,mounted(){

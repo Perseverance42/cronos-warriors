@@ -2,18 +2,18 @@
   <v-container>
     <v-row class="text-center" justify="center">
       <v-col cols="6">
-        <WarriorCard warriorID="1"/>
+        <ArmyCard :armyAddr="$wallet.metaMaskAddress"/>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import WarriorCard from '../components/WarriorCard.vue';
+import ArmyCard from '../components/ArmyCard.vue';
 
   export default {
     name: 'Army',
-    components: {WarriorCard},
+    components: {ArmyCard},
     data: () => ({
     }),
   }

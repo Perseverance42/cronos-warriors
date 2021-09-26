@@ -15,6 +15,11 @@ import './modules/Modular.sol';
 
 contract WarriorFactory is Modular {
     
+    /* Event */
+    event WarriorMinted(uint256 id, address owner);
+    event WarriorBurned(uint256 id, address recipient);
+    
+    /* Modules which get accessed */
     CronosWarriors public cronosWarriors;
     WarriorSkills  public warriorSkills;
     WarriorStats   public warriorStats;
@@ -32,9 +37,7 @@ contract WarriorFactory is Modular {
         maxId = 0;
     }
     
-    /*
-        only gets called by treasury
-    */
+    /* Users mit their warriors here */
     function mint(string memory name) external payable returns(uint256){
         uint256 newId = maxId = maxId + 1;
         assert(!cronosWarriors.exists(newId));
@@ -45,16 +48,18 @@ contract WarriorFactory is Modular {
         warriorSkills.mint(newId);
         warriorStats.mint(newId);
         cronosWarriors.mint(newId);
+        emit WarriorMinted(newId, msg.sender);
         return newId;
     }
     
-    function burn(uint256 id) external {
+    function burn(uint256 id, address recipient) external {
         require(msg.sender==cronosWarriors.ownerOf(id), 'Only owner can do this!');
         
         warriorSkills.burn(id);
         warriorStats.burn(id);
         warriorVisuals.burn(id);
-        treasury.withdrawExperience(id, payable(msg.sender));
+        treasury.withdrawExperience(id, payable(recipient));
         cronosWarriors.burn(id);
+        emit WarriorBurned(id, recipient);
     }
 }

@@ -12,11 +12,13 @@ contract CombatModule is Modular{
     event FightStarted(uint256 attacker, uint256 defender);
     event FightDone(uint256 winner, uint256 loser);
     
+    /* Modules which get accessed */
     WarriorSkills public warriorSkills;
     WarriorStats  public warriorStats;
     Treasury      public treasury;
     
-    mapping(uint256=>bool) private _activeFights;
+    /* Properties */
+    mapping(uint256=>bool) private _activeFights; //intended as reentrancyguard
     
     constructor(address warriorSkillsAddr, address warriorStatsAddr, address treasuryAddr){
         warriorSkills   = WarriorSkills(warriorSkillsAddr);
@@ -42,7 +44,7 @@ contract CombatModule is Modular{
         
         //health map
         uint256[2] memory health;
-        health[0] = Compute.warriorHealth(exp[0], skills[0].stamina);
+        health[0] = Compute.warriorHealth(exp[0], skills[0].stamina); //could be replaced with treasury.warriorHealth(w1); but current implementation should save gas
         health[1] = Compute.warriorHealth(exp[1], skills[1].stamina);
     
         _activeFights[w1] = true;

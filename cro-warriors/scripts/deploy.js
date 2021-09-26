@@ -64,7 +64,11 @@ async function main() {
   await warriorVisuals.deployed();
   console.log("Warrior Visuals deployed @"+warriorVisuals.address);
   
-  const WarriorStats = await hre.ethers.getContractFactory("WarriorStats");
+  const WarriorStats = await hre.ethers.getContractFactory("WarriorStats", {
+    libraries: {
+      StatsLib: statsLib.address
+    }
+  });
   const warriorStats = await WarriorStats.deploy();
   await warriorStats.deployed();
   console.log("Warrior Stats deployed @"+warriorStats.address);
@@ -81,7 +85,8 @@ async function main() {
   
   const WarriorSkills = await hre.ethers.getContractFactory("WarriorSkills", {
     libraries: {
-      SkillsLib: skillsLib.address
+      SkillsLib: skillsLib.address,
+      Compute: computelib.address
     },
   });
   const warriorSkills = await WarriorSkills.deploy( warriors.address, treasury.address );

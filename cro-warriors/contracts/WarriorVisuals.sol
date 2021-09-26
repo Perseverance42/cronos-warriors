@@ -13,10 +13,11 @@ contract WarriorVisuals is Modular {
     }
     
     function _exists(uint256 id) internal view returns(bool){
-        return VisualsLib.isNull(_visuals[id]);
+        return !VisualsLib.isNull(_visuals[id]);
     }
     
     function mint(uint256 id, string memory name) external onlyModules() {
+        assert(!_exists(id));
         require(VisualsLib.isValidName(name), 'Name is not valid');
         _visuals[id] = VisualsLib.Visuals(name);
     }
@@ -25,11 +26,11 @@ contract WarriorVisuals is Modular {
         delete _visuals[id];
     }
     
-    /** Getters **/
+    /* Getters */
     function visuals(uint256 id) external view returns (VisualsLib.Visuals memory){
         return _visuals[id];
     }
     
-    /** Setters **/
+    /* Setters */
 
 }

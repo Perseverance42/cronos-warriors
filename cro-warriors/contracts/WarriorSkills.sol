@@ -4,10 +4,12 @@ pragma solidity ^0.8.0;
 import './CronosWarriors.sol';
 import './Treasury.sol';
 import './modules/Modular.sol';
+import './lib/Compute.sol';
 import './lib/structs/SkillsLib.sol';
 
 contract WarriorSkills is Modular {
     
+    /* Modules which get accessed */
     CronosWarriors public cronosWarriors;
     Treasury       public treasury;
     
@@ -41,13 +43,32 @@ contract WarriorSkills is Modular {
         delete _skills[id];
     }
     
-    /** Getters **/
+    /* Getters */
     
     function skills(uint256 id) external view returns (SkillsLib.Skills memory){
         return _skills[id];
     }
     
-    /** Setters **/
+    function warriorSkills(uint256 id) external view returns (uint256, uint256, uint256){
+        SkillsLib.Skills memory s = _skills[id];
+        return ( s.attack, s.defense, s.stamina );
+    }
+    
+    /* Computed views */
+    
+    function warriorHealth(uint256 id) external view returns(uint256){
+        return Compute.warriorHealth(warriorExperience(id), _skills[id].stamina);
+    }
+    
+    function warriorLevel(uint256 id) external view returns(uint256){
+        return Compute.warriorLevel(warriorExperience(id));
+    }
+    
+    function warriorExperience(uint256 id) public view returns(uint256){
+        return treasury.experience(id);
+    }
+    
+    /* Setters */
     function _increasePointsSpend(uint256 id) internal {
         _skills[id].pointsSpend = _skills[id].pointsSpend + 1;
     }

@@ -14,10 +14,11 @@ contract WarriorStats is Modular {
     }
     
     function _exists(uint256 id) internal view returns(bool){
-        return StatsLib.isNull(_stats[id]);
+        return !StatsLib.isNull(_stats[id]);
     }
     
     function mint(uint256 id) external onlyModules() {
+        assert(!_exists(id));
         _stats[id] = StatsLib.Stats(0,0,true);
     }
     
@@ -25,12 +26,12 @@ contract WarriorStats is Modular {
         delete _stats[id];
     }
     
-    /** Getters **/
+    /* Getters */
     function stats(uint256 id) external view returns (StatsLib.Stats memory){
         return _stats[id];
     }
     
-    /** Setters **/
+    /* Setters */
     function increaseBattleStats(uint256 winner, uint256 loser) external onlyModules(){
         _stats[winner].battlesWon = _stats[winner].battlesWon + 1;
         _stats[loser].battlesLost = _stats[loser].battlesLost + 1;

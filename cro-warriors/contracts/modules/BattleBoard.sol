@@ -5,18 +5,20 @@ import "./CombatModule.sol";
 
 contract BattleBoard { 
     
+    /* Events */
     event FightRequested(uint256 attacker, uint256 defender);
     event FightRequestResponded(uint256 attacker, uint256 defender, bool accepted);
     event FightRequestWithdrawn(uint256 attacker, uint256 defender);
     
-    uint256 private _battleRequestTimeout = 500;
-    
-    //battle requests
-    mapping (uint256 => mapping(uint256 => uint256)) _offensiveBattleRequests; //maps attacker to defender
-    mapping (uint256 => mapping(uint256 => uint256)) _defensiveBattleRequests; //maps defneder to attacker
-    
+    /* Modules which get accessed */
     CronosWarriors public cronosWarriors;
     CombatModule   public combatModule;
+    
+    uint256 private _battleRequestTimeout = 500;
+    
+    /* Battle request queue */
+    mapping (uint256 => mapping(uint256 => uint256)) _offensiveBattleRequests; //maps attacker to defender
+    mapping (uint256 => mapping(uint256 => uint256)) _defensiveBattleRequests; //maps defneder to attacker
 
     modifier onlyOwnerOf(uint256 id){
         require(cronosWarriors.ownerOf(id)==msg.sender, 'Only owner can do this!');
@@ -28,18 +30,7 @@ contract BattleBoard {
         combatModule   = CombatModule(combatModuleAddr);
     }
 
-    function _createBattleRequest(uint256 attacker, uint256 defender) internal {
-        uint256 timeout = block.number + _battleRequestTimeout;
-        _offensiveBattleRequests[attacker][defender] = timeout;
-        _defensiveBattleRequests[defender][attacker] = timeout;
-        emit FightRequested(attacker, defender);
-    }
-    
-    function _deleteBattleRequest(uint256 attacker, uint256 defender) internal {
-        delete _offensiveBattleRequests[attacker][defender];
-        delete _defensiveBattleRequests[defender][attacker];
-    }
-    
+    /** Getters **/
     function doesBattleRequestExist(uint256 attacker, uint256 defender) external view returns(bool){
         return _doesBattleRequestExist(attacker, defender);   
     }
@@ -50,6 +41,20 @@ contract BattleBoard {
     
     function battleRequestTimeout() external view returns(uint256){
         return _battleRequestTimeout;
+    }
+    
+    /** Setters */
+
+    function _createBattleRequest(uint256 attacker, uint256 defender) internal {
+        uint256 timeout = block.number + _battleRequestTimeout;
+        _offensiveBattleRequests[attacker][defender] = timeout;
+        _defensiveBattleRequests[defender][attacker] = timeout;
+        emit FightRequested(attacker, defender);
+    }
+    
+    function _deleteBattleRequest(uint256 attacker, uint256 defender) internal {
+        delete _offensiveBattleRequests[attacker][defender];
+        delete _defensiveBattleRequests[defender][attacker];
     }
     
     function challangeWarrior(uint256 attacker, uint256 defender) external onlyOwnerOf(attacker) {

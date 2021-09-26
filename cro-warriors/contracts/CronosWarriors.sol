@@ -5,6 +5,9 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "./modules/Modular.sol";
 
+/**
+ * CronosWarriors is "only" used to manage ownership of warriors and make them tradeable on all ER721 enabled marketplaces
+ **/
 contract CronosWarriors is ERC721Enumerable, Modular  {
     
     constructor() ERC721( "Cronos Warriors", "WAR" ) {
@@ -18,7 +21,7 @@ contract CronosWarriors is ERC721Enumerable, Modular  {
         _burn(id);
     }
     
-    /** Getters **/
+    /* Getters */
     
     function exists(uint256 id) external view returns(bool){
         return _exists(id);

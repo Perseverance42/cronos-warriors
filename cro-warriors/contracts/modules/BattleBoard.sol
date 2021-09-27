@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "./CombatModule.sol";
-import "solidity-linked-list/contracts/StructuredLinkedList.sol";
+import "../lib/imported/StructuredLinkedList.sol";
 
 contract BattleBoard { 
     using StructuredLinkedList for StructuredLinkedList.List;
@@ -42,7 +42,7 @@ contract BattleBoard {
     }
     
     function _doesBattleRequestExist(uint256 attacker, uint256 defender) internal view returns(bool){
-        return _offensiveBattleRequests[attacker].nodeExists(defender);
+        return _requestTimeouts[attacker][defender] != 0;
     }
 
     function isBattleRequestTimedOut(uint256 attacker, uint256 defender) public view returns(bool){
@@ -54,9 +54,13 @@ contract BattleBoard {
     }
     
     function defensiveRequestOf(uint256 id, uint256 start, uint8 pageSize) external view returns(uint256[] memory){
-        assert(_defensiveBattleRequests[id].listExists());
         uint256 requestCount = _defensiveBattleRequests[id].sizeOf();
-        assert(requestCount>0);
+        if(requestCount<1)
+            return new uint256[](0);
+        
+        if(start == 0){
+            start = _defensiveBattleRequests[id].getFirst();
+        }
         requestCount = pageSize < requestCount ? pageSize : requestCount; //limit request size
         
         uint256[] memory requests = new uint256[](requestCount);
@@ -92,6 +96,7 @@ contract BattleBoard {
         require(_doesBattleRequestExist(attacker, defender), 'Request does not exist');
          _offensiveBattleRequests[attacker].remove(defender);
          _defensiveBattleRequests[defender].remove(attacker);
+         delete _requestTimeouts[attacker][defender];
     }
     
     function challangeWarrior(uint256 attacker, uint256 defender) external onlyOwnerOf(attacker) {

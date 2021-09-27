@@ -14,7 +14,8 @@
                         <v-col>Health: {{warriorHealth}}</v-col>
                         <v-col>Fights lost: {{warriorStats[1]}}</v-col>
                     </v-row>
-                <v-row><v-col>Points available: {{warriorLevel-warriorStats[2]}}</v-col></v-row>                
+                <v-row><v-col>Points available: {{warriorLevel-warriorStats[2]}}</v-col></v-row> 
+                <v-row><v-col>Experience: {{warriorExperience}}</v-col></v-row>               
                 <v-row><v-col><v-btn :disabled="warriorSkills[0]==null" :loading="isWaitingOnWallet" @click="increaseSkill('attack')"> Attack: {{warriorSkills[0]}}</v-btn></v-col></v-row>
                 <v-row><v-col><v-btn :disabled="warriorSkills[1]==null" :loading="isWaitingOnWallet" @click="increaseSkill('defense')">Defense: {{warriorSkills[1]}}</v-btn></v-col></v-row>
                 <v-row><v-col><v-btn :disabled="warriorSkills[2]==null" :loading="isWaitingOnWallet" @click="increaseSkill('stamina')">Stamina: {{warriorSkills[2]}}</v-btn></v-col></v-row>
@@ -24,17 +25,15 @@
 </template>
 
 <script>
-import WarriorSkillsContract from '../artifacts/WarriorSkills.json';
-import WarriorVisualsContract from '../artifacts/WarriorVisuals.json';
+import CronosWarriors from '../scripts/cronos-warriors.js';
 
   export default {
     name: 'WarriorCard',
     props: ["warriorID"],
     methods:{
-        increaseSkill(skill){
+        async increaseSkill(skill){
             this.isWaitingOnWallet = true;
-            const web3 = new this.$Web3(this.$wallet.web3.currentProvider);
-            const contractInstance = new web3.eth.Contract(WarriorSkillsContract.abi, "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318");
+            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.WarriorSkills);
             switch(skill){
                 case 'attack':
                     contractInstance.methods.increaseAttack(this.warriorID).send({from: this.$wallet.metaMaskAddress}).then(result=>{
@@ -72,8 +71,7 @@ import WarriorVisualsContract from '../artifacts/WarriorVisuals.json';
             }
         },
         async loadWarriorSkills(){
-            const web3 = new this.$Web3(this.$wallet.web3.currentProvider);
-            const contractInstance = new web3.eth.Contract(WarriorSkillsContract.abi, "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318");
+            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.WarriorSkills);
 
             contractInstance.methods.warriorSkills(this.warriorID).call().then(result=>{
                 if(result!== null){
@@ -97,8 +95,7 @@ import WarriorVisualsContract from '../artifacts/WarriorVisuals.json';
             });
         },
         async loadWarriorVisuals(){
-            const web3 = new this.$Web3(this.$wallet.web3.currentProvider);
-            const contractInstance = new web3.eth.Contract(WarriorVisualsContract.abi, "0x0165878A594ca255338adfa4d48449f69242Eb8F");
+            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.WarriorVisuals);
 
             contractInstance.methods.warriorName(this.warriorID).call().then(result=>{
                 if(result!== null){
@@ -107,11 +104,23 @@ import WarriorVisualsContract from '../artifacts/WarriorVisuals.json';
                 }
             });
         },
+        async loadWarriorExperience(){
+            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.Treasury);
+
+            contractInstance.methods.experience(this.warriorID).call().then(result=>{
+                if(result!== null){
+                    console.log("Warrior ep", result);
+                    this.warriorExperience = CronosWarriors.$Web3.utils.toBN(result);
+                }
+            });
+        },
         async loadWarriorFully(){
             let skills = this.loadWarriorSkills();
             let visuals = this.loadWarriorVisuals();
+            let ep = this.loadWarriorExperience();
             await skills;
             await visuals;
+            await ep;
             this.$emit("warriorLoaded");
         }
     },
@@ -121,7 +130,7 @@ import WarriorVisualsContract from '../artifacts/WarriorVisuals.json';
         }
     },
     watch:{
-        "warriorID":() => {
+        "warriorID": function(){
             this.loadWarriorFully();
         }
     },
@@ -133,6 +142,7 @@ import WarriorVisualsContract from '../artifacts/WarriorVisuals.json';
         warriorName: "Unkown",
         warriorLevel: 0,
         warriorHealth: 0,
+        warriorExperience: 0,
         warriorSkills: [null,null,null],
         warriorStats: [null,null,null],
         isWaitingOnWallet : false

@@ -15,7 +15,7 @@
 
 <script>
 
-import WarriorFactory from '../artifacts/WarriorFactory.json';
+import CronosWarriors from '../scripts/cronos-warriors.js';
   export default {
     name: 'MintingCard',
     components:{
@@ -23,8 +23,7 @@ import WarriorFactory from '../artifacts/WarriorFactory.json';
     methods:{
         async mintWarrior(){
             this.isWaitingOnWallet = true;
-            const web3 = new this.$Web3(this.$wallet.web3.currentProvider);
-            const contractInstance = new web3.eth.Contract(WarriorFactory.abi, "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0");
+            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.WarriorFactory);
 
             contractInstance.methods.mint(this.inWarriorName).send({from: this.$wallet.metaMaskAddress, value: "1000000000000000000"}).then(result=>{
                 console.log("minted warrior: ", result);

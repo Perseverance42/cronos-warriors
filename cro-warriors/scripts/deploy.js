@@ -160,7 +160,20 @@ async function main() {
   expect(exp.toString()).to.equal("1000000000000000000");
   console.log("Minted second Warrior");
 
+  const w3 = await(warriorFactory.mint('Warrior 3',
+  {
+    value: "1000000000000000000"
+  }
+  ));
+  await w3.wait();
+  exp = await treasury.experience(3);
+  expect(exp.toString()).to.equal("1000000000000000000");
+  console.log("Minted third Warrior");
+
   let battleRequest = await battleBoard.challangeWarrior(1,2);
+  await battleRequest.wait();
+
+  battleRequest = await battleBoard.challangeWarrior(3,2);
   await battleRequest.wait();
 
   console.log('Battle was requested');
@@ -189,6 +202,13 @@ async function main() {
   expect(battleRequest).to.equal(true);
 
   console.log("New battle request was submited")
+
+  let battleRequestList = await battleBoard.defensiveRequestOf(2,1,10);
+  console.log(battleRequestList);
+  expect(battleRequestList[0].toNumber()).to.equal(1);
+  expect(battleRequestList[1].toNumber()).to.equal(3);
+  
+  console.log("Battle Board linked list seems to work");
 
   let battleDeny = await battleBoard.denyBattleRequest(2,1);
   await battleDeny.wait();

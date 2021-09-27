@@ -74,7 +74,7 @@ contract CombatModule is Modular{
         }
         
         //do experience swap in treasury
-        treasury.swapExperienceFor( attacker, defender );
+        treasury.swapExperienceFor(attacker==0 ? w1 : w2, attacker==0 ? w2 : w1);
         warriorStats.increaseBattleStats(attacker, defender);
         
         delete _activeFights[w1];

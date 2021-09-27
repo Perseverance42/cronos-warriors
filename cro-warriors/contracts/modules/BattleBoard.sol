@@ -2,9 +2,14 @@
 pragma solidity ^0.8.0;
 
 import "./CombatModule.sol";
+import "solidity-linked-list/contracts/StructuredLinkedList.sol";
 
 contract BattleBoard { 
+    using StructuredLinkedList for StructuredLinkedList.List;
     
+    uint8 private constant maxOffensiveRequests = 15;
+    uint8 private constant maxDefensiveRequests = 20;
+
     /* Events */
     event FightRequested(uint256 attacker, uint256 defender);
     event FightRequestResponded(uint256 attacker, uint256 defender, bool accepted);
@@ -17,9 +22,10 @@ contract BattleBoard {
     uint256 private _battleRequestTimeout = 500;
     
     /* Battle request queue */
-    mapping (uint256 => mapping(uint256 => uint256)) _offensiveBattleRequests; //maps attacker to defender
-    mapping (uint256 => mapping(uint256 => uint256)) _defensiveBattleRequests; //maps defneder to attacker
-
+    mapping (uint256 => mapping(uint256=>uint256)) _requestTimeouts;
+    mapping (uint256 => StructuredLinkedList.List ) _offensiveBattleRequests; //maps attacker to defender
+    mapping (uint256 => StructuredLinkedList.List ) _defensiveBattleRequests; //maps defneder to attacker
+    
     modifier onlyOwnerOf(uint256 id){
         require(cronosWarriors.ownerOf(id)==msg.sender, 'Only owner can do this!');
         _;
@@ -36,29 +42,59 @@ contract BattleBoard {
     }
     
     function _doesBattleRequestExist(uint256 attacker, uint256 defender) internal view returns(bool){
-        return _offensiveBattleRequests[attacker][defender] != 0;
+        return _offensiveBattleRequests[attacker].nodeExists(defender);
+    }
+
+    function isBattleRequestTimedOut(uint256 attacker, uint256 defender) public view returns(bool){
+        return _requestTimeouts[attacker][defender] == 0 || _requestTimeouts[attacker][defender] <= block.number;
     }
     
     function battleRequestTimeout() external view returns(uint256){
         return _battleRequestTimeout;
     }
     
+    function defensiveRequestOf(uint256 id, uint256 start, uint8 pageSize) external view returns(uint256[] memory){
+        assert(_defensiveBattleRequests[id].listExists());
+        uint256 requestCount = _defensiveBattleRequests[id].sizeOf();
+        assert(requestCount>0);
+        requestCount = pageSize < requestCount ? pageSize : requestCount; //limit request size
+        
+        uint256[] memory requests = new uint256[](requestCount);
+        bool exists;
+        uint256 next;
+        for(uint8 i=0;i<requestCount;i++){
+           (exists, ,next) = _defensiveBattleRequests[id].getNode(start); //does return exists, previous, next
+            
+           if(exists){
+                requests[i] = start;
+                start = next;
+           }else{
+               break;
+           }
+        }
+        return requests;
+    }
+    
     /** Setters */
 
     function _createBattleRequest(uint256 attacker, uint256 defender) internal {
-        uint256 timeout = block.number + _battleRequestTimeout;
-        _offensiveBattleRequests[attacker][defender] = timeout;
-        _defensiveBattleRequests[defender][attacker] = timeout;
+        require(!_doesBattleRequestExist(attacker,defender), 'Request already exists!');
+        require(attacker!=defender, "Attacker can not attack itself!");
+        
+        _offensiveBattleRequests[attacker].pushFront(defender);
+        _defensiveBattleRequests[defender].pushFront(attacker);
+        
+        _requestTimeouts[attacker][defender] = block.number + _battleRequestTimeout;
         emit FightRequested(attacker, defender);
     }
-    
+
     function _deleteBattleRequest(uint256 attacker, uint256 defender) internal {
-        delete _offensiveBattleRequests[attacker][defender];
-        delete _defensiveBattleRequests[defender][attacker];
+        require(_doesBattleRequestExist(attacker, defender), 'Request does not exist');
+         _offensiveBattleRequests[attacker].remove(defender);
+         _defensiveBattleRequests[defender].remove(attacker);
     }
     
     function challangeWarrior(uint256 attacker, uint256 defender) external onlyOwnerOf(attacker) {
-        require(attacker!=defender, "Attacker can not attack itself!");
         _createBattleRequest(attacker, defender);
     }
     
@@ -70,7 +106,7 @@ contract BattleBoard {
     
     function acceptBattleRequest(uint256 defender, uint256 attacker) external onlyOwnerOf(defender){
         require(_doesBattleRequestExist(attacker, defender), 'This battle was not requested!');
-        require(_offensiveBattleRequests[attacker][defender] > block.number, 'Battle request timed out');
+        require(!isBattleRequestTimedOut(attacker, defender), 'This request timed out');
         
         _deleteBattleRequest(attacker, defender);
         emit FightRequestResponded(attacker, defender, true);

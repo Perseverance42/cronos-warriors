@@ -15,17 +15,15 @@
 </template>
 
 <script>
-import WarriorSkillsContract from '../artifacts/WarriorSkills.json';
-import WarriorVisualsContract from '../artifacts/WarriorVisuals.json';
+import CronosWarriors from '../scripts/cronos-warriors.js';
 
   export default {
     name: 'WarriorListItem',
     props: ['warriorID'],
     methods:{
-        loadWarriorSkills(){
+        async loadWarriorSkills(){
             if(this.$wallet == null || this.$wallet.web3 == null) return; 
-            const web3 = new this.$Web3(this.$wallet.web3.currentProvider);
-            const contractInstance = new web3.eth.Contract(WarriorSkillsContract.abi, "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318");
+            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.WarriorSkills);
 
             contractInstance.methods.warriorHealth(this.warriorID).call().then(result=>{
                 if(result){
@@ -41,11 +39,10 @@ import WarriorVisualsContract from '../artifacts/WarriorVisuals.json';
                 }
             });
         },
-        loadWarriorVisuals(){
+        async loadWarriorVisuals(){
             console.log("loading name");
             if(this.$wallet == null || this.$wallet.web3 == null) return; 
-            const web3 = new this.$Web3(this.$wallet.web3.currentProvider);
-            const contractInstance = new web3.eth.Contract(WarriorVisualsContract.abi, "0x0165878A594ca255338adfa4d48449f69242Eb8F");
+            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.WarriorVisuals);
 
             contractInstance.methods.warriorName(this.warriorID).call().then(result=>{
                 if(result!== null){

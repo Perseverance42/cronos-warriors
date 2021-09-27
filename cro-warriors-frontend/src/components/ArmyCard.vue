@@ -1,6 +1,5 @@
 <template>
   <v-card>
-    <v-card-title>Army of: {{armyAddr}}</v-card-title>
     <v-list>
         <v-list-item-group
         v-model="selectedWarrior"
@@ -10,6 +9,7 @@
                 v-for="i in warriorIDs"
                 :key="i"
                 class="pa-0 ma-0"
+                @click="warriorSelected(warriorIDs[i-1])"
             >
                 <v-list-item-content  class="pa-0 ma-0"> 
                     <WarriorListItem :warriorID="warriorIDs[i-1]"/>
@@ -21,8 +21,9 @@
 </template>
 
 <script>
-import CronosWarriors from '../artifacts/CronosWarriors.json';
 import WarriorListItem from './WarriorListItem.vue';
+import CronosWarriors from '../scripts/cronos-warriors.js';
+
   export default {
     name: 'ArmyCard',
     props: ['armyAddr'],
@@ -31,9 +32,7 @@ import WarriorListItem from './WarriorListItem.vue';
         async loadArmy(){
             if(this.$wallet == null || this.$wallet.web3 == null) return; 
             
-            const web3 = new this.$Web3(this.$wallet.web3.currentProvider);
-            const contractInstance = new web3.eth.Contract(CronosWarriors.abi, "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707");
-
+            let contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.CronosWarriors);
             contractInstance.methods.balanceOf(this.armyAddr).call().then(result=>{
                 console.log("balance of addr: ", result);
                 let armySize = parseInt(result);
@@ -47,12 +46,11 @@ import WarriorListItem from './WarriorListItem.vue';
                 console.log("balanceOf error", e)
             });
         },
-        loadWarriorByOwnerIndex(address, index){
+        async loadWarriorByOwnerIndex(address, index){
             if(this.$wallet == null || this.$wallet.web3 == null) return; 
 
-            const web3 = new this.$Web3(this.$wallet.web3.currentProvider);
-            const contractInstance = new web3.eth.Contract(CronosWarriors.abi, "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707");
-
+            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.CronosWarriors);
+            console.log(contractInstance);
             contractInstance.methods.tokenOfOwnerByIndex(address, index).call().then(result=>{
                 console.log("warrior loaded: ", result);
                 this.warriorIDs.push(result);
@@ -63,15 +61,22 @@ import WarriorListItem from './WarriorListItem.vue';
         },
         isWarriorLoading(index){
             return this.warriorIDs == null || index <= this.warriorIDs.length || this.warriorIDs[index] == null;
+        },
+        warriorSelected(warriorId){
+            this.$emit('select', warriorId);
         }
     },
     watch:{
-        armyAddr: function(){
-            this.loadArmy();
+        armyAddr: function(oldVal, newVal){
+            if(oldVal!=newVal){
+                this.loadArmy();
+            }
+        },
+        selectedWarrior: function(){
+            
         }
     },
     mounted(){
-        this.loadArmy();
     },
     computed:{
     },

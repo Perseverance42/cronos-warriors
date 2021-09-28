@@ -10,10 +10,15 @@
                         <v-container>
                             <v-row><v-col>
                                 <v-btn :loading="isWaitingForWallet" v-if="!offensive" class="mx-1" color="green" fab small @click="confirmBattleRequest(warrior)"><v-icon fab>mdi-check</v-icon></v-btn>
-                                <v-btn :loading="isWaitingForWallet" class="mx-1" color="red" fab small @click="ofensive ? abortBattleRequest(warrior) : denyBattleRequest(warrior)"><v-icon >mdi-cancel</v-icon></v-btn>
+                                <v-btn :loading="isWaitingForWallet" class="mx-1" color="red" fab small @click="offensive ? abortBattleRequest(warrior) : denyBattleRequest(warrior)"><v-icon >mdi-cancel</v-icon></v-btn>
                             </v-col></v-row>
                         </v-container>
                     </WarriorListItem>
+                </v-list-item-content>
+            </v-list-item>
+            <v-list-item v-if="battleListSize<1">
+                <v-list-item-content>
+                    <span>Nothing here yet...</span>
                 </v-list-item-content>
             </v-list-item>
     </v-list>
@@ -21,7 +26,7 @@
 </template>
 
 <script>
-import CronosWarriors from '../scripts/cronos-warriors.js';
+import BattleBoard from '../scripts/battle-board.js';
 import WarriorListItem from '../components/WarriorListItem.vue';
 
   export default {
@@ -29,68 +34,49 @@ import WarriorListItem from '../components/WarriorListItem.vue';
     components:{WarriorListItem},
     props: ['warriorID', 'offensive'],
     methods:{
-        async loadDefensiveBattles(){
-            if(this.$wallet == null || this.$wallet.web3 == null) return; 
-            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.BattleBoard);
+        loadDefensiveBattles(){
             this.isWaitingForWallet = true;
-            contractInstance.methods.defensiveRequestOf(this.warriorID, 0, 20).call().then(result=>{
-                if(result){
-                    console.log("Warrior defensive battles", result);
-                    this.battleList = result;
-                    this.$emit("requestsLoaded", result);
-                    
-                }
+            BattleBoard.loadDefensiveBattles(this.warriorID,0,20).then(result=>{
+                this.battleList = result;
+                this.battleListSize = result.length; // Vue doesnt react to updates without this!
+                this.$emit("requestsLoaded", result);
                 this.isWaitingForWallet = false;
-            }).catch(error=>{
-                console.log("Failed to fetch defensive battles", error);
+            }).catch(e=>{
+                alert("Failed to fetch defensive battles " + e);
                 this.isWaitingForWallet = false;
             });
         },
-        async confirmBattleRequest(attacker){
-
-            if(this.$wallet == null || this.$wallet.web3 == null) return; 
-            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.BattleBoard);
-            
+        confirmBattleRequest(attacker){
             this.isWaitingForWallet = true;
-            contractInstance.methods.acceptBattleRequest(this.defenderID, attacker).send({from: this.$wallet.metaMaskAddress}).then(result=>{
-                if(result){
-                    console.log("Warrior battle accepted", result);
-                    this.$emit("battleConfimed", result);
-                }
+            BattleBoard.confirmBattleRequest(this.defenderID, attacker).then(result=>{
+                alert("Battle succeeded!");
+                this.$emit("battleConfirmed", result);
                 this.isWaitingForWallet = false;
-            }).catch(error=>{
-                console.log("Failed to accept battles", error);
+                setTimeout(this.loadDefensiveBattles,2000);
+            }).catch(e=>{
+                alert("Failed to confirm battle " + e);
                 this.isWaitingForWallet = false;
-            });            
+            });
         },
-        async denyBattleRequest(attacker){
-            if(this.$wallet == null || this.$wallet.web3 == null) return; 
-            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.BattleBoard);
-            
+        denyBattleRequest(attacker){
             this.isWaitingForWallet = true;
-            contractInstance.methods.denyBattleRequest(this.defenderID, attacker).send({from: this.$wallet.metaMaskAddress}).then(result=>{
-                if(result){
-                    console.log("Warrior battle denied", result);
-                    this.$emit("battleDenied", result);
-                }
+            BattleBoard.confirmBattleRequest(this.defenderID, attacker).then(result=>{
+                this.$emit("battleDenied", result);
                 this.isWaitingForWallet = false;
-            }).catch(error=>{
-                console.log("Failed to deny battle", error);
+                setTimeout(this.loadDefensiveBattles,2000);
+            }).catch(e=>{
+                alert("Failed to deny battle " + e);
                 this.isWaitingForWallet = false;
-            });            
+            });      
         },
-        async abortBattleRequest(defender){
-            if(this.$wallet == null || this.$wallet.web3 == null) return; 
-            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.BattleBoard);
-            
+        abortBattleRequest(defender){
             this.isWaitingForWallet = true;
-            contractInstance.methods.withdrawBattleRequest(this.attackerID, defender).send({from: this.$wallet.metaMaskAddress}).then(result=>{
-                if(result){
-                    console.log("Warrior battle withdrawn", result);
-                    this.$emit("battleWithdrawn", result);
-                }
+            BattleBoard.abortBattleRequest(this.attackerID, defender).then(result=>{
+                console.log("Warrior battle withdrawn", result);
+                this.$emit("battleWithdrawn", result);
                 this.isWaitingForWallet = false;
             }).catch(error=>{
+                alert("Failed to withdraw from battle!");
                 console.log("Failed to withdraw battle", error);
                 this.isWaitingForWallet = false;
             });   
@@ -127,6 +113,7 @@ import WarriorListItem from '../components/WarriorListItem.vue';
         attackerID: null,
         defenderID: null,
         battleList: null,
+        battleListSize : 0,
         selectedBattle: null,
         isWaitingForWallet: false
     }),

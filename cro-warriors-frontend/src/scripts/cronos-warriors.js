@@ -1,41 +1,127 @@
-import Web3 from 'web3';
+import Wallet from './wallet.js';
+import WarriorVisuals from './warrior-visuals.js';
+import WarriorSkills from './warrior-skills';
+import Treasury from './treasury.js';
 
-//contract imports
-const availableContracts = {
-    WarriorSkills : {
-        address : "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
-        artifact : () => import("../artifacts/WarriorSkills.json")
-    },
-    WarriorVisuals : {
-        address : "0x0165878A594ca255338adfa4d48449f69242Eb8F",
-        artifact : () => import("../artifacts/WarriorVisuals.json")
-    },
-    CronosWarriors : {
-        address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-        artifact: () => import("../artifacts/CronosWarriors.json")
-    },
-    WarriorFactory : {
-        address: "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
-        artifact: () => import("../artifacts/WarriorFactory.json")
-    },
-    Treasury:{
-        address: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
-        artifact: () => import("../artifacts/Treasury.json")
-    },
-    BattleBoard:{
-        address: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
-        artifact: () => import("../artifacts/BattleBoard.json")
-    }
-}
 
 const warriors = {
-    $Web3 : Web3,
-    contracts : availableContracts,
-    async loadContract(provider,contract){
-        const web3 = new this.$Web3(provider);
-        const artifact = await contract.artifact();
-        return new web3.eth.Contract(await artifact.abi, contract.address);
-    } 
+    loadWarriorByOwnerIndex(address, index){
+        return new Promise(function(resolve, reject) {
+            if(Wallet.$web3 == null) reject(new Error('No Wallet'));  
+        
+            Wallet.loadContract("CronosWarriors").then(contractInstance=>{
+                contractInstance.methods.tokenOfOwnerByIndex(address, index).call().then(result=>{
+                    console.log("CronosWarriors tokenOfOwnerByIndex: ", result);
+                    resolve(result);
+                }).catch(e=>{
+                    console.error("CronosWarriors tokenOfOwnerByIndex: ", e);
+                    reject(e);
+                });
+            }).catch(e=>{
+                reject(e);
+            });
+        });
+    },
+    balanceOfAddr(address){
+        return new Promise(function(resolve, reject){
+            if(Wallet.$web3 == null) reject(new Error('No Wallet')); 
+            
+            Wallet.loadContract("CronosWarriors").then(contractInstance=>{
+                contractInstance.methods.balanceOf(address).call().then(result=>{
+                    console.log("CronosWarriors balanceOf: ", result);
+                    resolve(result);
+                }).catch(e=>{
+                    console.error("CronosWarriors balanceOf: ", e)
+                    reject(e);
+                });
+            }).catch(e=>{
+                console.error("CronosWarriors balanceOf: ", e)
+                reject(e);
+            });
+        });
+    },
+    loadArmyByAddr(address){
+        return new Promise(function(resolve, reject){
+            if(Wallet.$web3 == null) reject(new Error('No Wallet')); 
+            warriors.balanceOfAddr(address).then(count=>{
+                let armySize = parseInt(count);
+                let army = new Array();
+                for(let i=0;i<armySize;i++){
+                    warriors.loadWarriorByOwnerIndex(address, i).then(id=>{
+                        army[i] = id;
+                        if(i==armySize-1){
+                            resolve(army);
+                        }
+                    }).catch(e=>{
+                        reject(e);
+                    });
+                }
+            }).catch(e=>{
+                reject(e);
+            });
+        });
+    },
+    ownerOf(warriorID){
+        return new Promise(function(resolve, reject){
+            if(Wallet.$web3 == null) reject(new Error('No Wallet')); 
+            
+            Wallet.loadContract("CronosWarriors").then(contractInstance=>{
+                contractInstance.methods.ownerOf(warriorID).call().then(result=>{
+                    console.log("CronosWarriors ownerOf: ", result);
+                    resolve(result);
+                }).catch(e=>{
+                    console.error("CronosWarriors ownerOf: ", e)
+                    reject(e);
+                });
+            }).catch(e=>{
+                console.error("CronosWarriors ownerOf: ", e)
+                reject(e);
+            });
+        });
+    },
+    loadWarriorComplete(warriorID){
+        return new Promise(function(resolve, reject){
+            if(Wallet.$web3 == null) reject(new Error('No Wallet'));
+            
+            warriors.ownerOf(warriorID).then(owner=>{
+                
+                WarriorVisuals.warriorName(warriorID).then(warriorName=>{
+                    
+                    WarriorSkills.loadWarriorSkills(warriorID).then(warriorSkills=>{
+                        
+                        WarriorSkills.loadWarriorLevel(warriorID).then(warriorLvl=>{
+                            
+                            WarriorSkills.loadWarriorHealth(warriorID).then(warriorHealth =>{
+
+                                Treasury.loadExperience(warriorID).then(exp=>{
+                                    resolve(
+                                        {
+                                        owner:owner,
+                                        name :warriorName,
+                                        level:warriorLvl,
+                                        health:warriorHealth,
+                                        skills:warriorSkills,
+                                        experience:exp
+                                        }
+                                    );
+                                }).catch(e=>{
+                                    reject(e);
+                                })                            
+                            });
+                        }).catch(e=>{
+                            reject(e);
+                        })
+                    }).catch(e=>{
+                        reject(e);
+                    })
+                }).catch(e=>{
+                    reject(e);
+                });
+            }).catch(e=>{
+                reject(e);
+            });
+        });
+    }
 }
 
 export default warriors;

@@ -14,18 +14,16 @@
 </template>
 
 <script>
+import WarriorFactory from '../scripts/warrior-factory.js';
 
-import CronosWarriors from '../scripts/cronos-warriors.js';
-  export default {
+export default {
     name: 'MintingCard',
     components:{
     },
     methods:{
         async mintWarrior(){
             this.isWaitingOnWallet = true;
-            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.WarriorFactory);
-
-            contractInstance.methods.mint(this.inWarriorName).send({from: this.$wallet.metaMaskAddress, value: "1000000000000000000"}).then(result=>{
+            WarriorFactory.mintWarrior(this.inWarriorName).then(result=>{
                 console.log("minted warrior: ", result);
                 this.$emit("warriorMinted", result.events.WarriorMinted.returnValues.id);
                 this.isWaitingOnWallet = false;

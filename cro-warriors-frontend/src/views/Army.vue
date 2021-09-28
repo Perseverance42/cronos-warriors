@@ -7,7 +7,9 @@
     </v-row>
     <v-row class="text-center" justify="center">
       <v-col cols="6">
-        <ArmyCard :armyAddr="currentArmyAddr" @select="selectWarriorDetailed($event)"/>
+        <v-sheet>
+          <ArmyList :armyAddr="currentArmyAddr" @select="selectWarriorDetailed($event)"/>
+        </v-sheet>
       </v-col>
       <v-expand-transition>
         <v-col v-if="warriorDetailed!=null">
@@ -19,12 +21,12 @@
 </template>
 
 <script>
-import ArmyCard from '../components/ArmyCard.vue';
+import ArmyList from '../components/ArmyList.vue';
 import WarriorCard from '../components/WarriorCard.vue';
 
   export default {
     name: 'Army',
-    components: {ArmyCard,WarriorCard},
+    components: {ArmyList,WarriorCard},
     methods:{
       selectWarriorDetailed(event){
         console.log("selecting", event);

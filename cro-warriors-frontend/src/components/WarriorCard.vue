@@ -1,127 +1,103 @@
 <template>
-    <v-card class="d-flex"> 
+    <v-card class="d-flex" :loading="isLoadingWarrior"> 
         <v-container>
-            <v-row><v-col><v-card-title>{{warriorName}}</v-card-title></v-col></v-row>
+            <v-row><v-col><v-card-title>{{currentWarrior.name}}</v-card-title></v-col></v-row>
             <v-card-text>
                 <v-row>
                     <!--<v-col><v-text-field type="number" label="Warrior ID" v-model="inWarriorId"></v-text-field><v-btn @click="searchWarrior()">Load</v-btn></v-col>-->
                 </v-row>
+                <v-row><v-col>Experience: {{currentWarrior.experience}}</v-col></v-row>
                 <v-row>
-                    <v-col>Level: {{warriorLevel}}</v-col>
-                    <v-col>Fights won: {{warriorStats[0]}}</v-col>
+                    <v-col>Level: {{currentWarrior.level}}</v-col>
                     </v-row>
                     <v-row>
-                        <v-col>Health: {{warriorHealth}}</v-col>
-                        <v-col>Fights lost: {{warriorStats[1]}}</v-col>
+                        <v-col>Health: {{currentWarrior.health}}</v-col>
+                       
                     </v-row>
-                <v-row><v-col>Points available: {{warriorLevel-warriorStats[2]}}</v-col></v-row> 
-                <v-row><v-col>Experience: {{warriorExperience}}</v-col></v-row>               
-                <v-row><v-col><v-btn :disabled="warriorSkills[0]==null" :loading="isWaitingOnWallet" @click="increaseSkill('attack')"> Attack: {{warriorSkills[0]}}</v-btn></v-col></v-row>
-                <v-row><v-col><v-btn :disabled="warriorSkills[1]==null" :loading="isWaitingOnWallet" @click="increaseSkill('defense')">Defense: {{warriorSkills[1]}}</v-btn></v-col></v-row>
-                <v-row><v-col><v-btn :disabled="warriorSkills[2]==null" :loading="isWaitingOnWallet" @click="increaseSkill('stamina')">Stamina: {{warriorSkills[2]}}</v-btn></v-col></v-row>
+                <v-row><v-col>Points available: {{pointsAvailable}}</v-col></v-row> 
+                <v-row>
+                    <v-col v-if="isCurrentWalletOwner">
+                        <v-row>
+                            <v-col>
+                                <v-btn class="ma-2" :disabled="currentWarrior.skills==null" :loading="isWaitingOnWallet" @click="increaseSkill('attack')">Attack: {{currentWarrior.skills[0]}}</v-btn>
+                                <v-btn class="ma-2" :disabled="currentWarrior.skills==null" :loading="isWaitingOnWallet" @click="increaseSkill('defense')">Defense: {{currentWarrior.skills[1]}}</v-btn>
+                                <v-btn class="ma-2" :disabled="currentWarrior.skills==null" :loading="isWaitingOnWallet" @click="increaseSkill('stamina')">Stamina: {{currentWarrior.skills[2]}}</v-btn>
+                            </v-col>
+                        </v-row>
+                    </v-col>
+                    <v-col v-else>
+                        <v-row>
+                            <v-col><span>Attack: {{currentWarrior.skills[0]}}</span></v-col>
+                            <v-col><span>Defense: {{currentWarrior.skills[1]}}</span></v-col>
+                            <v-col><span>Stamina: {{currentWarrior.skills[2]}}</span></v-col>
+                        </v-row>
+                    </v-col>
+                </v-row>           
+                <!--TODO add v-if="!isCurrentWalletOwner" -->
+                <v-row><v-col>
+                    <v-menu
+                        close-on-click
+                        >
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn
+                            color="red"
+                            dark
+                            v-bind="attrs"
+                            v-on="on"
+                            :loading="isWaitingOnWallet"
+                            >
+                            Challange</v-btn>
+                        </template>
+                        <v-card>
+                            <v-card-title class="text-overline">Select Warrior to attack with</v-card-title>
+                            <v-card-action><ArmyList :armyAddr="currentWallet" @select="challangeWarrior($event)"></ArmyList></v-card-action>
+                        </v-card>
+                    </v-menu>
+                </v-col></v-row>
             </v-card-text>
         </v-container>
     </v-card>
+    
 </template>
 
 <script>
 import CronosWarriors from '../scripts/cronos-warriors.js';
+import WarriorSkills from '../scripts/warrior-skills.js';
+import BattleBoard from '../scripts/battle-board.js';
+import Wallet from '../scripts/wallet.js';
+import ArmyList from '../components/ArmyList.vue';
 
   export default {
     name: 'WarriorCard',
     props: ["warriorID"],
+    components:{ArmyList},
     methods:{
-        async increaseSkill(skill){
+        increaseSkill(skill){
             this.isWaitingOnWallet = true;
-            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.WarriorSkills);
-            switch(skill){
-                case 'attack':
-                    contractInstance.methods.increaseAttack(this.warriorID).send({from: this.$wallet.metaMaskAddress}).then(result=>{
-                        console.log("attack increase: ", result);
-                        setTimeout(this.loadWarrior, 2000);
-                        this.isWaitingOnWallet = false;
-                    }).catch(e=>{
-                        alert("Failed to increase attack!");
-                        console.log("attack increase error", e);
-                        this.isWaitingOnWallet = false;
-                    });
-                    break;
-                case 'defense':
-                    contractInstance.methods.increaseDefense(this.warriorID).send({from: this.$wallet.metaMaskAddress}).then(result=>{
-                        console.log("defense increase: ", result);
-                        setTimeout(this.loadWarrior, 2000);
-                        this.isWaitingOnWallet = false;
-                    }).catch(e=>{
-                        alert("Failed to increase defense!");
-                        console.log("defense increase error", e);
-                        this.isWaitingOnWallet = false;
-                    });
-                    break;
-                case 'stamina':
-                    contractInstance.methods.increaseStamina(this.warriorID).send({from: this.$wallet.metaMaskAddress}).then(result=>{
-                        console.log("stamina increase: ", result);
-                        setTimeout(this.loadWarrior, 2000);
-                        this.isWaitingOnWallet = false;
-                    }).catch(e=>{
-                        alert("Failed to increase stamina!");
-                        console.log("stamina increase error", e);
-                        this.isWaitingOnWallet = false;
-                    });
-                    break;
-            }
-        },
-        async loadWarriorSkills(){
-            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.WarriorSkills);
-
-            contractInstance.methods.warriorSkills(this.warriorID).call().then(result=>{
-                if(result!== null){
-                    console.log("Warrior result", result);
-                    this.warriorSkills = result;
-                }
-            });
-
-            contractInstance.methods.warriorHealth(this.warriorID).call().then(result=>{
-                if(result){
-                    console.log("Warrior result", result);
-                    this.warriorHealth = result;
-                }
-            });
-
-            contractInstance.methods.warriorLevel(this.warriorID).call().then(result=>{
-                if(result){
-                    console.log("Warrior result", result);
-                    this.warriorLevel = result;
-                }
+            WarriorSkills.increaseSkill(this.warriorID, skill).then(result=>{
+                console.log("successfully increased skill!", result);
+            }).catch(e=>{
+                alert("Failed to increase stat", e);
             });
         },
-        async loadWarriorVisuals(){
-            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.WarriorVisuals);
-
-            contractInstance.methods.warriorName(this.warriorID).call().then(result=>{
-                if(result!== null){
-                    console.log("Warrior result", result);
-                    this.warriorName = result;
-                }
+        loadWarriorFully(){
+            this.isLoadingWarrior = true;
+            CronosWarriors.loadWarriorComplete( this.warriorID ).then(warrior=>{
+                this.currentWarrior = warrior;
+                this.$emit("warriorLoaded");
+                this.isLoadingWarrior = false;
+            }).catch(e=>{
+                alert("Failed to load warrior " + this.warriorID + ": " + e);
+                this.isLoadingWarrior = false;
             });
         },
-        async loadWarriorExperience(){
-            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.Treasury);
-
-            contractInstance.methods.experience(this.warriorID).call().then(result=>{
-                if(result!== null){
-                    console.log("Warrior ep", result);
-                    this.warriorExperience = CronosWarriors.$Web3.utils.toBN(result);
-                }
+        challangeWarrior(attacker){
+            BattleBoard.challangeWarrior(attacker, this.warriorID).then(result=>{
+                console.log("Warrior was challanged!", result);
+                setTimeout(this.loadWarriorFully, 1000);
+            }).catch(e =>{
+                alert("Failed to challange warrior! " + e);
             });
-        },
-        async loadWarriorFully(){
-            let skills = this.loadWarriorSkills();
-            let visuals = this.loadWarriorVisuals();
-            let ep = this.loadWarriorExperience();
-            await skills;
-            await visuals;
-            await ep;
-            this.$emit("warriorLoaded");
         }
     },
     mounted(){
@@ -135,16 +111,27 @@ import CronosWarriors from '../scripts/cronos-warriors.js';
         }
     },
     computed:{
-        
+        isCurrentWalletOwner(){
+            return this.currentWarrior != null && this.currentWarrior.owner !=null && this.currentWarrior.owner.toLowerCase() === Wallet.$currentWalletAddr;
+        },
+        currentWallet(){
+            return Wallet.$currentWalletAddr;
+        },
+        pointsAvailable(){
+            return (this.currentWarrior.level || 0) - (this.currentWarrior.skills!= null && this.currentWarrior.skills[0] || 0)
+        }
     },
     data: () => ({
         inWarriorId: null,
-        warriorName: "Unkown",
-        warriorLevel: 0,
-        warriorHealth: 0,
-        warriorExperience: 0,
-        warriorSkills: [null,null,null],
-        warriorStats: [null,null,null],
+        currentWarrior: {
+            owner:null,
+            name :null,
+            level:null,
+            health:null,
+            skills:null,
+            experience:null,
+        },
+        isLoadingWarrior: false,
         isWaitingOnWallet : false
     }),
   }

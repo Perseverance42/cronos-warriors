@@ -40,6 +40,8 @@
 <script>
 import VueMetamask from 'vue-metamask';
 import BattleBoard from './artifacts/BattleBoard.json';
+import CronosWarriors from './scripts/cronos-warriors.js';
+import Wallet from './scripts/wallet.js';
 
 export default {
   name: 'App',
@@ -74,9 +76,10 @@ export default {
       this.defenderId = id;
     }
     ,async onMMComplete(data){
-      await data.web3;
-      await data.web3.currentProvider;
       this.$wallet = data;    
+      CronosWarriors.$web3 = data.web3;
+      CronosWarriors.$currentWalletAddr = data.metaMaskAddress;
+      Wallet.injectWallet(data.web3, data.metaMaskAddress);
     }
   },watch:{
     '$wallet' : function(){

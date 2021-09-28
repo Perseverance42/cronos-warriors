@@ -106,7 +106,7 @@ async function main() {
   const BattleBoard = await hre.ethers.getContractFactory("BattleBoard");
   const battleBoard = await BattleBoard.deploy(warriors.address, combatModule.address);
   await battleBoard.deployed();
-  console.log("BattleBoard deployed @"+warriorSkills.address);
+  console.log("BattleBoard deployed @"+battleBoard.address);
   
   const WarriorFactory = await hre.ethers.getContractFactory("WarriorFactory");
   const warriorFactory = await WarriorFactory.deploy(warriors.address, warriorSkills.address, warriorStats.address, warriorVisuals.address, treasury.address);
@@ -173,6 +173,9 @@ async function main() {
   let battleRequest = await battleBoard.challangeWarrior(1,2);
   await battleRequest.wait();
 
+  let inBattle = await battleBoard.doesBattleRequestExist(1,2);
+  expect(inBattle).to.equal(true);
+
   battleRequest = await battleBoard.challangeWarrior(3,2);
   await battleRequest.wait();
 
@@ -215,6 +218,10 @@ async function main() {
 
   battleRequest = await battleBoard.doesBattleRequestExist(1,2);
   expect(battleRequest).to.equal(false);
+
+  battleRequestList = await battleBoard.defensiveRequestOf(2,0,10);
+  console.log(battleRequestList);
+  expect(battleRequestList[0].toNumber()).to.equal(3);
 
   console.log("Battle request was successfully denied");
 

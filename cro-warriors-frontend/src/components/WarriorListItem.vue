@@ -5,50 +5,43 @@
                 <div v-if="!isLoading" class="">
                     <v-list-item-title>{{warriorName}} #{{warriorID}}</v-list-item-title>
                     <v-list-item-subtitle> Level: {{warriorLevel}} | Health: {{warriorHealth}}</v-list-item-subtitle>
+                    
                 </div>
                 <div v-else class="my-4">
                     #{{warriorID}} Pending...
                 </div>
             </v-card>
         </v-list-item-content>
+        <v-list-item-action v-if="hasSlot"><slot></slot></v-list-item-action>
   </v-list-item>
 </template>
 
 <script>
-import CronosWarriors from '../scripts/cronos-warriors.js';
+import WarriorSkills from '../scripts/warrior-skills.js';
+import WarriorVisuals from '../scripts/warrior-visuals.js';
 
   export default {
     name: 'WarriorListItem',
     props: ['warriorID'],
     methods:{
-        async loadWarriorSkills(){
-            if(this.$wallet == null || this.$wallet.web3 == null) return; 
-            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.WarriorSkills);
-
-            contractInstance.methods.warriorHealth(this.warriorID).call().then(result=>{
-                if(result){
-                    console.log("Warrior health", result);
-                    this.warriorHealth = result;
-                }
+        loadWarriorSkills(){
+            WarriorSkills.loadWarriorHealth(this.warriorID).then(health=>{
+                this.warriorHealth = health;
+            }).catch(e=>{
+                alert("Failed to load warrior healht " + e);
             });
 
-            contractInstance.methods.warriorLevel(this.warriorID).call().then(result=>{
-                if(result){
-                    console.log("Warrior level", result);
-                    this.warriorLevel = result;
-                }
+            WarriorSkills.loadWarriorLevel(this.warriorID).then(level=>{
+                this.warriorLevel = level;
+            }).catch(e=>{
+                alert("Failed to load warrior healht " + e);
             });
         },
-        async loadWarriorVisuals(){
-            console.log("loading name");
-            if(this.$wallet == null || this.$wallet.web3 == null) return; 
-            const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.WarriorVisuals);
-
-            contractInstance.methods.warriorName(this.warriorID).call().then(result=>{
-                if(result!== null){
-                    console.log("Warrior result", result);
-                    this.warriorName = result;
-                }
+        loadWarriorVisuals(){
+            WarriorVisuals.warriorName(this.warriorID).then(name=>{
+                this.warriorName = name;
+            }).catch(e=>{
+                alert("Failed to load warrior name " + e);
             });
         }
     },
@@ -67,6 +60,9 @@ import CronosWarriors from '../scripts/cronos-warriors.js';
     computed: {
         isLoading(){
             return this.warriorName == null || this.warriorLevel == null || this.warriorHealth == null;
+        },
+        hasSlot(){
+            return !!this.$slots[ 'default' ] || !!this.$scopedSlots[ 'default' ];
         }
     },
     data: () => ({

@@ -21,6 +21,10 @@ const availableContracts = {
     Treasury:{
         address: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
         artifact: () => import("../artifacts/Treasury.json")
+    },
+    BattleBoard:{
+        address: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+        artifact: () => import("../artifacts/BattleBoard.json")
     }
 }
 

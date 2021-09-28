@@ -86,7 +86,8 @@ async function main() {
   const WarriorSkills = await hre.ethers.getContractFactory("WarriorSkills", {
     libraries: {
       SkillsLib: skillsLib.address,
-      Compute: computelib.address
+      Compute: computelib.address,
+      Math: mathlib.address
     },
   });
   const warriorSkills = await WarriorSkills.deploy( warriors.address, treasury.address );
@@ -101,18 +102,23 @@ async function main() {
   });
   const combatModule = await CombatModule.deploy(warriorSkills.address, warriorStats.address, treasury.address);
   await combatModule.deployed();
-  console.log("Combat Module deployed @"+combatModule.address);
+  console.log("Combat Module deployed to:"+combatModule.address);
   
   const BattleBoard = await hre.ethers.getContractFactory("BattleBoard");
   const battleBoard = await BattleBoard.deploy(warriors.address, combatModule.address);
   await battleBoard.deployed();
-  console.log("BattleBoard deployed @"+battleBoard.address);
+  console.log("BattleBoard deployed to: "+battleBoard.address);
   
   const WarriorFactory = await hre.ethers.getContractFactory("WarriorFactory");
   const warriorFactory = await WarriorFactory.deploy(warriors.address, warriorSkills.address, warriorStats.address, warriorVisuals.address, treasury.address);
   await warriorFactory.deployed();
-  console.log("Warrior Factory deployed to:", warriorFactory.address);
+  console.log("Warrior Factory deployed to: ", warriorFactory.address);
   
+
+  const WarriorProxy = await hre.ethers.getContractFactory("WarriorProxy");
+  const warriorProxy = await WarriorProxy.deploy(warriors.address, treasury.address, warriorFactory.address, warriorSkills.address, warriorStats.address, warriorVisuals.address);
+  await warriorProxy.deployed();
+  console.log("Warrior Proxy deployed to: ", warriorFactory.address);
     /**
      * 
      * Deployments done 
@@ -169,6 +175,10 @@ async function main() {
   exp = await treasury.experience(3);
   expect(exp.toString()).to.equal("1000000000000000000");
   console.log("Minted third Warrior");
+
+
+  let warriorData = await warriorProxy.warriorData(1);
+  console.log(warriorData);
 
   let battleRequest = await battleBoard.challangeWarrior(1,2);
   await battleRequest.wait();

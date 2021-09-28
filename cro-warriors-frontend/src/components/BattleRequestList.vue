@@ -10,7 +10,7 @@
                         <v-container>
                             <v-row><v-col>
                                 <v-btn :loading="isWaitingForWallet" v-if="!offensive" class="mx-1" color="green" fab small @click="confirmBattleRequest(warrior)"><v-icon fab>mdi-check</v-icon></v-btn>
-                                <v-btn :loading="isWaitingForWallet" class="mx-1" color="red" fab small @click="ofensive ? withdrawBattleRequest(warrior) : denyBattleRequest(warrior)"><v-icon >mdi-cancel</v-icon></v-btn>
+                                <v-btn :loading="isWaitingForWallet" class="mx-1" color="red" fab small @click="ofensive ? abortBattleRequest(warrior) : denyBattleRequest(warrior)"><v-icon >mdi-cancel</v-icon></v-btn>
                             </v-col></v-row>
                         </v-container>
                     </WarriorListItem>

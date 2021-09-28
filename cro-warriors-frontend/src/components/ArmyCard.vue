@@ -12,7 +12,7 @@
                 @click="warriorSelected(warriorIDs[i-1])"
             >
                 <v-list-item-content  class="pa-0 ma-0"> 
-                    <WarriorListItem :warriorID="warriorIDs[i-1]"/>
+                    <WarriorListItem :warriorID="warriorIDs[i-1]"></WarriorListItem>
                 </v-list-item-content>
             </v-list-item>
         </v-list-item-group>     

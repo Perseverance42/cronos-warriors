@@ -5,12 +5,14 @@
                 <div v-if="!isLoading" class="">
                     <v-list-item-title>{{warriorName}} #{{warriorID}}</v-list-item-title>
                     <v-list-item-subtitle> Level: {{warriorLevel}} | Health: {{warriorHealth}}</v-list-item-subtitle>
+                    
                 </div>
                 <div v-else class="my-4">
                     #{{warriorID}} Pending...
                 </div>
             </v-card>
         </v-list-item-content>
+        <v-list-item-action v-if="hasSlot"><slot></slot></v-list-item-action>
   </v-list-item>
 </template>
 
@@ -40,15 +42,16 @@ import CronosWarriors from '../scripts/cronos-warriors.js';
             });
         },
         async loadWarriorVisuals(){
-            console.log("loading name");
             if(this.$wallet == null || this.$wallet.web3 == null) return; 
             const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.WarriorVisuals);
 
             contractInstance.methods.warriorName(this.warriorID).call().then(result=>{
-                if(result!== null){
+                if(result){
                     console.log("Warrior result", result);
                     this.warriorName = result;
                 }
+            }).catch(error=>{
+                console.log(error);
             });
         }
     },
@@ -67,6 +70,9 @@ import CronosWarriors from '../scripts/cronos-warriors.js';
     computed: {
         isLoading(){
             return this.warriorName == null || this.warriorLevel == null || this.warriorHealth == null;
+        },
+        hasSlot(){
+            return !!this.$slots[ 'default' ] || !!this.$scopedSlots[ 'default' ];
         }
     },
     data: () => ({

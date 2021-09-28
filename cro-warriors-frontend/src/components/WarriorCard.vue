@@ -6,6 +6,7 @@
                 <v-row>
                     <!--<v-col><v-text-field type="number" label="Warrior ID" v-model="inWarriorId"></v-text-field><v-btn @click="searchWarrior()">Load</v-btn></v-col>-->
                 </v-row>
+                <v-row><v-col>Experience: {{warriorExperience}}</v-col></v-row>
                 <v-row>
                     <v-col>Level: {{warriorLevel}}</v-col>
                     <v-col>Fights won: {{warriorStats[0]}}</v-col>
@@ -15,10 +16,11 @@
                         <v-col>Fights lost: {{warriorStats[1]}}</v-col>
                     </v-row>
                 <v-row><v-col>Points available: {{warriorLevel-warriorStats[2]}}</v-col></v-row> 
-                <v-row><v-col>Experience: {{warriorExperience}}</v-col></v-row>               
+                
                 <v-row><v-col><v-btn :disabled="warriorSkills[0]==null" :loading="isWaitingOnWallet" @click="increaseSkill('attack')"> Attack: {{warriorSkills[0]}}</v-btn></v-col></v-row>
                 <v-row><v-col><v-btn :disabled="warriorSkills[1]==null" :loading="isWaitingOnWallet" @click="increaseSkill('defense')">Defense: {{warriorSkills[1]}}</v-btn></v-col></v-row>
                 <v-row><v-col><v-btn :disabled="warriorSkills[2]==null" :loading="isWaitingOnWallet" @click="increaseSkill('stamina')">Stamina: {{warriorSkills[2]}}</v-btn></v-col></v-row>
+                <v-row v-if="!isCurrentWalletOwner"><v-col><v-btn color="red" @click="challangeWarrior">Challange</v-btn></v-col></v-row>     
             </v-card-text>
         </v-container>
     </v-card>
@@ -114,14 +116,26 @@ import CronosWarriors from '../scripts/cronos-warriors.js';
                 }
             });
         },
+        async loadWarriorOwnership(){
+             const contractInstance = await CronosWarriors.loadContract(this.$wallet.web3.currentProvider, CronosWarriors.contracts.CronosWarriors);
+
+            contractInstance.methods.ownerOf(this.warriorID).call().then(result=>{
+                if(result!== null){
+                    console.log("Warrior owner", result);
+                    this.warriorOwner = result.toLowerCase();
+                }
+            });
+        },
         async loadWarriorFully(){
-            let skills = this.loadWarriorSkills();
-            let visuals = this.loadWarriorVisuals();
-            let ep = this.loadWarriorExperience();
-            await skills;
-            await visuals;
-            await ep;
-            this.$emit("warriorLoaded");
+            this.loadWarriorSkills();
+            this.loadWarriorVisuals();
+            this.loadWarriorExperience();
+            this.loadWarriorOwnership();
+            
+            this.$emit("warriorLoad");
+        },
+        async challangeWarrior(){
+            alert('TBA');
         }
     },
     mounted(){
@@ -135,7 +149,9 @@ import CronosWarriors from '../scripts/cronos-warriors.js';
         }
     },
     computed:{
-        
+        isCurrentWalletOwner(){
+            return this.warriorOwner !== null && this.$wallet.metaMaskAddress == this.warriorOwner;
+        }
     },
     data: () => ({
         inWarriorId: null,
@@ -145,6 +161,7 @@ import CronosWarriors from '../scripts/cronos-warriors.js';
         warriorExperience: 0,
         warriorSkills: [null,null,null],
         warriorStats: [null,null,null],
+        warriorOwner: null,
         isWaitingOnWallet : false
     }),
   }

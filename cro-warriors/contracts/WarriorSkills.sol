@@ -20,8 +20,8 @@ contract WarriorSkills is Modular {
         _;
     }
     
-    modifier pointsAvailable(uint256 id){
-        //TODO check if points are available from compute Lib
+    modifier hasSpendablePoints(uint256 id){
+        require(pointsAvailable(id)>0, 'No skillpoints available!');
         _;
     }
     
@@ -60,7 +60,7 @@ contract WarriorSkills is Modular {
         return Compute.warriorHealth(warriorExperience(id), _skills[id].stamina);
     }
     
-    function warriorLevel(uint256 id) external view returns(uint256){
+    function warriorLevel(uint256 id) public view returns(uint256){
         return Compute.warriorLevel(warriorExperience(id));
     }
     
@@ -68,22 +68,26 @@ contract WarriorSkills is Modular {
         return treasury.experience(id);
     }
     
+    function pointsAvailable(uint256 id) public view returns(uint256){
+        return Math.secMinus(warriorLevel(id),_skills[id].pointsSpend);
+    }
+    
     /* Setters */
     function _increasePointsSpend(uint256 id) internal {
         _skills[id].pointsSpend = _skills[id].pointsSpend + 1;
     }
     
-    function increaseAttack(uint256 id) external warriorOwnerOnly(id) pointsAvailable(id){
+    function increaseAttack(uint256 id) external warriorOwnerOnly(id) hasSpendablePoints(id){
         _skills[id].attack = _skills[id].attack + 1;
         _increasePointsSpend(id);
     }
     
-    function increaseDefense(uint256 id) external warriorOwnerOnly(id) pointsAvailable(id){
+    function increaseDefense(uint256 id) external warriorOwnerOnly(id) hasSpendablePoints(id){
         _skills[id].defense = _skills[id].defense + 1;
         _increasePointsSpend(id);
     }
     
-    function increaseStamina(uint256 id) external warriorOwnerOnly(id) pointsAvailable(id){
+    function increaseStamina(uint256 id) external warriorOwnerOnly(id) hasSpendablePoints(id){
         _skills[id].stamina = _skills[id].stamina + 1;
         _increasePointsSpend(id);
     }

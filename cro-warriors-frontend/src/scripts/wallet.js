@@ -1,4 +1,7 @@
 import Web3 from 'web3';
+import VueWeb3 from 'vue-web3';
+import Vue from 'vue';
+
 
 const availableContracts = {
     "WarriorSkills" : {
@@ -24,6 +27,14 @@ const availableContracts = {
     "BattleBoard":{
         address: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
         artifact: () => import("../artifacts/BattleBoard.json")
+    },
+    "WarriorStats":{
+        address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+        artifact: () => import("../artifacts/WarriorStats.json")
+    },
+    "WarriorProxy":{
+        address: "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
+        artifact: () => import("../artifacts/WarriorProxy.json")
     }
 }
 
@@ -36,6 +47,7 @@ const wallet = {
         wallet._cachedContracts = {};
         wallet.$web3 = web3;
         wallet.$currentWalletAddr = walletAddr;
+        Vue.use(VueWeb3, {web3: new Web3(web3.currentProvider)} );
     },
     isReady(){
         return wallet.$web3 !== null;

@@ -40,7 +40,7 @@ contract Treasury is Modular {
     }
     
     //gets accessed by CombatModule
-    function swapExperienceFor(uint256 winner, uint256 loser) external onlyModules(){
+    function swapExperienceFor(uint256 winner, uint256 loser) external onlyModules() returns(uint256){
         uint256 expToSwap = Compute.experienceToSwap(_experience[winner], _experience[loser]);
         uint256 battleTax = expToSwap / 1000; //TODO check if this works for small numbers. if (x < 1000)/1000 = 0 then it is fine ...
         
@@ -53,6 +53,7 @@ contract Treasury is Modular {
         _increaseReserve(battleTax);
         _experience[winner] = _experience[winner] + expToSwap;
         _experience[loser]  = _experience[loser]  - expToSwap;
+        return expToSwap;
     }
     
     //gets accessed by WarriorFactory

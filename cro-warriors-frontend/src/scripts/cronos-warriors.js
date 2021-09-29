@@ -1,8 +1,4 @@
 import Wallet from './wallet.js';
-import WarriorVisuals from './warrior-visuals.js';
-import WarriorSkills from './warrior-skills';
-import Treasury from './treasury.js';
-
 
 const warriors = {
     loadWarriorByOwnerIndex(address, index){
@@ -75,49 +71,6 @@ const warriors = {
                 });
             }).catch(e=>{
                 console.error("CronosWarriors ownerOf: ", e)
-                reject(e);
-            });
-        });
-    },
-    loadWarriorComplete(warriorID){
-        return new Promise(function(resolve, reject){
-            if(Wallet.$web3 == null) reject(new Error('No Wallet'));
-            
-            warriors.ownerOf(warriorID).then(owner=>{
-                
-                WarriorVisuals.warriorName(warriorID).then(warriorName=>{
-                    
-                    WarriorSkills.loadWarriorSkills(warriorID).then(warriorSkills=>{
-                        
-                        WarriorSkills.loadWarriorLevel(warriorID).then(warriorLvl=>{
-                            
-                            WarriorSkills.loadWarriorHealth(warriorID).then(warriorHealth =>{
-
-                                Treasury.loadExperience(warriorID).then(exp=>{
-                                    resolve(
-                                        {
-                                        owner:owner,
-                                        name :warriorName,
-                                        level:warriorLvl,
-                                        health:warriorHealth,
-                                        skills:warriorSkills,
-                                        experience:exp
-                                        }
-                                    );
-                                }).catch(e=>{
-                                    reject(e);
-                                })                            
-                            });
-                        }).catch(e=>{
-                            reject(e);
-                        })
-                    }).catch(e=>{
-                        reject(e);
-                    })
-                }).catch(e=>{
-                    reject(e);
-                });
-            }).catch(e=>{
                 reject(e);
             });
         });

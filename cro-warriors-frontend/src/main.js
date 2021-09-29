@@ -1,23 +1,20 @@
 import Vue from 'vue';
 import App from './App.vue';
 import vuetify from './plugins/vuetify';
-import Web3 from 'web3';
+import Wallet from './scripts/wallet.js';
 
 Vue.config.productionTip = false
-Vue.prototype.$Web3 = Web3;
 
 //router
 import Router from 'vue-router';
-import router from './plugins/router'
+import router from './plugins/router';
 
-const wallet = Vue.observable({wallet:null});
+const wallet = Vue.observable({wallet:Wallet});
 
 Object.defineProperty(Vue.prototype, '$wallet', {
   get(){return wallet.wallet},
   set(value){wallet.wallet=value}
 })
-
-Vue.prototype.$wallet = "cake";
 Vue.use(Router)
 new Vue({
   vuetify,

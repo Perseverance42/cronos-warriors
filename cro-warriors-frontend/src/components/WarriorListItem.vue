@@ -17,44 +17,24 @@
 </template>
 
 <script>
-import WarriorSkills from '../scripts/warrior-skills.js';
-import WarriorVisuals from '../scripts/warrior-visuals.js';
-
   export default {
     name: 'WarriorListItem',
     props: ['warriorID'],
     methods:{
-        loadWarriorSkills(){
-            WarriorSkills.loadWarriorHealth(this.warriorID).then(health=>{
-                this.warriorHealth = health;
-            }).catch(e=>{
-                alert("Failed to load warrior healht " + e);
-            });
-
-            WarriorSkills.loadWarriorLevel(this.warriorID).then(level=>{
-                this.warriorLevel = level;
-            }).catch(e=>{
-                alert("Failed to load warrior healht " + e);
-            });
-        },
-        loadWarriorVisuals(){
-            WarriorVisuals.warriorName(this.warriorID).then(name=>{
-                this.warriorName = name;
-            }).catch(e=>{
-                alert("Failed to load warrior name " + e);
-            });
+        async bindCalls(){
+            this.$bindCall('warriorName', {contract: await this.$wallet.loadContract("WarriorVisuals"), method: 'warriorName', args:[this.warriorID]});
+            this.$bindCall('warriorLevel', {contract: await this.$wallet.loadContract("WarriorSkills"), method: 'warriorLevel', args:[this.warriorID]});
+            this.$bindCall('warriorHealth', {contract: await this.$wallet.loadContract("WarriorSkills"), method: 'warriorHealth', args:[this.warriorID]});
         }
     },
     watch:{
         "warriorID": function(){
-            this.loadWarriorSkills();
-            this.loadWarriorVisuals();
+            this.bindCalls();
         }
     },
     mounted(){
         if(this.warriorID!=null){
-            this.loadWarriorSkills();
-            this.loadWarriorVisuals();
+            this.bindCalls();
         }
     },
     computed: {

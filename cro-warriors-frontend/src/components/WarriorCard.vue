@@ -16,17 +16,17 @@
                     <v-col v-if="isCurrentWalletOwner">
                         <v-row>
                             <v-col>
-                                <v-btn class="ma-2" :disabled="pointsAvailable<1" :loading="isWaitingOnWallet" @click="increaseSkill('attack')">Attack: {{skills==null?'':skills[0]}}</v-btn>
-                                <v-btn class="ma-2" :disabled="pointsAvailable<1" :loading="isWaitingOnWallet" @click="increaseSkill('defense')">Defense: {{skills==null?'':skills[1]}}</v-btn>
-                                <v-btn class="ma-2" :disabled="pointsAvailable<1" :loading="isWaitingOnWallet" @click="increaseSkill('stamina')">Stamina: {{skills==null?'':skills[2]}}</v-btn>
+                                <v-btn class="ma-2" :disabled="pointsAvailable<1" :loading="isWaitingOnWallet" @click="increaseSkill('attack')">Attack: {{skills==null?'':skills[1]}}</v-btn>
+                                <v-btn class="ma-2" :disabled="pointsAvailable<1" :loading="isWaitingOnWallet" @click="increaseSkill('defense')">Defense: {{skills==null?'':skills[2]}}</v-btn>
+                                <v-btn class="ma-2" :disabled="pointsAvailable<1" :loading="isWaitingOnWallet" @click="increaseSkill('stamina')">Stamina: {{skills==null?'':skills[3]}}</v-btn>
                             </v-col>
                         </v-row>
                     </v-col>
                     <v-col v-else>
                         <v-row>
-                            <v-col><span>Attack: {{skills==null?'': skills[0]}}</span></v-col>
-                            <v-col><span>Defense: {{skills==null?'': skills[1]}}</span></v-col>
-                            <v-col><span>Stamina: {{skills==null?'':skills[2]}}</span></v-col>
+                            <v-col><span>Attack: {{skills==null?'': skills[1]}}</span></v-col>
+                            <v-col><span>Defense: {{skills==null?'': skills[2]}}</span></v-col>
+                            <v-col><span>Stamina: {{skills==null?'':skills[3]}}</span></v-col>
                         </v-row>
                     </v-col>
                 </v-row>           
@@ -119,7 +119,7 @@ import ArmyList from '../components/ArmyList.vue';
             return this.$wallet.$currentWalletAddr;
         },
         pointsAvailable(){
-            return this.skills==null ? 0 : this.skills[3];
+            return this.skills==null ? 0 : this.level - this.skills[0];
         },
         isWarriorLoaded(){
             return true && this.owner && this.name && this.skills && this.stats && this.level && this.health && this.experience;

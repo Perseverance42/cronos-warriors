@@ -31,6 +31,10 @@ contract WarriorStats is Modular {
         return _stats[id];
     }
     
+    function warriorStats(uint256 id) external view returns(uint256, uint256){
+        return (_stats[id].battlesWon, _stats[id].battlesLost);
+    }
+
     /* Setters */
     function increaseBattleStats(uint256 winner, uint256 loser) external onlyModules(){
         _stats[winner].battlesWon = _stats[winner].battlesWon + 1;

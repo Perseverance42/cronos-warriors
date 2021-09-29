@@ -49,9 +49,9 @@ contract WarriorSkills is Modular {
         return _skills[id];
     }
     
-    function warriorSkills(uint256 id) external view returns (uint256, uint256, uint256){
+    function warriorSkills(uint256 id) external view returns (uint256, uint256, uint256, uint256){
         SkillsLib.Skills memory s = _skills[id];
-        return ( s.attack, s.defense, s.stamina );
+        return (s.pointsSpend, s.attack, s.defense, s.stamina );
     }
     
     /* Computed views */

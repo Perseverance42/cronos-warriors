@@ -9,8 +9,7 @@ import '../lib/Compute.sol';
 
 contract CombatModule is Modular{
     
-    event FightStarted(uint256 attacker, uint256 defender);
-    event FightDone(uint256 winner, uint256 loser);
+    event FightDone(uint256 indexed winner, uint256 indexed loser, uint256 epSwapped);
     
     /* Modules which get accessed */
     WarriorSkills public warriorSkills;
@@ -50,8 +49,6 @@ contract CombatModule is Modular{
         _activeFights[w1] = true;
         _activeFights[w2] = true;
         
-        emit FightStarted(w1, w2);
-        
         //combat starting state
         uint256 r = Math.rand();
         
@@ -74,11 +71,11 @@ contract CombatModule is Modular{
         }
         
         //do experience swap in treasury
-        treasury.swapExperienceFor(attacker==0 ? w1 : w2, attacker==0 ? w2 : w1);
+        uint256 epSwapped = treasury.swapExperienceFor(attacker==0 ? w1 : w2, attacker==0 ? w2 : w1);
         warriorStats.increaseBattleStats(attacker==0 ? w1 : w2, attacker==0 ? w2 : w1);
         
         delete _activeFights[w1];
         delete _activeFights[w2];
-        emit FightDone(attacker, defender);
+        emit FightDone(attacker, defender, epSwapped);
     }
 }

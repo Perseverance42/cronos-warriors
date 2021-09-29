@@ -11,9 +11,9 @@ contract BattleBoard {
     uint8 private constant maxDefensiveRequests = 20;
 
     /* Events */
-    event FightRequested(uint256 attacker, uint256 defender);
-    event FightRequestResponded(uint256 attacker, uint256 defender, bool accepted);
-    event FightRequestWithdrawn(uint256 attacker, uint256 defender);
+    event FightRequested(uint256 indexed attacker, uint256 indexed defender);
+    event FightRequestResponded(uint256 indexed attacker, uint256 indexed defender, bool accepted);
+    event FightRequestWithdrawn(uint256 indexed attacker, uint256 indexed defender);
     
     /* Modules which get accessed */
     CronosWarriors public cronosWarriors;

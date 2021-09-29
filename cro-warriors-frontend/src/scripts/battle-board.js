@@ -3,20 +3,6 @@ import Wallet from './wallet.js';
 const contractKey = "BattleBoard";
 
 const battleBoard = {
-    loadDefensiveBattles(warriorID, start, size){
-        return new Promise(function(resolve,reject){
-            if(!Wallet.isReady()) reject(new Error('No Wallet'));  
-            Wallet.loadContract(contractKey).then(contractInstance=>{
-                contractInstance.methods.defensiveRequestOf(warriorID, start, size).call().then(result=>{
-                    resolve(result);
-                }).catch(e=>{
-                    reject(e);
-                });
-            }).catch(e=>{
-                reject(e);
-            });
-        });
-    },
     challangeWarrior(attackerID, defenderID){
         return new Promise(function(resolve,reject){
             if(!Wallet.isReady()) reject(new Error('No Wallet'));  

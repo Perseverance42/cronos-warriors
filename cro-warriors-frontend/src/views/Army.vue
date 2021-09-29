@@ -29,13 +29,13 @@ import WarriorCard from '../components/WarriorCard.vue';
     components: {ArmyList,WarriorCard},
     methods:{
       selectWarriorDetailed(event){
-        console.log("selecting", event);
         this.warriorDetailed = event;
+        this.$emit("select", event);
       }
     },
     mounted(){
       if(this.currentArmyAddr==null){
-        this.inWalletAddr = this.$wallet.metaMaskAddress;
+        this.inWalletAddr = this.$wallet.$currentWalletAddr;
       }
     },
     watch:{
@@ -43,6 +43,9 @@ import WarriorCard from '../components/WarriorCard.vue';
         if(this.inWalletAddr != null && this.inWalletAddr.length == 42 && this.inWalletAddr != this.currentArmyAddr){
           this.currentArmyAddr = this.inWalletAddr;
         }
+      },
+      "$wallet": function(){
+        this.currentArmyAddr = this.$wallet.$currentWalletAddr;
       }
     },
     data: () => ({

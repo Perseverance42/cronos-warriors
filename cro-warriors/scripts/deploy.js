@@ -85,6 +85,7 @@ async function main() {
   
   const WarriorSkills = await hre.ethers.getContractFactory("WarriorSkills", {
     libraries: {
+      Math: mathlib.address,
       SkillsLib: skillsLib.address,
       Compute: computelib.address
     },
@@ -96,7 +97,7 @@ async function main() {
   const CombatModule = await hre.ethers.getContractFactory("CombatModule", {
     libraries: {
       Math: mathlib.address,
-      Compute: computelib.address
+      Compute: computelib.address  
     },
   });
   const combatModule = await CombatModule.deploy(warriorSkills.address, warriorStats.address, treasury.address);

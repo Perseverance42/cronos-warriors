@@ -2,10 +2,10 @@ pragma solidity ^0.8.0;
 
 library SkillsLib {
     struct Skills {
+        uint256 pointsSpend;
         uint256 attack;
         uint256 defense;
         uint256 stamina;
-        uint256 pointsSpend;
     }
     
     function isNull(Skills memory skills) public pure returns (bool){

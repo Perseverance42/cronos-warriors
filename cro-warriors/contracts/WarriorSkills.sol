@@ -36,7 +36,7 @@ contract WarriorSkills is Modular {
     
     function mint(uint256 id) external onlyModules() {
         assert(!_exists(id));
-        _skills[id] = SkillsLib.Skills(1,1,1,0);
+        _skills[id] = SkillsLib.Skills(0,1,1,1);
     }
     
     function burn(uint256 id) external onlyModules(){

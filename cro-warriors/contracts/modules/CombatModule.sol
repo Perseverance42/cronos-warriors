@@ -69,10 +69,13 @@ contract CombatModule is Modular{
                 //current defender is the loser
             }
         }
-        
+        //switch from indexes to ids
+        attacker = attacker == 0 ? w1 : w2;
+        defender = defender == 0 ? w1 : w2; 
+
         //do experience swap in treasury
-        uint256 epSwapped = treasury.swapExperienceFor(attacker==0 ? w1 : w2, attacker==0 ? w2 : w1);
-        warriorStats.increaseBattleStats(attacker==0 ? w1 : w2, attacker==0 ? w2 : w1);
+        uint256 epSwapped = treasury.swapExperienceFor(attacker, defender);
+        warriorStats.increaseBattleStats(attacker, defender);
         
         delete _activeFights[w1];
         delete _activeFights[w2];

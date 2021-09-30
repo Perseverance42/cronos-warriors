@@ -16,8 +16,8 @@ import './modules/Modular.sol';
 contract WarriorFactory is Modular {
     
     /* Event */
-    event WarriorMinted(uint256 id, address owner);
-    event WarriorBurned(uint256 id, address recipient);
+    event WarriorMinted(uint256 indexed id, address owner);
+    event WarriorBurned(uint256 indexed id, address owner, address recipient);
     
     /* Modules which get accessed */
     CronosWarriors public cronosWarriors;
@@ -60,6 +60,6 @@ contract WarriorFactory is Modular {
         warriorVisuals.burn(id);
         treasury.withdrawExperience(id, payable(recipient));
         cronosWarriors.burn(id);
-        emit WarriorBurned(id, recipient);
+        emit WarriorBurned(id, msg.sender, recipient);
     }
 }

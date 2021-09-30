@@ -39,6 +39,7 @@
 </template>
 
 <script>
+
 import WarriorListItem from './WarriorListItem.vue';
   export default {
     name: 'RecentBattlesList',
@@ -48,7 +49,22 @@ import WarriorListItem from './WarriorListItem.vue';
     },
     methods:{
         async subscribeToEvents(){
-           this.$bindEvents('battles', {contract: await this.$wallet.loadContract('CombatModule'), event: 'FightDone', options:{fromBlock:0}});
+            // would be so clean but gets duplicates
+           //this.$bindEvents('battles', {contract: await this.$wallet.loadContract('CombatModule'), event: 'FightDone', options:{fromBlock:0}});
+           const battleBoard = await this.$wallet.loadContract('CombatModule');
+
+           this.$wallet.$web3.eth.getBlockNumber((_, number)=>{
+               battleBoard.getPastEvents('FightDone', {
+                    fromBlock: 0,
+                    toBlock: number-1
+                }, (_, events)=>{
+                    this.battles = events;
+                    //history fetched listen for new Events now
+                    battleBoard.events.FightDone({}, (_,event=>{
+                        this.$set(this.battles, this.battles.length, event);
+                    }))
+                });
+           });           
         }
     },
     watch:{
@@ -62,6 +78,7 @@ import WarriorListItem from './WarriorListItem.vue';
     },
     data: () => ({
         battles: [],
+        historyLoaded: false,
     }),
   }
 </script>

@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import './CronosWarriors.sol';
 import './Treasury.sol';
-import './modules/Modular.sol';
 import './lib/Compute.sol';
 import './lib/structs/SkillsLib.sol';
 
-contract WarriorSkills is Modular {
+contract WarriorSkills is AccessControl {
+    
+    /* Access control */
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     
     /* Modules which get accessed */
     CronosWarriors public cronosWarriors;
@@ -28,18 +31,19 @@ contract WarriorSkills is Modular {
     constructor(address cronosWarriorsAddr, address treasuryAddr){
         cronosWarriors = CronosWarriors(cronosWarriorsAddr);
         treasury = Treasury(treasuryAddr);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
     
     function _exists(uint256 id) internal view returns(bool){
         return !SkillsLib.isNull(_skills[id]);
     }
     
-    function mint(uint256 id) external onlyModules() {
+    function mint(uint256 id) external onlyRole(MINTER_ROLE) {
         assert(!_exists(id));
         _skills[id] = SkillsLib.Skills(0,1,1,1);
     }
     
-    function burn(uint256 id) external onlyModules(){
+    function burn(uint256 id) external onlyRole(MINTER_ROLE){
         delete _skills[id];
     }
     

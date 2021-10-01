@@ -7,13 +7,12 @@ import "./WarriorSkills.sol";
 import "./WarriorStats.sol";
 import "./WarriorVisuals.sol";
 import "./Treasury.sol";
-import './modules/Modular.sol';
 
 /**
  * The WarriorFactory does control minting new warriors and buring all reference when the main NFT gets burned
  **/
 
-contract WarriorFactory is Modular {
+contract WarriorFactory {
     
     /* Event */
     event WarriorMinted(uint256 id, address owner);

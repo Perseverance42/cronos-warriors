@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import './modules/Modular.sol';
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import './WarriorFactory.sol';
 import './lib/Compute.sol';
 import './lib/Math.sol';
 
-contract Treasury is Modular {
-    
+contract Treasury is AccessControl  {
+    /* Access control */
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant EXCHANGE_ROLE = keccak256("EXCHANGE_ROLE");
+    bytes32 public constant DISTRIBUTION_ROLE = keccak256("DISTRIBUTION_ROLE");
+        
     /* Events */
     event FundsAdded(uint256 id, uint256 amount);
     event FundsWithdrawn(uint256 id, uint256 amount);
@@ -15,6 +19,10 @@ contract Treasury is Modular {
     /* Properties */
     uint256 private _reserve;
     mapping (uint256 => uint256) private _experience;
+    
+    constructor(){
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
     
     /* Getters */
     function experience(uint256 id) external view returns (uint256){
@@ -31,7 +39,7 @@ contract Treasury is Modular {
     }
     
     //gets accessed by WarriorFactory
-    function mint(uint256 id) payable external onlyModules(){
+    function mint(uint256 id) payable external onlyRole(MINTER_ROLE){
         assert(_experience[id] == 0);
         require(msg.value == Compute.mintFee, 'Invalid mint fee!');
         
@@ -40,7 +48,7 @@ contract Treasury is Modular {
     }
     
     //gets accessed by CombatModule
-    function swapExperienceFor(uint256 winner, uint256 loser) external onlyModules() returns(uint256){
+    function swapExperienceFor(uint256 winner, uint256 loser) external onlyRole(EXCHANGE_ROLE) returns(uint256){
         uint256 expToSwap = Compute.experienceToSwap(_experience[winner], _experience[loser]);
         uint256 battleTax = expToSwap / 1000; //TODO check if this works for small numbers. if (x < 1000)/1000 = 0 then it is fine ...
         
@@ -57,7 +65,7 @@ contract Treasury is Modular {
     }
     
     //gets accessed by WarriorFactory
-    function withdrawExperience(uint256 id, address payable receiver) external onlyModules() {
+    function withdrawExperience(uint256 id, address payable receiver) external onlyRole(MINTER_ROLE) {
         uint256 exp = _experience[id];
         assert(exp>0);
         receiver.transfer(exp);
@@ -65,7 +73,7 @@ contract Treasury is Modular {
         emit FundsWithdrawn(id, exp);
     }
     
-    function withdrawFromReserve(address payable receiver, uint256 amount) external onlyOwner() {
+    function withdrawFromReserve(address payable receiver, uint256 amount) external onlyRole(DISTRIBUTION_ROLE) {
         assert(amount>0);
         assert(amount<=_reserve);
         receiver.transfer(amount);

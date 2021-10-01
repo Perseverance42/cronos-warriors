@@ -6,10 +6,10 @@
 const { expect } = require("chai");
 const hre = require("hardhat");
 
-async function addModuleAccess(modular, module){
-    
-    let setModule = await modular.setModule(module.address, true);
-    setModule.wait();
+async function addModuleAccess(modular, module, role){
+    console.log(typeof(role));
+    let grantRole = await modular.grantRole(role, module.address);
+    grantRole.wait();
     console.log(modular.address + " can now be accessed by " + module.address);
 }
 
@@ -128,22 +128,22 @@ async function main() {
 
 
   console.log("Setting up module access control...");
-
+ 
   //Warrior factory controls mint/burn of storage
-  await addModuleAccess(warriors, warriorFactory);
-  await addModuleAccess(warriorSkills, warriorFactory);
-  await addModuleAccess(warriorStats, warriorFactory);
-  await addModuleAccess(warriorVisuals, warriorFactory);
+  await addModuleAccess(warriors, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
+  await addModuleAccess(warriorSkills, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
+  await addModuleAccess(warriorStats, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
+  await addModuleAccess(warriorVisuals, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
   
   //Factory needs access to Treasury
-  await addModuleAccess(treasury, warriorFactory);
+  await addModuleAccess(treasury, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
  
   //Battle Board starts fights in combat module
-  await addModuleAccess(combatModule, battleBoard);
+  await addModuleAccess(combatModule, battleBoard, "0x3e080ec955b0872a48616505668afef3d5feb6f6ed7066618b240a262412ea75");
   
   //Combat module changes stats and swaps ep
-  await addModuleAccess(treasury, combatModule);
-  await addModuleAccess(warriorStats, combatModule);
+  await addModuleAccess(treasury, combatModule, "0x28d62fc77014de57a1bbaa8212ff0979fa61ab00d377b4b8d9762048fb419961");
+  await addModuleAccess(warriorStats, combatModule, "0x5ef52737852c52d2211e81450fc3850cd8f44f8344ad3b406fdca6ea6d0bac7e");
  
   //Modules are initialized now
 

@@ -9,8 +9,8 @@ import './lib/Math.sol';
 contract Treasury is Modular {
     
     /* Events */
-    event FundsAdded(uint256 id, uint256 amount);
-    event FundsWithdrawn(uint256 id, uint256 amount);
+    event FundsAdded(uint256 indexed id, uint256 amount);
+    event FundsWithdrawn(address indexed receiver, uint256 id, uint256 amount);
     
     /* Properties */
     uint256 private _reserve;
@@ -62,13 +62,13 @@ contract Treasury is Modular {
         assert(exp>0);
         receiver.transfer(exp);
         delete _experience[id];
-        emit FundsWithdrawn(id, exp);
+        emit FundsWithdrawn(receiver, id, exp);
     }
     
     function withdrawFromReserve(address payable receiver, uint256 amount) external onlyOwner() {
         assert(amount>0);
         assert(amount<=_reserve);
         receiver.transfer(amount);
-        emit FundsWithdrawn(0, amount);
+        emit FundsWithdrawn(receiver, 0, amount);
     }
 }

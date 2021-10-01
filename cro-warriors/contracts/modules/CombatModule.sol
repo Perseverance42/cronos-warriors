@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import './Modular.sol';
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import '../Treasury.sol';
 import '../WarriorSkills.sol';
 import '../WarriorStats.sol';
 import '../lib/Compute.sol';
 
-contract CombatModule is Modular{
+contract CombatModule is AccessControl{
+    
+    /* Access control */
+    bytes32 public constant COMBAT_ROLE = keccak256("COMBAT_ROLE");
     
     event FightDone(uint256 indexed winner, uint256 indexed loser, uint256 epSwapped);
     
@@ -23,9 +26,10 @@ contract CombatModule is Modular{
         warriorSkills   = WarriorSkills(warriorSkillsAddr);
         warriorStats    = WarriorStats(warriorStatsAddr);
         treasury        = Treasury(treasuryAddr);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
     
-    function fight(uint256 w1, uint256 w2) external onlyModules(){
+    function fight(uint256 w1, uint256 w2) external onlyRole(COMBAT_ROLE) {
         require(!_activeFights[w1], 'already fighting');
         require(!_activeFights[w2], 'already fighting');
         

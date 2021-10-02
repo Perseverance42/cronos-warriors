@@ -1,20 +1,30 @@
 <template>
     <div class="alerts">
-        <v-alert v-for="alert in alerts" :key="alert.uuid" class="ma-2" :type="alert.type" dismissible>
-            <v-container fluid>
+        <v-alert v-for="alert in alerts" 
+                :key="alert.uuid" class="ma-2" 
+                :type="alert.type"
+                :prominent="alert.prominent"
+                text
+                border="left"
+                colored-border
+                transition="slide-y-reverse-transition"
+                dismissible
+                @input="removeAlert(alert.uuid)"
+                >
                 <v-row align="center">
-                    <v-col>
+                    <v-col class="grow">
                         <div v-if="alert.message">
                             <p>{{alert.message}}</p>
                         </div>
                         <div v-if="alert.component">
                             <component v-bind:is="alert.component"></component>
                         </div>
-                        <div v-if="alert.html != null">
+                        <div v-if="alert.html">
                             <span :v-html="alert.html"></span>
                         </div>
                     </v-col>
-                    <v-col cols="2" v-if="alert.details">
+                    
+                    <v-col v-if="alert.details" class="shrink">
                         <v-dialog 
                             max-width="600"
                             transition="dialog-top-transition"
@@ -22,13 +32,19 @@
                         <template v-slot:default>
                             <v-card>
                                 <v-toolbar 
-                                    color="primary"
+                                    :color="alert.type"
                                     dark>
                                     {{alert.message}}
                                 </v-toolbar>
                                 
                                 <v-card-text class="py-5">
-                                    {{alert.details}}
+                                    <div v-if="alert.details.code">
+                                        <p>The Request returned an error: {{alert.details.code}}</p>
+                                        <code>{{alert.details.message}}</code>
+                                    </div>
+                                    <div v-else>
+                                        <p>{{alert.details}}</p>
+                                    </div>
                                 </v-card-text>
                             </v-card>
                         </template>
@@ -38,12 +54,11 @@
                                     color="primary"
                                     v-bind="attrs"
                                     v-on="on"
-                                >More Details</v-btn>
+                                >Details</v-btn>
                             </template>
                         </v-dialog>
                     </v-col>
                 </v-row>
-            </v-container>
         </v-alert>
     </div>
 </template>
@@ -74,6 +89,7 @@ export default {
         AlertBus.$on('alert', alert =>{
             this.addAlert(alert);
         })
+        this.addAlert({type:'info', message:"Some Message i want the user to know", details:"some string details"});
     },
     computed:{
     },

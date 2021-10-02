@@ -90,7 +90,7 @@ import { AlertBus } from '../scripts/alert-bus.js';
                 setTimeout(this.bindSkills, 1000);
                 this.isWaitingOnWallet = false;
             }).catch(e=>{
-                AlertBus.$emit("alert",{ type:"error", message:"Failed to increase skill.", details: "The Request returned an error: " + JSON.stringify(e) });
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to increase skill.", details: e });
                 this.isWaitingOnWallet = false;
             });
         },
@@ -101,7 +101,7 @@ import { AlertBus } from '../scripts/alert-bus.js';
                 AlertBus.$emit("alert",{ type:"info", message:"Successfully challanged warrior.", timeout:3000 });
                 this.isWaitingOnWallet = false;
             }).catch(e =>{
-                AlertBus.$emit("alert",{ type:"error", message:"Failed to challange warrior.", details: "The Request returned an error: " + JSON.stringify(e) });
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to challange warrior.", details: e } );
                 this.isWaitingOnWallet = false;
             });
         }

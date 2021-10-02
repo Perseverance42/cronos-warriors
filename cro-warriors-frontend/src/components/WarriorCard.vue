@@ -1,5 +1,5 @@
 <template>
-    <v-card class="d-flex" :loading="!isWarriorLoaded" outlined flat> 
+    <v-card class="d-flex" :loading="!isWarriorLoaded" outlined flat max-width="500" width="400"> 
         <v-container>
             <v-row><v-col><v-card-title>{{name}}</v-card-title></v-col></v-row>
             <v-card-text>
@@ -30,7 +30,6 @@
                         </v-row>
                     </v-col>
                 </v-row>           
-                <!--TODO add v-if="!isCurrentWalletOwner" -->
                 <v-row><v-col>
                     <v-menu
                         close-on-click
@@ -51,10 +50,9 @@
                         </v-card>
                     </v-menu>
                 </v-col></v-row>
-            </v-card-text>
+            </v-card-text>            
         </v-container>
     </v-card>
-    
 </template>
 
 <script>

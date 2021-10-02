@@ -10,6 +10,7 @@
   "dependencies": {
     "core-js": "^3.6.5",
     "identicon.js": "^2.3.3",
+    "qrcode.vue": "^1.7.0",
     "sha.js": "^2.4.11",
     "vue": "^2.6.11",
     "vue-metamask": "^2.0.3",

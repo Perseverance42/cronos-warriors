@@ -28,6 +28,7 @@
 <script>
 import BattleBoard from '../scripts/battle-board.js';
 import WarriorListItem from '../components/WarriorListItem.vue';
+import { AlertBus } from '../scripts/alert-bus.js';
 
   export default {
     name: 'BattleRequestList',
@@ -51,21 +52,22 @@ import WarriorListItem from '../components/WarriorListItem.vue';
         confirmBattleRequest(index){
             this.isWaitingForWallet = true;
             BattleBoard.confirmBattleRequest(this.defenderID, this.battleRequests[index]).then(result=>{
-                alert("Battle succeeded!");
+                AlertBus.$emit("alert",{ type:"infor", message:"Battle finished successfully", timeout: 3000 });
                 this.$emit("battleConfirmed", result);
                 this.isWaitingForWallet = false;
             }).catch(e=>{
-                alert("Failed to confirm battle " + e);
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to accept battle.", details: e });
                 this.isWaitingForWallet = false;
             });
         },
         denyBattleRequest(index){
             this.isWaitingForWallet = true;
             BattleBoard.confirmBattleRequest(this.defenderID, this.battleRequests[index]).then(result=>{
-                this.$emit("battleDenied", result);          
+                this.$emit("battleDenied", result);
+                AlertBus.$emit("alert",{ type:"infor", message:"The battle was aborted.", timeout: 3000 });        
                 this.isWaitingForWallet = false;
             }).catch(e=>{
-                alert("Failed to deny battle " + e);
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to deny battle.", details: e});
                 this.isWaitingForWallet = false;
             });      
         },
@@ -73,11 +75,12 @@ import WarriorListItem from '../components/WarriorListItem.vue';
             this.isWaitingForWallet = true;
             BattleBoard.abortBattleRequest(this.attackerID, this.battleRequests[index]).then(result=>{
                 console.log("Warrior battle withdrawn", result);
+                AlertBus.$emit("alert",{ type:"infor", message:"Your warrior withdrew from battle.", timeout: 3000 });        
                 this.$emit("battleWithdrawn", result);
                 this.isWaitingForWallet = false;
-            }).catch(error=>{
-                alert("Failed to withdraw from battle!");
-                console.log("Failed to withdraw battle", error);
+            }).catch(e=>{
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to withdraw from battle.", details: e });
+                console.log("Failed to withdraw battle", e);
                 this.isWaitingForWallet = false;
             });   
         },

@@ -2,6 +2,8 @@ import Web3 from 'web3';
 import VueWeb3 from 'vue-web3';
 import Vue from 'vue';
 
+//used to sync changes on wallet to other components
+export const EventBus = new Vue();
 
 const availableContracts = {
     "WarriorSkills" : {
@@ -51,7 +53,8 @@ const wallet = {
         wallet._cachedContracts = {};
         wallet.$web3 = web3;
         wallet.$currentWalletAddr = walletAddr;
-        Vue.use(VueWeb3, {web3: new Web3(web3.currentProvider)} );
+        Vue.use(VueWeb3, {web3: new Web3(web3.currentProvider)});
+        EventBus.$emit("init");
     },
     isReady(){
         return wallet.$web3 !== null;

@@ -1,6 +1,5 @@
 import VueRouter from "vue-router";
 
-const LandingPage = () => import( '../views/LandingPage.vue');
 const Leaderboard = () => import('../views/Leaderboard.vue');
 const Arena = () => import('../views/Arena.vue');
 const Army = () => import('../views/Army.vue');
@@ -9,7 +8,7 @@ const Mint = () => import( '../views/Minting.vue');
 const routes = [
     {
         path:"/",
-        component: LandingPage
+        component: Army
     },
     {
         path: "/leaderboard",

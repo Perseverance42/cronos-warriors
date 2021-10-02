@@ -1,5 +1,5 @@
 <template>
-    <v-card class="d-flex" :loading="!isWarriorLoaded"> 
+    <v-card class="d-flex" :loading="!isWarriorLoaded" outlined flat> 
         <v-container>
             <v-row><v-col><v-card-title>{{name}}</v-card-title></v-col></v-row>
             <v-card-text>

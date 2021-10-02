@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row class="text-center" justify="center">
-      <v-col cols="6">
+      <v-col md="10" lg="4">
         <MintingCard v-on:warriorMinted="updateRecentMint"/>
       </v-col>
     </v-row>

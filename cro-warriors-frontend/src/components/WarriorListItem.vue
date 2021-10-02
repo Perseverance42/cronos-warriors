@@ -1,11 +1,13 @@
 <template>
-    <v-list-item>
+    <v-list-item class="py-2">
         <v-list-item-content  class="pa-0 ma-0"> 
             <v-card class="ma-0" tile :loading="isLoading">
-                <div v-if="!isLoading" class="">
-                    <v-list-item-title>{{warriorName}} #{{warriorID}}</v-list-item-title>
-                    <v-list-item-subtitle> Level: {{warriorLevel}} | Health: {{warriorHealth}}</v-list-item-subtitle>
+                <div v-if="!isLoading">
                     
+                    <v-list-item-title>
+                        <v-avatar tile class="mb-2"><Identicon class="pa-0" :value="warriorID"/></v-avatar>
+                        {{warriorName}} #{{warriorID}}</v-list-item-title>
+                    <v-list-item-subtitle> Level: {{warriorLevel}} | Health: {{warriorHealth}}</v-list-item-subtitle>
                 </div>
                 <div v-else class="my-4">
                     #{{warriorID}} Pending...
@@ -17,8 +19,10 @@
 </template>
 
 <script>
+import Identicon from './Identicon.vue';
   export default {
     name: 'WarriorListItem',
+    components:{Identicon},
     props: ['warriorID'],
     methods:{
         async bindCalls(){

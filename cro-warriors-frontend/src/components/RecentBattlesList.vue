@@ -1,51 +1,77 @@
 <template>
-    <v-container>
-        <v-row>
-            <v-col cols="1">
-                <h4>Block #</h4>
-            </v-col>
-            <v-col>
-                <h4>Winner</h4>
-            </v-col>
-            <v-col></v-col>
-            <v-col>
-                <h4>Loser</h4>
-            </v-col>
-        </v-row>
-        <v-list>
-            <v-list-item 
-                v-for="(event, i) in battles" 
-                :key="i"
-                >
-                <v-row>
-                    <v-col cols="1">
-                        #{{event.blockNumber}}
-                    </v-col>
-                    <v-col>
-                        <WarriorListItem :warriorID="event.returnValues.winner"/>
-                    </v-col>
-                    <v-col>
-                        <v-icon v-for="a1 in 3" :key="'a1-'+a1" class="px-2">mdi-arrow-left-bold</v-icon>
-                        <span class="text-overline">{{event.returnValues.epSwapped/10000000000}}</span>
-                        <v-icon v-for="a2 in 3" :key="'a2-'+a2" class="px-2">mdi-arrow-left-bold</v-icon>
-                    </v-col>
-                    <v-col>
-                        <WarriorListItem :warriorID="event.returnValues.loser"/>
-                    </v-col>
-                </v-row>
-            </v-list-item>
-        </v-list>
-    </v-container>
+    <div>
+        <v-virtual-scroll
+        height="200"
+        item-height="100"
+        :items="battles.slice().reverse()"
+        bench="2"
+        >
+        <template v-slot:default="{ item }">
+            <v-list :key="item.id">
+                <v-list-item>
+                    <v-row align="center">
+                        <v-col class="shrink">
+                            <b>#{{item.blockNumber}}</b>
+                        </v-col>
+                        <v-col class="shrink">
+                            <v-dialog 
+                                transition="dialog-top-transition"
+                                max-width="800">
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-sheet
+                                        v-bind="attrs"
+                                        v-on="on"
+                                    >
+                                    <qrcode-vue 
+                                        :value="item.transactionHash" 
+                                        size="60"></qrcode-vue>
+                                    </v-sheet>
+                                </template>
+                                <template v-slot:default>
+                                    <v-card tile class="pa-6">
+                                        <center>
+                                            <qrcode-vue 
+                                                :value="'https://cronos.crypto.org/explorer/tx/'+item.transactionHash" 
+                                                size="180"></qrcode-vue>
+                                            Transaction Hash:<br/>
+                                            <v-btn text :href="'https://cronos.crypto.org/explorer/tx/'+item.transactionHash" target="_blank">{{item.transactionHash}}</v-btn>
+                                        </center>
+                                    </v-card>
+                                </template>
+                            </v-dialog>
+                        </v-col>
+                        <v-col class="shrink">
+                            <WarriorListItem :warriorID="item.returnValues.winner"/>
+                        </v-col>
+                        <v-col class="grow">
+                            <v-progress-linear stream value="0" buffer-value="0" height="25">
+                                <template v-slot:default="">
+                                    <strong class="text-truncate">{{item.returnValues.epSwapped}}</strong>
+                                </template>
+                            </v-progress-linear>
+                        </v-col>
+                        <v-col class="shrink">
+                            <WarriorListItem :warriorID="item.returnValues.loser"/>
+                        </v-col>
+                    </v-row>
+                </v-list-item>
+            </v-list>
+        </template>
+        </v-virtual-scroll>
+    </div>
 </template>
 
 <script>
 
 import WarriorListItem from './WarriorListItem.vue';
+import QrcodeVue from 'qrcode.vue'
+
   export default {
     name: 'RecentBattlesList',
     props: ['historyLength'],
     components:{
-        WarriorListItem
+        WarriorListItem,
+        QrcodeVue
     },
     methods:{
         async subscribeToEvents(){
@@ -64,9 +90,10 @@ import WarriorListItem from './WarriorListItem.vue';
                 }, (_, events)=>{
                     this.battles = events;
                     //history fetched listen for new Events now
-                    battleBoard.events.FightDone({}, (_,event=>{
+                    battleBoard.events.FightDone({}, (error, event)=>{
+                        console.log("Event ", error, event)
                         this.$set(this.battles, this.battles.length, event);
-                    }))
+                    })
                 });
            });           
         }
@@ -78,7 +105,7 @@ import WarriorListItem from './WarriorListItem.vue';
         this.subscribeToEvents();
     },
     computed:{
-        
+
     },
     data: () => ({
         battles: [],

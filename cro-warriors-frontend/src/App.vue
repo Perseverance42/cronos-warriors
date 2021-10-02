@@ -3,6 +3,8 @@
     <NavigationDrawer/>
     <v-main>
       <div class="d-flex flex-column">
+      <RecentBattlesList/>  
+      <v-divider></v-divider>
       <router-view></router-view>
       <v-spacer></v-spacer>
       <alert-queue></alert-queue>
@@ -21,6 +23,7 @@
 import VueMetamask from 'vue-metamask';
 import AlertQueue from './components/AlertQueue.vue';
 import NavigationDrawer from './components/NavigationDrawer.vue';
+import RecentBattlesList from './components/RecentBattlesList.vue';
 
 export default {
   name: 'App',
@@ -28,7 +31,8 @@ export default {
   components: {
     VueMetamask,
     AlertQueue,
-    NavigationDrawer
+    NavigationDrawer,
+    RecentBattlesList
   },
   computed:{
   },

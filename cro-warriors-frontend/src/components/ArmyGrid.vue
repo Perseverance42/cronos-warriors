@@ -1,6 +1,6 @@
 <template>
-    <v-row v-if="warriorIDs" class="mx-2">
-        <v-col v-for="(id,i) in warriorIDs" :key="i" class="ma-2">
+    <v-row v-if="warriorIDs" class="mx-2" align="center" justify="center">
+        <v-col v-for="(id,i) in warriorIDs" :key="i" class="ma-2 shrink">
             <WarriorCard :warriorID="id"></WarriorCard>
         </v-col>
     </v-row>

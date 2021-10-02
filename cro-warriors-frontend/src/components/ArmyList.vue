@@ -52,6 +52,8 @@ import {AlertBus} from '../scripts/alert-bus.js';
         }
     },
     mounted(){
+        if(this.armyAddr!=null)
+            this.loadArmy();
     },
     computed:{
     },

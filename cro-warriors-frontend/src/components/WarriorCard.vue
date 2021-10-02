@@ -13,7 +13,7 @@
                         value="100"
                     >
                         <template v-slot:default>
-                            <strong>HP {{ Math.ceil(health) }}</strong>
+                            <strong>HP {{ Math.ceil(health || 0) }}</strong>
                         </template>
                     </v-progress-linear>
                 </v-row>
@@ -34,8 +34,8 @@
                     </v-col>
                     <v-col justify="center" align="center">
                         <table>
-                            <tr><th>Battles won: </th><td>{{skills==null?'': stats[0]}}</td></tr>
-                            <tr><th>Battles lost: </th><td>{{skills==null?'': stats[1]}}</td></tr>
+                            <tr><th>Battles won: </th><td>{{stats==null?'': stats[0]}}</td></tr>
+                            <tr><th>Battles lost: </th><td>{{stats==null?'': stats[1]}}</td></tr>
                         </table>
                     </v-col>
                 </v-row>
@@ -75,7 +75,7 @@
                 </v-row>
                 <v-row>
                     <v-col>
-                        <v-btn tile flat block color="primary">Select</v-btn>
+                        <v-btn tile block color="primary">Select</v-btn>
                     </v-col>    
                 </v-row>            
                 <v-row><v-col>
@@ -84,7 +84,8 @@
                         >
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn
-                            tile flat block
+                            tile 
+                            block
                             color="red"
                             dark
                             v-bind="attrs"

@@ -41,7 +41,7 @@ import {AlertBus} from '../scripts/alert-bus.js';
             });
           }
         }).catch(e=>{
-          AlertBus.$emit("alert",{ type:"error", message:"Failed to load army! Try refreshing the Page.", timeout: 20000, details: JSON.stringify(e) });        
+          AlertBus.$emit("alert",{ type:"error", message:"Failed to load army! Try refreshing the Page.", timeout: 20000, details: e});        
         });
       }
     },

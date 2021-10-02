@@ -56,7 +56,7 @@ import { AlertBus } from '../scripts/alert-bus.js';
                 this.$emit("battleConfirmed", result);
                 this.isWaitingForWallet = false;
             }).catch(e=>{
-                AlertBus.$emit("alert",{ type:"error", message:"Failed to accept battle.", details: "The Request returned an error: " + JSON.stringify(e) });
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to accept battle.", details: e });
                 this.isWaitingForWallet = false;
             });
         },
@@ -67,7 +67,7 @@ import { AlertBus } from '../scripts/alert-bus.js';
                 AlertBus.$emit("alert",{ type:"infor", message:"The battle was aborted.", timeout: 3000 });        
                 this.isWaitingForWallet = false;
             }).catch(e=>{
-                AlertBus.$emit("alert",{ type:"error", message:"Failed to deny battle.", details: "The Request returned an error: " + JSON.stringify(e) });
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to deny battle.", details: e});
                 this.isWaitingForWallet = false;
             });      
         },
@@ -79,7 +79,7 @@ import { AlertBus } from '../scripts/alert-bus.js';
                 this.$emit("battleWithdrawn", result);
                 this.isWaitingForWallet = false;
             }).catch(e=>{
-                AlertBus.$emit("alert",{ type:"error", message:"Failed to withdraw from battle.", details: "The Request returned an error: " + JSON.stringify(e) });
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to withdraw from battle.", details: e });
                 console.log("Failed to withdraw battle", e);
                 this.isWaitingForWallet = false;
             });   

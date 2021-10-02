@@ -30,7 +30,7 @@ export default {
                 this.$emit("warriorMinted", result.events.WarriorMinted.returnValues.id);
                 this.isWaitingOnWallet = false;
             }).catch(e=>{
-                AlertBus.$emit("alert",{ type:"error", message:"Failed to mint Warrior.", details: "The Request returned an error: " + JSON.stringify(e) });
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to mint Warrior.", details: e});
                 console.log("mint error", e);
                 this.isWaitingOnWallet = false;
             });

@@ -89,7 +89,6 @@ export default {
         AlertBus.$on('alert', alert =>{
             this.addAlert(alert);
         })
-        this.addAlert({type:'info', message:"Some Message i want the user to know", details:"some string details"});
     },
     computed:{
     },

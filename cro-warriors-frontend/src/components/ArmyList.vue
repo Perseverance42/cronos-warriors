@@ -34,7 +34,7 @@ import {AlertBus} from '../scripts/alert-bus.js';
                 console.log(result, this)
                 this.warriorIDs = result;
             }).catch(e=>{
-                AlertBus.$emit("alert",{ type:"error", message:"Failed to load army!", timeout: 7000, details: JSON.stringify(e) });        
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to load army!", timeout: 7000, details: e});        
             });
         },
         isWarriorLoading(index){

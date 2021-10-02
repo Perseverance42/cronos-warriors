@@ -31,11 +31,18 @@ import WarriorCard from '../components/WarriorCard.vue';
       selectWarriorDetailed(event){
         this.warriorDetailed = event;
         this.$emit("select", event);
+      },
+      selectCurrentWalletArmy(){
+        if(this.$wallet.$currentWalletAddr == null){
+          setTimeout(this.selectCurrentWalletArmy, 1000);
+          return;
+        }
+        this.inWalletAddr = this.$wallet.$currentWalletAddr;
       }
     },
     mounted(){
       if(this.currentArmyAddr==null){
-        this.inWalletAddr = this.$wallet.$currentWalletAddr;
+        this.selectCurrentWalletArmy();
       }
     },
     watch:{
@@ -43,9 +50,6 @@ import WarriorCard from '../components/WarriorCard.vue';
         if(this.inWalletAddr != null && this.inWalletAddr.length == 42 && this.inWalletAddr != this.currentArmyAddr){
           this.currentArmyAddr = this.inWalletAddr;
         }
-      },
-      "$wallet": function(){
-        this.currentArmyAddr = this.$wallet.$currentWalletAddr;
       }
     },
     data: () => ({

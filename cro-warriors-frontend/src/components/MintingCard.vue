@@ -15,6 +15,7 @@
 
 <script>
 import WarriorFactory from '../scripts/warrior-factory.js';
+import {AlertBus} from '../scripts/alert-bus.js';
 
 export default {
     name: 'MintingCard',
@@ -25,10 +26,11 @@ export default {
             this.isWaitingOnWallet = true;
             WarriorFactory.mintWarrior(this.inWarriorName).then(result=>{
                 console.log("minted warrior: ", result);
+                AlertBus.$emit("alert",{ type:"info", message:"Your warrior was successfully minted!", timeout: 3000 });
                 this.$emit("warriorMinted", result.events.WarriorMinted.returnValues.id);
                 this.isWaitingOnWallet = false;
             }).catch(e=>{
-                alert("Failed to mint warrior!");
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to mint Warrior.", details: "The Request returned an error: " + JSON.stringify(e) });
                 console.log("mint error", e);
                 this.isWaitingOnWallet = false;
             });
@@ -40,7 +42,7 @@ export default {
     },
     computed:{
         isWalletConnected(){
-            return this.$wallet != null;
+            return this.$wallet.$currentWalletAddr != null;
         }
     },
     data: () => ({

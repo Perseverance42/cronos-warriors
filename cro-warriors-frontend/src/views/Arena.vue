@@ -18,12 +18,17 @@ import BattleRequestList from '../components/BattleRequestList.vue';
 import Wallet from '../scripts/wallet.js';
 import CronosWarriors from '../scripts/cronos-warriors.js';
 import WarriorVisuals from '../scripts/warrior-visuals.js';
+import {AlertBus} from '../scripts/alert-bus.js';
 
   export default {
     name: 'Arena',
     components:{BattleRequestList},
     methods:{
       loadArmyIDs(){
+        if(Wallet.$currentWalletAddr == null){
+          setTimeout(this.loadArmyIDs,100);
+          return;
+        }
         CronosWarriors.loadArmyByAddr(Wallet.$currentWalletAddr).then(warriors=>{
           this.warriorIDs = warriors;
           this.warriorNames = new Array(warriors.length);
@@ -36,8 +41,7 @@ import WarriorVisuals from '../scripts/warrior-visuals.js';
             });
           }
         }).catch(e=>{
-          alert('failed to load army!');
-          console.error("Failed to load army!", e);
+          AlertBus.$emit("alert",{ type:"error", message:"Failed to load army! Try refreshing the Page.", timeout: 20000, details: JSON.stringify(e) });        
         });
       }
     },

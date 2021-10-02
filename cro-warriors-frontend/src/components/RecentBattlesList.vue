@@ -49,6 +49,10 @@ import WarriorListItem from './WarriorListItem.vue';
     },
     methods:{
         async subscribeToEvents(){
+            if(this.$wallet.$currentWalletAddr == null){
+                setTimeout(this.subscribeToEvents, 1000)
+                return;
+            }
             // would be so clean but gets duplicates
            //this.$bindEvents('battles', {contract: await this.$wallet.loadContract('CombatModule'), event: 'FightDone', options:{fromBlock:0}});
            const battleBoard = await this.$wallet.loadContract('CombatModule');

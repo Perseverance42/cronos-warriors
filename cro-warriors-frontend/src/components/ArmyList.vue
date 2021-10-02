@@ -21,6 +21,7 @@
 <script>
 import WarriorListItem from './WarriorListItem.vue';
 import CronosWarriors from '../scripts/cronos-warriors.js';
+import {AlertBus} from '../scripts/alert-bus.js';
 
   export default {
     name: 'ArmyList',
@@ -28,11 +29,12 @@ import CronosWarriors from '../scripts/cronos-warriors.js';
     components:{WarriorListItem},
     methods:{
         loadArmy(){
+            if(this.armyAddr==null) return;
             CronosWarriors.loadArmyByAddr(this.armyAddr).then((result)=>{
                 console.log(result, this)
                 this.warriorIDs = result;
             }).catch(e=>{
-                alert("Failed to load army!"+ e);
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to load army!", timeout: 7000, details: JSON.stringify(e) });        
             });
         },
         isWarriorLoading(index){
@@ -47,15 +49,9 @@ import CronosWarriors from '../scripts/cronos-warriors.js';
             if(oldVal!=newVal){
                 this.loadArmy();
             }
-        },
-        selectedWarrior: function(){
-            
         }
     },
     mounted(){
-        if(this.armyAddr!=null){
-            this.loadArmy();
-        }
     },
     computed:{
     },
@@ -66,4 +62,5 @@ import CronosWarriors from '../scripts/cronos-warriors.js';
         selectedWarrior: null,
     }),
   }
+  
 </script>

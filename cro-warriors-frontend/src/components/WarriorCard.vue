@@ -61,6 +61,7 @@
 import WarriorSkills from '../scripts/warrior-skills.js';
 import BattleBoard from '../scripts/battle-board.js';
 import ArmyList from '../components/ArmyList.vue';
+import { AlertBus } from '../scripts/alert-bus.js';
 
   export default {
     name: 'WarriorCard',
@@ -84,11 +85,12 @@ import ArmyList from '../components/ArmyList.vue';
         increaseSkill(skill){
             this.isWaitingOnWallet = true;
             WarriorSkills.increaseSkill(this.warriorID, skill).then(result=>{
-                console.log("successfully increased skill!", result);
+                console.log("", result);
+                AlertBus.$emit("alert",{ type:"info", message:"Successfully increased skill.", timeout:3000 });
                 setTimeout(this.bindSkills, 1000);
                 this.isWaitingOnWallet = false;
             }).catch(e=>{
-                alert("Failed to increase stat", e);
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to increase skill.", details: "The Request returned an error: " + JSON.stringify(e) });
                 this.isWaitingOnWallet = false;
             });
         },
@@ -96,9 +98,10 @@ import ArmyList from '../components/ArmyList.vue';
             this.isWaitingOnWallet = true;
             BattleBoard.challangeWarrior(attacker, this.warriorID).then(result=>{
                 console.log("Warrior was challanged!", result);
+                AlertBus.$emit("alert",{ type:"info", message:"Successfully challanged warrior.", timeout:3000 });
                 this.isWaitingOnWallet = false;
             }).catch(e =>{
-                alert("Failed to challange warrior! " + e);
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to challange warrior.", details: "The Request returned an error: " + JSON.stringify(e) });
                 this.isWaitingOnWallet = false;
             });
         }

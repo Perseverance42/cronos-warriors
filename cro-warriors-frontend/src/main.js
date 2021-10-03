@@ -10,11 +10,18 @@ import Router from 'vue-router';
 import router from './plugins/router';
 
 const wallet = Vue.observable({wallet:Wallet});
+const selectedWarrior = Vue.observable({warrior:0});
 
 Object.defineProperty(Vue.prototype, '$wallet', {
   get(){return wallet.wallet},
   set(value){wallet.wallet=value}
 })
+
+Object.defineProperty(Vue.prototype, '$selectedWarrior', {
+  get(){return selectedWarrior.warrior},
+  set(value){selectedWarrior.warrior=value}
+})
+
 Vue.use(Router)
 new Vue({
   vuetify,

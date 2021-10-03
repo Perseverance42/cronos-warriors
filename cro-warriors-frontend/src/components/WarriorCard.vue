@@ -95,7 +95,7 @@
                 </v-row>
                 <v-row>
                     <v-col>
-                        <v-btn tile block color="primary">Select</v-btn>
+                        <v-btn tile block color="primary" @click="selectWarrior(warriorID)">Select</v-btn>
                     </v-col>    
                 </v-row>            
                 <v-row><v-col>
@@ -173,6 +173,9 @@ import Compute from '../scripts/compute'
                 AlertBus.$emit("alert",{ type:"error", message:"Failed to challange warrior.", details: e } );
                 this.isWaitingOnWallet = false;
             });
+        },
+        selectWarrior(id){
+            this.$selectedWarrior = id;
         }
     },
     mounted(){

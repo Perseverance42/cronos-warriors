@@ -2,7 +2,14 @@
   <v-navigation-drawer app permanent color="primary" >
     <template v-slot:prepend>
       <v-sheet color="accent">
-        <WarriorPreviewItem warriorID="1" />
+        <WarriorPreviewItem :warriorID="selectedWarrior" v-if="selectedWarrior" />
+        <v-btn v-else 
+          block
+          tile
+          color="accent"
+          x-large 
+          class="text-overline"
+          to="/">Plese select a warrior</v-btn>
       </v-sheet>
     </template>
     <v-divider></v-divider>
@@ -58,7 +65,11 @@ export default {
   props: [],
   components: { WarriorPreviewItem },
   methods: {},
-  watch: {},
+  watch: {
+    '$selectedWarrior': function(){
+      this.selectedWarrior = this.$selectedWarrior;
+    }
+  },
   mounted() {},
   computed: {},
   data: () => ({
@@ -68,6 +79,7 @@ export default {
       { icon: "mdi-stadium", label: "Arena", route: "/arena" },
       { icon: "mdi-wallet", label: "Minting", route: "/mint" },
     ],
+    selectedWarrior: null
   }),
 };
 </script>

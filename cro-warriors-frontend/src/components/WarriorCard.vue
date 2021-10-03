@@ -3,17 +3,37 @@
         <v-container>
             <v-row><v-col><v-card-title>{{name}}</v-card-title></v-col></v-row>
             <v-card-text>
-                <v-row>
-                    <v-col>Level: {{level}}</v-col><v-col>Experience: {{experience}}</v-col>
+                <v-row class="pb-1" v-if="experience!=null">
+                    <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-progress-linear
+                                v-on="on"
+                                v-bind="attrs"
+                                height="25"
+                                color="green lighten-2"
+                                :value="levelUpProgress"
+                            >
+                                <template v-slot:default>
+                                    <strong>Level {{ Math.ceil(computedLevel || 0) }}</strong>
+                                </template>
+                            </v-progress-linear>
+                        </template>
+                        <span>
+                            <table>
+                                <tr><th>EP currently:</th><td class="text-right">{{experience}}</td></tr>
+                                <tr><th>EP required:</th><td class="text-right">{{epNeededForNextLevel}}</td></tr>
+                            </table>
+                        </span>
+                    </v-tooltip>
                 </v-row>
-                <v-row>
+                <v-row v-if="experience && skills">
                     <v-progress-linear
                         height="25"
                         color="red darken-2"
                         value="100"
                     >
                         <template v-slot:default>
-                            <strong>HP {{ Math.ceil(health || 0) }}</strong>
+                            <strong>HP {{ Math.ceil(computedHealth || 0) }}</strong>
                         </template>
                     </v-progress-linear>
                 </v-row>
@@ -111,6 +131,7 @@ import BattleBoard from '../scripts/battle-board.js';
 import ArmyList from '../components/ArmyList.vue';
 import Identicon from '../components/Identicon.vue';
 import { AlertBus } from '../scripts/alert-bus.js';
+import Compute from '../scripts/compute'
 
   export default {
     name: 'WarriorCard',
@@ -123,8 +144,6 @@ import { AlertBus } from '../scripts/alert-bus.js';
             this.$bindCall('name', { contract: await this.$wallet.loadContract('WarriorVisuals'), method:"warriorName", args:[ this.warriorID ] });
             this.$bindCall('dna', { contract: await this.$wallet.loadContract('WarriorVisuals'), method:"warriorDNA", args:[ this.warriorID ] });
             this.bindSkills();
-            this.$bindCall('health', { contract: await this.$wallet.loadContract('WarriorSkills'), method:"warriorHealth", args:[ this.warriorID ] });
-            this.$bindCall('level', { contract: await this.$wallet.loadContract('WarriorSkills'), method:"warriorLevel", args:[ this.warriorID ] });
             this.$bindCall('experience', { contract: await this.$wallet.loadContract('WarriorSkills'), method:"warriorExperience", args:[ this.warriorID ] });
             this.$bindCall('stats', { contract: await this.$wallet.loadContract('WarriorStats'), method:"warriorStats", args:[ this.warriorID ] });
         },
@@ -175,7 +194,19 @@ import { AlertBus } from '../scripts/alert-bus.js';
             return this.skills==null ? 0 : this.level - this.skills[0];
         },
         isWarriorLoaded(){
-            return true && this.owner && this.name && this.skills && this.stats && this.level && this.health && this.experience;
+            return true && this.owner && this.name && this.skills && this.stats && this.experience && this.dna;
+        },
+        computedLevel(){
+            return Compute.warriorLevel(this.experience).toString(); //can be huge so better display as string
+        },
+        computedHealth(){
+            return Compute.warriorHealth(this.experience, this.skills[3]).toString();
+        },
+        epNeededForNextLevel(){
+            return Compute.epForNextLevel(this.experience).toString();
+        },
+        levelUpProgress(){
+            return Compute.levelUpProgress(this.experience).toNumber(); //always in between 100-0 so toNumber is fine
         }
     },
     data: () => ({
@@ -183,8 +214,6 @@ import { AlertBus } from '../scripts/alert-bus.js';
         name : null,
         skills: null,
         stats: null,
-        level: null,
-        health:null,
         experience: null,
         dna : null,
 

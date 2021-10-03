@@ -1,7 +1,10 @@
 <template>
     <v-card class="d-flex" :loading="!isWarriorLoaded" outlined flat max-width="500" width="400"> 
         <v-container>
-            <v-row><v-col><v-card-title>{{name}}</v-card-title></v-col></v-row>
+            <v-row><v-col>
+            <v-card-title>{{name}}</v-card-title>
+            <v-card-subtitle v-if="!isCurrentWalletOwner">{{owner || 'Loading...'}}</v-card-subtitle>
+            </v-col></v-row>
             <v-card-text>
                 <v-row class="pb-1" v-if="experience!=null">
                     <v-tooltip bottom>
@@ -93,12 +96,14 @@
                         </span>
                     </v-col>
                 </v-row>
-                <v-row>
+                <v-row v-if="isCurrentWalletOwner">
                     <v-col>
                         <v-btn tile block color="primary" @click="selectWarrior(warriorID)">Select</v-btn>
                     </v-col>    
                 </v-row>            
-                <v-row><v-col>
+                <v-row
+                    v-if="currentSelectedWarrior && currentSelectedWarrior!=warriorID"
+                ><v-col>
                     <v-menu
                         close-on-click
                         >
@@ -188,10 +193,13 @@ import Compute from '../scripts/compute'
     },
     computed:{
         isCurrentWalletOwner(){
-            return this.owner != null && this.owner.toLowerCase() === this.currentWallet;
+            return this.owner != null && this.owner.toLowerCase() == this.currentWallet;
         },
         currentWallet(){
             return this.$wallet.$currentWalletAddr;
+        },
+        currentSelectedWarrior(){
+            return this.$selectedWarrior;
         },
         pointsAvailable(){
             return this.skills==null ? 0 : this.computedLevel.toNumber() - this.skills[0];

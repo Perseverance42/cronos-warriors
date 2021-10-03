@@ -5,7 +5,7 @@
         <v-text-field v-model="inWalletAddr" label="Wallet"></v-text-field>
       </v-col>
     </v-row>
-    <v-row class="text-center" justify="center">
+    <v-row justify="center">
       <ArmyGrid :armyAddr="currentArmyAddr"></ArmyGrid>
     </v-row>
   </v-container>

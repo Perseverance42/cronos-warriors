@@ -60,7 +60,7 @@ async function main() {
       VisualsLib: visualLib.address
     }
   });
-  const warriorVisuals = await WarriorVisuals.deploy();
+  const warriorVisuals = await WarriorVisuals.deploy(warriors.address);
   await warriorVisuals.deployed();
   console.log("Warrior Visuals deployed @"+warriorVisuals.address);
   

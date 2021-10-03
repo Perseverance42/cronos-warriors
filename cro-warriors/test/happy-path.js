@@ -58,7 +58,7 @@ describe("Contract Deployment", function () {
       }
     });
     warriorVisuals = await WarriorVisuals.deploy();
-    await warriorVisuals.deployed();
+    await warriorVisuals.deployed(cronosWariors.address);
     console.log("Warrior Visuals deployed to: ", warriorVisuals.address);
 
     const WarriorStats = await hre.ethers.getContractFactory("WarriorStats", {

@@ -191,13 +191,13 @@ import Compute from '../scripts/compute'
             return this.$wallet.$currentWalletAddr;
         },
         pointsAvailable(){
-            return this.skills==null ? 0 : this.level - this.skills[0];
+            return this.skills==null ? 0 : this.computedLevel.toNumber() - this.skills[0];
         },
         isWarriorLoaded(){
             return true && this.owner && this.name && this.skills && this.stats && this.experience && this.dna;
         },
         computedLevel(){
-            return Compute.warriorLevel(this.experience).toString(); //can be huge so better display as string
+            return Compute.warriorLevel(this.experience); //can be huge so better display as string
         },
         computedHealth(){
             return Compute.warriorHealth(this.experience, this.skills[3]).toString();

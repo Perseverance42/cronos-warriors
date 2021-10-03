@@ -15,8 +15,8 @@ import "./Treasury.sol";
 contract WarriorFactory {
     
     /* Event */
-    event WarriorMinted(uint256 indexed id, address owner);
-    event WarriorBurned(uint256 indexed id, address owner, address recipient);
+    event WarriorMinted(uint256 id, address indexed owner);
+    event WarriorBurned(uint256 id, address indexed owner, address recipient);
     
     /* Modules which get accessed */
     CronosWarriors public cronosWarriors;

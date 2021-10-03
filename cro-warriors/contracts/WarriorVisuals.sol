@@ -10,9 +10,13 @@ contract WarriorVisuals is AccessControl {
     /* Access control */
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     
+    /* Modules which get accessed */
+    CronosWarriors public cronosWarriors;
+    
     mapping(uint256 => VisualsLib.Visuals) private _visuals;
     
-    constructor(){
+    constructor(address cronosWarriorsAddr){
+        cronosWarriors = CronosWarriors(cronosWarriorsAddr);
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
     
@@ -23,7 +27,8 @@ contract WarriorVisuals is AccessControl {
     function mint(uint256 id, string memory name) external onlyRole(MINTER_ROLE) {
         assert(!_exists(id));
         require(VisualsLib.isValidName(name), 'Name is not valid');
-        _visuals[id] = VisualsLib.Visuals(name);
+        uint128 dna = VisualsLib.randomDNA(name, cronosWarriors.totalSupply());
+        _visuals[id] = VisualsLib.Visuals(name, dna);
     }
     
     function burn(uint256 id) external onlyRole(MINTER_ROLE){
@@ -39,6 +44,9 @@ contract WarriorVisuals is AccessControl {
         return _visuals[id].name;
     }
     
+    function warriorDNA(uint256 id) external view returns (uint128){
+        return _visuals[id].dna;
+    }
+    
     /* Setters */
-
 }

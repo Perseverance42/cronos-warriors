@@ -5,7 +5,7 @@
                 <div v-if="!isLoading">
                     
                     <v-list-item-title>
-                        <v-avatar tile class="mb-2"><Identicon class="pa-0" :value="warriorID"/></v-avatar>
+                        <v-avatar tile class="mb-2"><Identicon class="pa-0" :value="warriorDNA || 'cro'"/></v-avatar>
                         {{warriorName}} #{{warriorID}}</v-list-item-title>
                     <v-list-item-subtitle> Level: {{warriorLevel}} | Health: {{warriorHealth}}</v-list-item-subtitle>
                 </div>
@@ -27,6 +27,7 @@ import Identicon from './Identicon.vue';
     methods:{
         async bindCalls(){
             this.$bindCall('warriorName', {contract: await this.$wallet.loadContract("WarriorVisuals"), method: 'warriorName', args:[this.warriorID]});
+            this.$bindCall('warriorDNA', {contract: await this.$wallet.loadContract("WarriorVisuals"), method: 'warriorDNA', args:[this.warriorID]});
             this.$bindCall('warriorLevel', {contract: await this.$wallet.loadContract("WarriorSkills"), method: 'warriorLevel', args:[this.warriorID]});
             this.$bindCall('warriorHealth', {contract: await this.$wallet.loadContract("WarriorSkills"), method: 'warriorHealth', args:[this.warriorID]});
         }
@@ -52,7 +53,8 @@ import Identicon from './Identicon.vue';
     data: () => ({
         warriorName: null,
         warriorLevel: null,
-        warriorHealth: null
+        warriorHealth: null,
+        warriorDNA: null,
     }),
   }
 </script>

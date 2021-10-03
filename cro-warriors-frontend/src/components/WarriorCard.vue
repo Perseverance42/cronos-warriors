@@ -20,7 +20,7 @@
                 <v-row>
                     <v-col>
                         <v-avatar size=250 color="accent" tile>
-                            <Identicon :value="warriorID" class="pa-2"/>
+                            <Identicon :value="dna || 'cro'" class="pa-2"/>
                         </v-avatar>
                     </v-col>
                 </v-row>
@@ -121,6 +121,7 @@ import { AlertBus } from '../scripts/alert-bus.js';
             //bind get calls
             this.$bindCall('owner', { contract: await this.$wallet.loadContract('CronosWarriors'), method:"ownerOf", args:[ this.warriorID ] });
             this.$bindCall('name', { contract: await this.$wallet.loadContract('WarriorVisuals'), method:"warriorName", args:[ this.warriorID ] });
+            this.$bindCall('dna', { contract: await this.$wallet.loadContract('WarriorVisuals'), method:"warriorDNA", args:[ this.warriorID ] });
             this.bindSkills();
             this.$bindCall('health', { contract: await this.$wallet.loadContract('WarriorSkills'), method:"warriorHealth", args:[ this.warriorID ] });
             this.$bindCall('level', { contract: await this.$wallet.loadContract('WarriorSkills'), method:"warriorLevel", args:[ this.warriorID ] });
@@ -185,6 +186,7 @@ import { AlertBus } from '../scripts/alert-bus.js';
         level: null,
         health:null,
         experience: null,
+        dna : null,
 
         isWaitingOnWallet : false
     }),

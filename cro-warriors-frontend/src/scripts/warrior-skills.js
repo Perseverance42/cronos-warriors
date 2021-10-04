@@ -45,6 +45,20 @@ const warriorSkills = {
             })
         });
     },
+    increaseDexterity(warriorID){
+        return new Promise(function(resolve, reject){
+            if(!Wallet.isReady()) reject(new Error('No Wallet'));  
+            Wallet.loadContract(contractKey).then(contract=>{
+                contract.methods.increaseDexterity(warriorID).send({from: Wallet.$currentWalletAddr}).then(result=>{
+                    resolve(result);
+                }).catch(e=>{
+                    reject(e);
+                });
+            }).catch(e=>{
+                reject(e);
+            })
+        });
+    },
     increaseSkill(warriorID, skill){
         switch(skill){
             case 'attack':
@@ -53,6 +67,8 @@ const warriorSkills = {
                 return warriorSkills.increaseDefense(warriorID);
             case 'stamina':
                 return warriorSkills.increaseStamina(warriorID);
+            case 'dexterity':
+                    return warriorSkills.increaseDexterity(warriorID);
             default:
                 return new Error('Invalid');
         }

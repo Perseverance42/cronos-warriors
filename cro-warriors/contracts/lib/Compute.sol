@@ -12,6 +12,7 @@ library Compute {
     //used fore scaling experience (cro) down
     uint256 constant public decimalsEth = 18;
     uint256 constant public decimalsEp = 8; 
+    uint256 constant public critScale = 10**decimalsEth;
     uint256 constant public epScale = 10**decimalsEp;
     
     //uint256 public epS1 = 10**(decimalsEth-decimalsEp);
@@ -31,13 +32,20 @@ library Compute {
         return healthScale * (warriorLevel(experience) + stamina);
     }
     
-    function damage(uint256 attackerEp, uint256 attack, uint256 defense) internal pure returns(uint256) {
+    function damage(uint256 attackerEp, uint256 attack, uint256 defense, bool crit) internal pure returns(uint256) {
         uint256 dmg = (2 * warriorLevel(attackerEp) + 10) * 10000000000;
         uint256 def = (attack * 10000000000) / (defense * 10000000000);
         dmg = dmg / 2;
         dmg = dmg * def;
         dmg = dmg / 10000000000;
+        if(crit){
+            dmg = dmg * 15 / 10; 
+        }
         return dmg;
+    }
+    
+    function critRate(uint256 experience, uint256 dexterity) public pure returns(uint256){
+        return (dexterity * critScale) / ( ( ( warriorLevel(experience)+10) * critScale ) / 1000);
     }
     
     function experienceToSwap(uint256 ep1, uint256 ep2) public pure returns (uint256){

@@ -44,19 +44,30 @@
                         </v-avatar>
                     </v-col>
                 </v-row>
-                <v-row class="text-overline">
-                    <v-col justify="center" align="center"> 
-                        <table>
-                            <tr><th>Attack: </th><td>{{skills==null?'': skills[1]}}</td></tr>
-                            <tr><th>Defense: </th><td>{{skills==null?'': skills[2]}}</td></tr>
-                            <tr><th>Stamina: </th><td>{{skills==null?'': skills[3]}}</td></tr>
-                        </table>
+                <v-row class="text-overline text-center" justify="center" >
+                    <v-col cols="6"> 
+                        <center>
+                            <table>
+                                <tr><th>Attack: </th><td>{{skills==null?'': skills[1]}}</td></tr>
+                                <tr><th>Defense: </th><td>{{skills==null?'': skills[2]}}</td></tr>
+                                <tr><th>Battles won: </th><td>{{stats==null?'': stats[0]}}</td></tr>
+                            </table>
+                        </center>
                     </v-col>
-                    <v-col justify="center" align="center">
-                        <table>
-                            <tr><th>Battles won: </th><td>{{stats==null?'': stats[0]}}</td></tr>
-                            <tr><th>Battles lost: </th><td>{{stats==null?'': stats[1]}}</td></tr>
-                        </table>
+                    <v-col  cols="6">
+                        <center>
+                            <table>
+                                <tr><td>Stamina:</td><td>{{skills==null?'': skills[3]}}</td></tr>
+                            
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <tr v-on="on" v-bind="attrs"><td>Dexterity:</td><td>{{skills==null?'': skills[4]}}</td></tr>
+                                    </template>
+                                    <span>Critical hit rate: {{computedCritRate/10}}%</span>
+                                </v-tooltip>
+                                <tr><th>Battles lost: </th><td>{{stats==null?'': stats[1]}}</td></tr>
+                            </table>
+                        </center>
                     </v-col>
                 </v-row>
                 <v-row v-if="isCurrentWalletOwner">
@@ -83,6 +94,7 @@
                                         <v-col><v-btn block color="primary" @click="increaseSkill('stamina')" :loading="isWaitingOnWallet">Stamina</v-btn></v-col>
                                         <v-col><v-btn block color="accent"  @click="increaseSkill('attack')" :loading="isWaitingOnWallet">Attack</v-btn></v-col>
                                         <v-col><v-btn block color="primary" @click="increaseSkill('defense')" :loading="isWaitingOnWallet">Defense</v-btn></v-col>
+                                        <v-col><v-btn block color="accent" @click="increaseSkill('dexterity')" :loading="isWaitingOnWallet">Dexterity</v-btn></v-col>
                                     </v-row>
                                 </v-container>
                             </v-card>
@@ -149,12 +161,12 @@ import Compute from '../scripts/compute'
         },
         //can change within this component so its seperately rebindable
         async bindSkills(){
-            this.$bindCall('skills', { contract: await this.$wallet.loadContract('WarriorSkills'), method:"warriorSkills", args:[ this.warriorID ] });
+           this.$bindCall('skills', { contract: await this.$wallet.loadContract('WarriorSkills'), method:"warriorSkills", args:[ this.warriorID ] });
         },
         increaseSkill(skill){
             this.isWaitingOnWallet = true;
             WarriorSkills.increaseSkill(this.warriorID, skill).then(result=>{
-                console.log("", result);
+                console.log("Increased skill", result);
                 AlertBus.$emit("alert",{ type:"info", message:"Successfully increased skill.", timeout:3000 });
                 setTimeout(this.bindSkills, 1000);
                 this.isWaitingOnWallet = false;
@@ -204,6 +216,10 @@ import Compute from '../scripts/compute'
         },
         computedHealth(){
             return Compute.warriorHealth(this.experience, this.skills[3]).toString();
+        },
+        computedCritRate(){
+            if(!this.isWarriorLoaded) return 0;
+            return Compute.warriorCritRate(this.experience, this.skills[4]);
         },
         epNeededForNextLevel(){
             return Compute.epForNextLevel(this.experience).toString();

@@ -218,6 +218,7 @@ import Compute from '../scripts/compute'
             return Compute.warriorHealth(this.experience, this.skills[3]).toString();
         },
         computedCritRate(){
+            if(!this.isWarriorLoaded) return 0;
             return Compute.warriorCritRate(this.experience, this.skills[4]);
         },
         epNeededForNextLevel(){

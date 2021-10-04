@@ -40,7 +40,7 @@ contract WarriorSkills is AccessControl {
     
     function mint(uint256 id) external onlyRole(MINTER_ROLE) {
         assert(!_exists(id));
-        _skills[id] = SkillsLib.Skills(0,1,1,1);
+        _skills[id] = SkillsLib.Skills(0,1,1,1,1);
     }
     
     function burn(uint256 id) external onlyRole(MINTER_ROLE){
@@ -53,9 +53,9 @@ contract WarriorSkills is AccessControl {
         return _skills[id];
     }
     
-    function warriorSkills(uint256 id) external view returns (uint256, uint256, uint256, uint256){
+    function warriorSkills(uint256 id) external view returns (uint256, uint256, uint256, uint256, uint256){
         SkillsLib.Skills memory s = _skills[id];
-        return (s.pointsSpend, s.attack, s.defense, s.stamina );
+        return (s.pointsSpend, s.attack, s.defense, s.stamina, s.dexterity );
     }
     
     /* Computed views */
@@ -93,6 +93,11 @@ contract WarriorSkills is AccessControl {
     
     function increaseStamina(uint256 id) external warriorOwnerOnly(id) hasSpendablePoints(id){
         _skills[id].stamina = _skills[id].stamina + 1;
+        _increasePointsSpend(id);
+    }
+    
+    function increaseDexterity(uint256 id) external warriorOwnerOnly(id) hasSpendablePoints(id){
+        _skills[id].dexterity = _skills[id].dexterity + 1;
         _increasePointsSpend(id);
     }
 }

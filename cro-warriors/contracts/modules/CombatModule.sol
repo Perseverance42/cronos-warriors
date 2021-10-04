@@ -41,6 +41,10 @@ contract CombatModule is AccessControl{
         exp[0] = treasury.experience(w1);
         exp[1] = treasury.experience(w2);
         
+        uint256[2] memory critRates;
+        critRates[0] = Compute.critRate(exp[0], skills[0].dexterity)-1; //scale up to match scaling of Math.random() (0-999)
+        critRates[1] = Compute.critRate(exp[1], skills[1].dexterity)-1;
+        
         //combat state
         bool fighting = true;
         uint256 dmg;
@@ -56,18 +60,22 @@ contract CombatModule is AccessControl{
         //combat starting state
         uint256 r = Math.rand();
         
-        uint256 attacker = r < 499 ? 0 : 1;
+        uint256 attacker = skills[0].dexterity > skills[1].dexterity ? 0 : 1;
+        if(skills[0].dexterity == skills[1].dexterity){
+            attacker = r < 499 ? 0 : 1;
+        }
         uint256 defender = 1-attacker;
         
         //combat loop iterates until health of one fighter is 0
         while(fighting){
             uint256 h = health[attacker];
-            dmg = Compute.damage(exp[attacker], skills[attacker].attack, skills[defender].defense);
+            dmg = Compute.damage(exp[attacker], skills[attacker].attack, skills[defender].defense, r < critRates[attacker]);
             if(dmg < h){
                 health[defender] = h - dmg;
                 
                 attacker = 1-attacker;
                 defender = 1-defender;
+                r = Math.rand();
             }else{
                 fighting = false; 
                 //current defender is the loser

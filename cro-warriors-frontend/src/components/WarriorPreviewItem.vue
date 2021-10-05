@@ -8,10 +8,7 @@
             
             <v-list-item-title># {{warriorID}} | {{warriorName || 'Loading...'}}</v-list-item-title>
             <v-list-item-icon>
-                <v-menu
-                        close-on-click
-                        
-                        >
+                <v-menu close-on-click>
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn 
                             fab 

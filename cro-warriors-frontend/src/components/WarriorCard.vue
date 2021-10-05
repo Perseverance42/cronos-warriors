@@ -1,126 +1,138 @@
 <template>
-    <v-card class="d-flex" :loading="!isWarriorLoaded" outlined flat max-width="500" width="400"> 
-        <v-container>
-            <v-row><v-col>
-            <v-card-title>{{name}}</v-card-title>
-            <v-card-subtitle v-if="!isCurrentWalletOwner">{{owner || 'Loading...'}}</v-card-subtitle>
-            </v-col></v-row>
-            <v-card-text>
-                <v-row class="pb-1" v-if="experience!=null">
-                    <v-tooltip bottom>
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-progress-linear
-                                v-on="on"
-                                v-bind="attrs"
-                                height="25"
-                                color="green lighten-2"
-                                :value="levelUpProgress"
-                            >
-                                <template v-slot:default>
-                                    <strong>Level {{ Math.ceil(computedLevel || 0) }}</strong>
-                                </template>
-                            </v-progress-linear>
-                        </template>
-                        <span>
-                            <table>
-                                <tr><th>EP currently:</th><td class="text-right">{{experience}}</td></tr>
-                                <tr><th>EP required:</th><td class="text-right">{{epNeededForNextLevel}}</td></tr>
-                            </table>
-                        </span>
-                    </v-tooltip>
-                </v-row>
-                <v-row v-if="experience && skills">
-                    <v-progress-linear
-                        height="25"
-                        color="red darken-2"
-                        value="100"
-                    >
-                        <template v-slot:default>
-                            <strong>HP {{ Math.ceil(computedHealth || 0) }}</strong>
-                        </template>
-                    </v-progress-linear>
-                </v-row>
-                <v-row>
-                    <v-col>
-                        <v-avatar size=250 color="accent" tile>
-                            <Identicon :value="dna || 'cro'" class="pa-2"/>
-                        </v-avatar>
-                    </v-col>
-                </v-row>
-                <v-row class="text-overline text-center" justify="center" >
-                    <v-col cols="6"> 
-                        <center>
-                            <table>
-                                <tr><th>Attack: </th><td>{{skills==null?'': skills[1]}}</td></tr>
-                                <tr><th>Defense: </th><td>{{skills==null?'': skills[2]}}</td></tr>
-                                <tr><th>Battles won: </th><td>{{stats==null?'': stats[0]}}</td></tr>
-                            </table>
-                        </center>
-                    </v-col>
-                    <v-col  cols="6">
-                        <center>
-                            <table>
-                                <tr><td>Stamina:</td><td>{{skills==null?'': skills[3]}}</td></tr>
-                            
-                                <v-tooltip bottom>
-                                    <template v-slot:activator="{ on, attrs }">
-                                        <tr v-on="on" v-bind="attrs"><td>Dexterity:</td><td>{{skills==null?'': skills[4]}}</td></tr>
+ <v-menu offset-y imafe>
+    <template v-slot:activator="{ on, attrs }">
+        <v-card 
+            class="d-flex" 
+            :loading="!isWarriorLoaded" 
+            outlined 
+            tile
+            max-width="500" 
+            width="400" 
+            v-bind="attrs"
+            v-on="on"
+            elevation="3"> 
+            <v-container>
+                <v-row><v-col>
+                <v-card-title>{{name}}</v-card-title>
+                <v-card-subtitle v-if="!isCurrentWalletOwner">{{owner || 'Loading...'}}</v-card-subtitle>
+                </v-col></v-row>
+                <v-card-text>
+                    <v-row class="pb-1" v-if="experience!=null">
+                        <v-tooltip bottom>
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-progress-linear
+                                    v-on="on"
+                                    v-bind="attrs"
+                                    height="25"
+                                    color="green lighten-2"
+                                    :value="levelUpProgress"
+                                >
+                                    <template v-slot:default>
+                                        <strong>Level {{ Math.ceil(computedLevel || 0) }}</strong>
                                     </template>
-                                    <span>Critical hit rate: {{computedCritRate/10}}%</span>
-                                </v-tooltip>
-                                <tr><th>Battles lost: </th><td>{{stats==null?'': stats[1]}}</td></tr>
-                            </table>
-                        </center>
-                    </v-col>
-                </v-row>
-                <v-row v-if="isCurrentWalletOwner">
-                    <v-col>
-                        <v-dialog
-                        max-width="600"
-                        v-if="pointsAvailable"
+                                </v-progress-linear>
+                            </template>
+                            <span>
+                                <table>
+                                    <tr><th>EP currently:</th><td class="text-right">{{experience}}</td></tr>
+                                    <tr><th>EP required:</th><td class="text-right">{{epNeededForNextLevel}}</td></tr>
+                                </table>
+                            </span>
+                        </v-tooltip>
+                    </v-row>
+                    <v-row v-if="experience && skills">
+                        <v-progress-linear
+                            height="25"
+                            color="red darken-2"
+                            value="100"
                         >
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn 
-                                text 
-                                v-bind="attrs"
-                                v-on="on"
+                            <template v-slot:default>
+                                <strong>HP {{ Math.ceil(computedHealth || 0) }}</strong>
+                            </template>
+                        </v-progress-linear>
+                    </v-row>
+                    <v-row>
+                        <v-col>
+                            <v-avatar size=250 color="accent" tile>
+                                <Identicon :value="dna || 'cro'" class="pa-2"/>
+                            </v-avatar>
+                        </v-col>
+                    </v-row>
+                    <v-row class="text-overline text-center" justify="center" >
+                        <v-col cols="6"> 
+                            <center>
+                                <table>
+                                    <tr><th>Attack: </th><td>{{skills==null?'': skills[1]}}</td></tr>
+                                    <tr><th>Defense: </th><td>{{skills==null?'': skills[2]}}</td></tr>
+                                    <tr><th>Battles won: </th><td>{{stats==null?'': stats[0]}}</td></tr>
+                                </table>
+                            </center>
+                        </v-col>
+                        <v-col  cols="6">
+                            <center>
+                                <table>
+                                    <tr><td>Stamina:</td><td>{{skills==null?'': skills[3]}}</td></tr>
+                                
+                                    <v-tooltip bottom>
+                                        <template v-slot:activator="{ on, attrs }">
+                                            <tr v-on="on" v-bind="attrs"><td>Dexterity:</td><td>{{skills==null?'': skills[4]}}</td></tr>
+                                        </template>
+                                        <span>Critical hit rate: {{computedCritRate/10}}%</span>
+                                    </v-tooltip>
+                                    <tr><th>Battles lost: </th><td>{{stats==null?'': stats[1]}}</td></tr>
+                                </table>
+                            </center>
+                        </v-col>
+                    </v-row>
+                    <v-row v-if="isCurrentWalletOwner">
+                        <v-col>
+                            <v-dialog
+                            max-width="600"
+                            v-if="pointsAvailable"
                             >
-                            Points available: {{pointsAvailable}}</v-btn>
-                        </template>
-                        <template v-slot:default>
-                            <v-card>
-                                <v-toolbar color="primary" dense>
-                                    <span class="text-overline">Select which Skill you want to increase.</span>
-                                </v-toolbar>
-                                <v-container fluid>
-                                    <v-row justify="center">
-                                        <v-col><v-btn block color="primary" @click="increaseSkill('stamina')" :loading="isWaitingOnWallet">Stamina</v-btn></v-col>
-                                        <v-col><v-btn block color="accent"  @click="increaseSkill('attack')" :loading="isWaitingOnWallet">Attack</v-btn></v-col>
-                                        <v-col><v-btn block color="primary" @click="increaseSkill('defense')" :loading="isWaitingOnWallet">Defense</v-btn></v-col>
-                                        <v-col><v-btn block color="accent" @click="increaseSkill('dexterity')" :loading="isWaitingOnWallet">Dexterity</v-btn></v-col>
-                                    </v-row>
-                                </v-container>
-                            </v-card>
-                        </template>
-                        </v-dialog>
-                        <span v-else class="text-overline">
-                            <v-btn text disabled >Points available: 0</v-btn>
-                        </span>
-                    </v-col>
-                </v-row>
-                <v-row v-if="isCurrentWalletOwner">
-                    <v-col>
-                        <v-btn tile block color="primary" @click="selectWarrior(warriorID)">Select</v-btn>
-                    </v-col>    
-                </v-row>            
-                <v-row
-                    v-if="currentSelectedWarrior && currentSelectedWarrior!=warriorID"
-                ><v-col>
-                    <v-menu
-                        close-on-click
-                        >
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn 
+                                    text 
+                                    v-bind="attrs"
+                                    v-on="on"
+                                >
+                                Points available: {{pointsAvailable}}</v-btn>
+                            </template>
+                            <template v-slot:default>
+                                <v-card>
+                                    <v-toolbar color="primary" dense>
+                                        <span class="text-overline">Select which Skill you want to increase.</span>
+                                    </v-toolbar>
+                                    <v-container fluid>
+                                        <v-row justify="center">
+                                            <v-col><v-btn block color="primary" @click="increaseSkill('stamina')" :loading="isWaitingOnWallet">Stamina</v-btn></v-col>
+                                            <v-col><v-btn block color="accent"  @click="increaseSkill('attack')" :loading="isWaitingOnWallet">Attack</v-btn></v-col>
+                                            <v-col><v-btn block color="primary" @click="increaseSkill('defense')" :loading="isWaitingOnWallet">Defense</v-btn></v-col>
+                                            <v-col><v-btn block color="accent" @click="increaseSkill('dexterity')" :loading="isWaitingOnWallet">Dexterity</v-btn></v-col>
+                                        </v-row>
+                                    </v-container>
+                                </v-card>
+                            </template>
+                            </v-dialog>
+                            <span v-else class="text-overline">
+                                <v-btn text disabled >Points available: 0</v-btn>
+                            </span>
+                        </v-col>
+                    </v-row>
+                </v-card-text>            
+            </v-container>
+        </v-card>
+    </template>
+        <v-list>
+            <v-list-item v-if="isCurrentWalletOwner && currentSelectedWarrior!=warriorID">
+                <v-btn tile block color="primary" @click="selectWarrior(warriorID)">Select</v-btn>
+            </v-list-item>
+            <v-list-item v-if="currentSelectedWarrior && currentSelectedWarrior!=warriorID">
+                <v-menu
+                    close-on-click
+                    >
+                    <template v-slot:activator="{ on, attrs }">
+                        <v-btn
                             tile 
                             block
                             color="red"
@@ -130,16 +142,15 @@
                             :loading="isWaitingOnWallet"
                             >
                             Challange</v-btn>
-                        </template>
-                        <v-card>
-                            <v-card-title class="text-overline">Select Warrior to attack with</v-card-title>
-                            <v-card-action><ArmyList :armyAddr="currentWallet" @select="challangeWarrior($event)"></ArmyList></v-card-action>
+                    </template>
+                    <v-card>
+                        <v-card-title class="text-overline">Select Warrior to attack with</v-card-title>
+                        <v-card-action><ArmyList :armyAddr="currentWallet" @select="challangeWarrior($event)"></ArmyList></v-card-action>
                         </v-card>
                     </v-menu>
-                </v-col></v-row>
-            </v-card-text>            
-        </v-container>
-    </v-card>
+            </v-list-item>
+        </v-list>
+    </v-menu>
 </template>
 
 <script>

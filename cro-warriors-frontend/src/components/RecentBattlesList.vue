@@ -41,7 +41,7 @@
                             </v-dialog>
                         </v-col>
                         <v-col class="shrink">
-                            <WarriorListItem :warriorID="item.returnValues.winner"/>
+                            <WarriorListItem :warriorID="item.returnValues.winner" context="true"/>
                         </v-col>
                         <v-col class="grow">
                             <v-progress-linear stream value="0" buffer-value="0" height="25">
@@ -51,7 +51,7 @@
                             </v-progress-linear>
                         </v-col>
                         <v-col class="shrink">
-                            <WarriorListItem :warriorID="item.returnValues.loser"/>
+                            <WarriorListItem :warriorID="item.returnValues.loser" context="true"/>
                         </v-col>
                     </v-row>
                 </v-list-item>

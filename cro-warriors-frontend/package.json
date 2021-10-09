@@ -13,6 +13,7 @@
     "js-sha3": "^0.8.0",
     "qrcode.vue": "^1.7.0",
     "vue": "^2.6.11",
+    "vue-images-loaded": "^1.1.2",
     "vue-metamask": "^2.0.3",
     "vue-router": "^3.5.2",
     "vue-web3": "^2.1.0",

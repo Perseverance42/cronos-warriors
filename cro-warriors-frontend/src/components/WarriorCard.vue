@@ -54,7 +54,7 @@
                     <v-row>
                         <v-col>
                             <v-avatar size=250 color="accent" tile>
-                                <Identicon :value="dna || 'cro'" class="pa-2"/>
+                                <WarriorRender  :warriorDNA="dna" />    
                             </v-avatar>
                         </v-col>
                     </v-row>
@@ -154,17 +154,17 @@
 </template>
 
 <script>
+import WarriorRender from './WarriorRender.vue';
 import WarriorSkills from '../scripts/warrior-skills.js';
 import BattleBoard from '../scripts/battle-board.js';
 import ArmyList from '../components/ArmyList.vue';
-import Identicon from '../components/Identicon.vue';
 import { AlertBus } from '../scripts/alert-bus.js';
 import Compute from '../scripts/compute'
 
   export default {
     name: 'WarriorCard',
     props: ["warriorID"],
-    components:{ArmyList, Identicon},
+    components:{ArmyList, WarriorRender},
     methods:{
         async bindContracts(){
             //bind get calls

@@ -2,6 +2,7 @@
 node_modules
 /dist
 
+src/assets/warriorparts
 
 # local env files
 .env.local

@@ -4,6 +4,7 @@ const Leaderboard = () => import('../views/Leaderboard.vue');
 const Arena = () => import('../views/Arena.vue');
 const Army = () => import('../views/Army.vue');
 const Mint = () => import( '../views/Minting.vue');
+const Roadmap = () => import( '../views/Roadmap.vue');
 
 const routes = [
     {
@@ -26,6 +27,10 @@ const routes = [
         path: "/army",
         component: Army
     },
+    {
+        path: '/roadmap',
+        component: Roadmap
+    }
 ]
 
 // configure router

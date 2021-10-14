@@ -1,21 +1,25 @@
 <template>
-    <v-list>
-        <v-list-item-group
-        v-model="selectedWarrior"
-        color="primary"
-        >
-            <v-list-item
-                v-for="(id,i) in warriorIDs"
-                :key="i"
-                class="pa-0 ma-0"
-                @click="warriorSelected(id)"
-            >
-                <v-list-item-content  class="pa-0 ma-0"> 
-                    <WarriorListItem :warriorID="id"></WarriorListItem>
-                </v-list-item-content>
-            </v-list-item>
-        </v-list-item-group>     
-    </v-list>
+
+    <v-virtual-scroll
+        v-if="warriorIDs"
+        bench="1"
+        :items="warriorIDs"
+        :height="height"
+        item-height="84"
+      >
+        
+            <template v-slot:default="{ item }">
+                <v-list-item
+                    :key="item"
+                    class="pa-0 ma-0"
+                    @click="warriorSelected(item)"
+                >
+                    <v-list-item-content  class="pa-0 ma-0"> 
+                        <WarriorListItem :warriorID="item"></WarriorListItem>
+                    </v-list-item-content>
+                </v-list-item>
+            </template>
+    </v-virtual-scroll>
 </template>
 
 <script>
@@ -25,7 +29,16 @@ import {AlertBus} from '../scripts/alert-bus.js';
 
   export default {
     name: 'ArmyList',
-    props: ['armyAddr'],
+    props: {
+            armyAddr:{
+                default: '',
+                type: String
+            },
+            height:{
+                default: 250,
+                type: Number
+            },
+        },
     components:{WarriorListItem},
     methods:{
         loadArmy(){

@@ -75,6 +75,8 @@ const wallet = {
                 });
             }
         });
+    },weiToCroDecimal(experience){
+        return Web3.utils.fromWei(experience, 'ether');
     }
 }
 

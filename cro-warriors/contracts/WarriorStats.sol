@@ -32,6 +32,7 @@ contract WarriorStats is AccessControl {
     }
     
     function burn(uint256 id) external onlyRole(MINTER_ROLE){
+        _removeFromLeaderboard(id);
         delete _stats[id];
     }
     
@@ -69,6 +70,13 @@ contract WarriorStats is AccessControl {
         }
         if(_leaderboard.size>LEADERBOARD_LENGTH){
             _leaderboard.remove(_leaderboard.first);
+        }
+    }
+
+    function _removeFromLeaderboard(uint256 id) internal{
+        (bool exists, , ) = _leaderboard.getNode(id);
+        if(exists){
+            _leaderboard.remove(id);
         }
     }
     

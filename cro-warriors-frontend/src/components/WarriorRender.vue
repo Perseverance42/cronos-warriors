@@ -1,10 +1,11 @@
 <template>
   <div v-images-loaded="partsLoaded" class="warrior-char" v-if="warriorDNA">
     <div class="warrior-parts" v-show="imagesLoaded">
+		<img class="base" src="../assets/warriorparts/base.png">
       <img :style="clothesColor" class="left-feet" :src="leftFeetSrc(currentFeetChooice)">  
       <img :style="clothesColor" class="right-feet" :src="rightFeetSrc(currentFeetChooice)">
       
-      <img :style="clothesColor" class="left-lower-leg" :src="lowerLeftLegSrc(currentLegChooice)">
+      <!--<img :style="clothesColor" class="left-lower-leg" :src="lowerLeftLegSrc(currentLegChooice)">
       <img :style="clothesColor" class="right-lower-leg" :src="lowerRightLegSrc(currentLegChooice)">
       
       <img :style="clothesColor" class="right-upper-leg" :src="upperRightLegSrc(currentLegChooice)">
@@ -21,7 +22,7 @@
       <img :style="skinColor" class="eyes" :src="eyesSrc(currentEyeChoice)" >
       <img :style="skinColor" class="mouth" :src="mouthSrc(currentMouthChoice)" >
       <img :style="skinColor" class="nose" :src="headSrc(currentNoseChoice)" >
-      <img :style="hairColor" class="hair" :src="headSrc(currentHairChoice)" >
+      <img :style="hairColor" class="hair" :src="headSrc(currentHairChoice)" >-->
     </div>
   </div>
 </template>
@@ -92,10 +93,10 @@ export default {
         return require("../assets/warriorparts/lower-right-leg-" + i + ".png")
       },
       leftFeetSrc(i) {
-        return require("../assets/warriorparts/right-feet-" + i + ".png")
+        return require("../assets/warriorparts/left-feet-" + i + ".png")
       },
       rightFeetSrc(i) {
-        return require("../assets/warriorparts/left-feet-" + i + ".png")
+        return require("../assets/warriorparts/right-feet-" + i + ".png")
       }
     },
     watch:{
@@ -152,9 +153,11 @@ export default {
         return this.getColor(this.currentHairColorChoice);
       }
     },
-    data: () => ({
-      imagesLoaded: false,
-    }),
+    data() {
+      return {
+			imagesLoaded: false,
+		}
+    }
   }
 </script>
 
@@ -162,6 +165,8 @@ export default {
 
 .warrior-char {
   position: relative;
+  width:100%;
+  background-color:red; /*remove after setup*/
 }
 
 .share-page .warrior-parts {
@@ -173,10 +178,18 @@ export default {
 }
 
 .warrior-parts {
-  position: absolute;
-  top: 50%; right: 50%;
-  transform: translate(50%,-50%);
+  position: relative;
+  width:100%;
+  background-color:red; /*remove after setup*/
+  /*top: 50%; right: 50%;
+  transform: translate(50%,-50%);*/
 
+  .base {
+	width: 40%;
+    position: absolute;
+	transform: translate(-50%,-50%);
+  }
+  
   .hair {
     width: 15vh;
     position: absolute;
@@ -271,21 +284,22 @@ export default {
     width: 6vh;
     position: absolute;
     top: 50%; right: 50%;
-    transform: translate(50%,-50%);
+    
   }
 
   .left-feet {
-    width: 6vh;
+    width: 15%;
     position: absolute;
-    top: 50%; right: 50%;
+	transform: translate(-50%,-50%);
+	opacity: 0.8;
     
   }
 
   .right-feet {
-    width: 6vh;
+    width: 15%;
     position: absolute;
-    top: 50%; right: 50%;
-    transform: translate(50%,-50%);
+	transform: translate(-135%,324%);
+	opacity: 0.8;
   }
 }
 </style>

@@ -103,31 +103,31 @@ export default {
         return this.warriorDNA;
       },
       currentHairChoice(){
-        return (parseInt(this.currentDna.substring(0, 2)) % 6 + 1);
+        return (parseInt(this.currentDna.substring(0, 2)) % 7 + 1);
       },
       currentHeadChoice(){
         return (parseInt(this.currentDna.substring(2, 4)) % 4 + 1);
       },
       currentEyeChoice(){
-        return (parseInt(this.currentDna.substring(4, 6)) % 4 + 1);
+        return (parseInt(this.currentDna.substring(4, 6)) % 6 + 1);
       },
       currentNoseChoice(){
-        return (parseInt(this.currentDna.substring(6, 8)) % 5 + 1);
+        return (parseInt(this.currentDna.substring(6, 8)) % 7 + 1);
       },
       currentMouthChoice(){
-        return (parseInt(this.currentDna.substring(8, 10)) % 7 + 1);
+        return (parseInt(this.currentDna.substring(8, 10)) % 8 + 1);
       },
       currentArmChoice(){
-        return (parseInt(this.currentDna.substring(10, 12)) % 3 + 1);
+        return (parseInt(this.currentDna.substring(10, 12)) % 5 + 1);
       },
       currentLegChooice(){
-        return (parseInt(this.currentDna.substring(14, 15)) % 3 + 1);
+        return (parseInt(this.currentDna.substring(14, 15)) % 6 + 1);
       },
       currentChestChooice(){
-        return (parseInt(this.currentDna.substring(15, 16)) % 4 + 1);
+        return (parseInt(this.currentDna.substring(15, 16)) % 6 + 1);
       },
       currentFeetChooice(){
-        return (parseInt(this.currentDna.substring(16, 17)) % 3 + 1);
+        return (parseInt(this.currentDna.substring(16, 17)) % 6 + 1);
       },
       currentClothesColorChoice(){
         return (parseInt(this.currentDna.substring(17, 19)) / 100 * 360);

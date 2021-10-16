@@ -52,7 +52,7 @@ import { AlertBus } from '../scripts/alert-bus.js';
         confirmBattleRequest(index){
             this.isWaitingForWallet = true;
             BattleBoard.confirmBattleRequest(this.defenderID, this.battleRequests[index]).then(result=>{
-                AlertBus.$emit("alert",{ type:"infor", message:"Battle finished successfully", timeout: 3000 });
+                AlertBus.$emit("alert",{ type:"info", message:"Battle finished successfully", timeout: 3000 });
                 this.$emit("battleConfirmed", result);
                 this.isWaitingForWallet = false;
             }).catch(e=>{
@@ -102,6 +102,9 @@ import { AlertBus } from '../scripts/alert-bus.js';
                 this.bindDefensiveCalls();
                 this.subscribeDefensiveRequests();
             }
+        },
+        "battleRequests": function(){
+            this.$emit("RequestsAdded", this.battleRequests);
         }
     },
     mounted(){

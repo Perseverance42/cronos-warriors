@@ -138,12 +138,35 @@
                 >
                 Challange</v-btn>
             </v-list-item>
+            <v-list-item v-if="isCurrentWalletOwner">
+                <v-dialog
+                    max-width="80vw"
+                    >
+                    <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                            tile 
+                            block
+                            v-on="on"
+                            v-bind="attrs"
+                            color="accent"
+                            dark
+                            :loading="isWaitingOnWallet"
+                            >
+                            Open offensive requests</v-btn>
+                    </template>
+                    <v-card tile :loading="!isWarriorLoaded">
+                        <v-card-title>Open offensive battle requests of {{name}}</v-card-title>
+                        <BattleRequestList :warriorID="warriorID" :offensive="true"/>                        
+                    </v-card>
+                </v-dialog>
+            </v-list-item>
         </v-list>
     </v-menu>
 </template>
 
 <script>
 import WarriorRender from './WarriorRender.vue';
+import BattleRequestList from './BattleRequestList.vue';
 import WarriorSkills from '../scripts/warrior-skills.js';
 import BattleBoard from '../scripts/battle-board.js';
 import { AlertBus } from '../scripts/alert-bus.js';
@@ -152,7 +175,7 @@ import Compute from '../scripts/compute'
   export default {
     name: 'WarriorCard',
     props: ["warriorID"],
-    components:{WarriorRender},
+    components:{WarriorRender,BattleRequestList},
     methods:{
         async bindContracts(){
             //bind get calls

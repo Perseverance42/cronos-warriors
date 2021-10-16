@@ -43,7 +43,7 @@ const battleBoard = {
         return new Promise(function(resolve,reject){
             if(!Wallet.isReady()) reject(new Error('No Wallet'));  
             Wallet.loadContract(contractKey).then(contractInstance=>{
-                    contractInstance.denyBattleRequest(defenderID, attackerID).send({from: Wallet.$currentWalletAddr}).then(result=>{
+                    contractInstance.methods.denyBattleRequest(defenderID, attackerID).send({from: Wallet.$currentWalletAddr}).then(result=>{
                         resolve(result);
                         console.log("BattleBoard denyBattleRequest: ", result);
                     }).catch(e=>{
@@ -56,11 +56,12 @@ const battleBoard = {
             });
         });
     },
-    abortBattleRequest(attackerID, defenderID){
+    withdrawBattleRequest(attackerID, defenderID){
         return new Promise(function(resolve,reject){
             if(!Wallet.isReady()) reject(new Error('No Wallet'));  
             Wallet.loadContract(contractKey).then(contractInstance=>{
-                    contractInstance.withdrawBattleRequest(attackerID, defenderID).send({from: Wallet.$currentWalletAddr}).then(result=>{
+                console.log(contractInstance);
+                    contractInstance.methods.withdrawBattleRequest(attackerID, defenderID).send({from: Wallet.$currentWalletAddr}).then(result=>{
                         resolve(result);
                         console.log("BattleBoard withdrawBattleRequest: ", result);
                     }).catch(e=>{

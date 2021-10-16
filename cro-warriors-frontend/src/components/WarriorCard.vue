@@ -128,26 +128,15 @@
                 <v-btn tile block color="primary" @click="selectWarrior(warriorID)">Select</v-btn>
             </v-list-item>
             <v-list-item v-if="currentSelectedWarrior && currentSelectedWarrior!=warriorID">
-                <v-menu
-                    close-on-click
-                    >
-                    <template v-slot:activator="{ on, attrs }">
-                        <v-btn
-                            tile 
-                            block
-                            color="red"
-                            dark
-                            v-bind="attrs"
-                            v-on="on"
-                            :loading="isWaitingOnWallet"
-                            >
-                            Challange</v-btn>
-                    </template>
-                    <v-card>
-                        <v-card-title class="text-overline">Select Warrior to attack with</v-card-title>
-                        <v-card-action><ArmyList :armyAddr="currentWallet" @select="challangeWarrior($event)"></ArmyList></v-card-action>
-                        </v-card>
-                    </v-menu>
+                <v-btn
+                    tile 
+                    block
+                    color="red"
+                    dark
+                    @click="challangeWarrior(currentSelectedWarrior)"
+                    :loading="isWaitingOnWallet"
+                >
+                Challange</v-btn>
             </v-list-item>
         </v-list>
     </v-menu>
@@ -157,14 +146,13 @@
 import WarriorRender from './WarriorRender.vue';
 import WarriorSkills from '../scripts/warrior-skills.js';
 import BattleBoard from '../scripts/battle-board.js';
-import ArmyList from '../components/ArmyList.vue';
 import { AlertBus } from '../scripts/alert-bus.js';
 import Compute from '../scripts/compute'
 
   export default {
     name: 'WarriorCard',
     props: ["warriorID"],
-    components:{ArmyList, WarriorRender},
+    components:{WarriorRender},
     methods:{
         async bindContracts(){
             //bind get calls

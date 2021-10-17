@@ -10,7 +10,7 @@
                         <v-container>
                             <v-row><v-col>
                                 <v-btn :loading="isWaitingForWallet" v-if="!offensive" class="mx-1" color="green" fab small @click="confirmBattleRequest(i)"><v-icon fab>mdi-check</v-icon></v-btn>
-                                <v-btn :loading="isWaitingForWallet" class="mx-1" color="red" fab small @click="offensive ? abortBattleRequest(i) : denyBattleRequest(i)"><v-icon >mdi-cancel</v-icon></v-btn>
+                                <v-btn :loading="isWaitingForWallet" class="mx-1" color="red" fab small @click="offensive ? withdrawBattleRequest(i) : denyBattleRequest(i)"><v-icon >mdi-cancel</v-icon></v-btn>
                             </v-col></v-row>
                         </v-container>
                     </WarriorListItem>
@@ -38,6 +38,9 @@ import { AlertBus } from '../scripts/alert-bus.js';
         async bindDefensiveCalls(){
             this.$bindCall('battleRequests', { contract: await this.$wallet.loadContract('BattleBoard'), method:"defensiveRequestOf", args:[ this.warriorID, 0, 20 ] });
         },
+        async bindOffensiveCalls(){
+            this.$bindCall('battleRequests', { contract: await this.$wallet.loadContract('BattleBoard'), method:"offensiveRequestOf", args:[ this.warriorID, 0, 20 ] });
+        },
         async subscribeDefensiveRequests(){
             if(this.battleBoardSubscriber !== null ) return;
             const contract = await this.$wallet.loadContract('BattleBoard');
@@ -52,7 +55,7 @@ import { AlertBus } from '../scripts/alert-bus.js';
         confirmBattleRequest(index){
             this.isWaitingForWallet = true;
             BattleBoard.confirmBattleRequest(this.defenderID, this.battleRequests[index]).then(result=>{
-                AlertBus.$emit("alert",{ type:"infor", message:"Battle finished successfully", timeout: 3000 });
+                AlertBus.$emit("alert",{ type:"info", message:"Battle finished successfully", timeout: 3000 });
                 this.$emit("battleConfirmed", result);
                 this.isWaitingForWallet = false;
             }).catch(e=>{
@@ -71,12 +74,13 @@ import { AlertBus } from '../scripts/alert-bus.js';
                 this.isWaitingForWallet = false;
             });      
         },
-        abortBattleRequest(index){
+        withdrawBattleRequest(index){
             this.isWaitingForWallet = true;
-            BattleBoard.abortBattleRequest(this.attackerID, this.battleRequests[index]).then(result=>{
+            BattleBoard.withdrawBattleRequest(this.attackerID, this.battleRequests[index]).then(result=>{
                 console.log("Warrior battle withdrawn", result);
                 AlertBus.$emit("alert",{ type:"infor", message:"Your warrior withdrew from battle.", timeout: 3000 });        
                 this.$emit("battleWithdrawn", result);
+                this.bindOffensiveCalls();
                 this.isWaitingForWallet = false;
             }).catch(e=>{
                 AlertBus.$emit("alert",{ type:"error", message:"Failed to withdraw from battle.", details: e });
@@ -96,19 +100,22 @@ import { AlertBus } from '../scripts/alert-bus.js';
         "warriorID": function(){
             if(this.offensive){
                 this.attackerID = this.warriorID;
-              //  this.bindDefensiveCalls();
+                this.bindOffensiveCalls();
             }else{
                 this.defenderID = this.warriorID;
                 this.bindDefensiveCalls();
                 this.subscribeDefensiveRequests();
             }
+        },
+        "battleRequests": function(){
+            this.$emit("RequestsAdded", this.battleRequests);
         }
     },
     mounted(){
         if(this.warriorID!=null){
             if(this.offensive){
                 this.attackerID = this.warriorID;
-                
+                this.bindOffensiveCalls();
             }else{
                 this.defenderID = this.warriorID;
                 this.bindDefensiveCalls();

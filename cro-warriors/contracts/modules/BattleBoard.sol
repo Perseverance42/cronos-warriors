@@ -78,6 +78,32 @@ contract BattleBoard {
         }
         return requests;
     }
+
+    function offensiveRequestOf(uint256 id, uint256 start, uint8 pageSize) external view returns(uint256[] memory){
+        uint256 requestCount = _offensiveBattleRequests[id].sizeOf();
+        if(requestCount<1)
+            return new uint256[](0);
+        
+        if(start == 0){
+            start = _offensiveBattleRequests[id].getFirst();
+        }
+        requestCount = pageSize < requestCount ? pageSize : requestCount; //limit request size
+        
+        uint256[] memory requests = new uint256[](requestCount);
+        bool exists;
+        uint256 next;
+        for(uint8 i=0;i<requestCount;i++){
+           (exists, ,next) = _offensiveBattleRequests[id].getNode(start); //does return exists, previous, next
+            
+           if(exists){
+                requests[i] = start;
+                start = next;
+           }else{
+               break;
+           }
+        }
+        return requests;
+    }
     
     /** Setters */
 

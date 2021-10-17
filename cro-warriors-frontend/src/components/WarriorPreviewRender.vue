@@ -3,7 +3,7 @@
     <div class="warrior-parts" v-show="imagesLoaded">
 	<!--Loads face on Base-->
       <img :style="skinColor" class="chest" :src="baseChestSrc(1)">
-		  <img :style="clothesColor" class="chest" :src="chestSrc(currentChestChooice)">
+      <img :style="clothesColor" class="chest" :src="chestSrc(currentChestChooice)">
       <img :style="skinColor" class="head" :src="headSrc(currentHeadChoice)">
       <img :style="hairColor" class="eyes" :src="eyesSrc(currentEyeChoice)">
       <img :style="skinColor" class="nose" :src="noseSrc(currentNoseChoice)">

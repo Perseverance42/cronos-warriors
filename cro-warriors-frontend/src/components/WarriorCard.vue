@@ -172,6 +172,8 @@ import BattleBoard from '../scripts/battle-board.js';
 import { AlertBus } from '../scripts/alert-bus.js';
 import Compute from '../scripts/compute'
 
+import WarriorPreviewRender from './WarriorPreviewRender.vue';
+
   export default {
     name: 'WarriorCard',
     props: ["warriorID"],

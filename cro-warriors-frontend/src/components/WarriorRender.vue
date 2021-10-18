@@ -2,19 +2,19 @@
   <div v-images-loaded="partsLoaded" class="warrior-char" v-if="warriorDNA">
     <div class="warrior-parts" v-show="imagesLoaded">
 	<!--Loads Base then Clothes-->
-		<img :style="skinColor" class="armRight" :src="baseArmRightSrc(1)">
+		<img :style="skinColor" class="armRight" :src="baseArmRightSrc(currentSkinColorChoice)">
 		<img :style="clothesColor" class="armRight" :src="armRightSrc(currentArmChoice)">
-		<img :style="skinColor" class="chest" :src="baseChestSrc(1)">
+		<img :style="skinColor" class="chest" :src="baseChestSrc(currentSkinColorChoice)">
 		<img :style="clothesColor" class="chest" :src="chestSrc(currentChestChooice)">
-		<img :style="skinColor" class="head" :src="headSrc(currentHeadChoice)">
-		<img :style="skinColor" class="legs" :src="baseLegSrc(1)">
-		<img :style="skinColor" class="feet" :src="baseFeetSrc(1)">
-		<img :style="skinColor" class="armLeft" :src="baseArmLeftSrc(1)">
+		<img :style="skinColor" class="head" :src="headSrc(currentHeadChoice, currentSkinColorChoice)">
+		<img :style="skinColor" class="legs" :src="baseLegSrc(currentSkinColorChoice)">
+		<img :style="skinColor" class="feet" :src="baseFeetSrc(currentSkinColorChoice)">
+		<img :style="skinColor" class="armLeft" :src="baseArmLeftSrc(currentSkinColorChoice)">
 		<img :style="clothesColor" class="armLeft" :src="armLeftSrc(currentArmChoice)">
 	<!--Loads face on Base-->
-		<img :style="hairColor" class="eyes" :src="eyesSrc(currentEyeChoice)">
-		<img :style="skinColor" class="nose" :src="noseSrc(currentNoseChoice)">
-		<img :style="skinColor" class="mouth" :src="mouthSrc(currentMouthChoice)">
+		<img :style="clothesColor" class="eyes" :src="eyesSrc(currentEyeChoice)">
+		<img :style="skinColor" class="nose" :src="noseSrc(currentNoseChoice, currentSkinColorChoice)">
+		<img :style="skinColor" class="mouth" :src="mouthSrc(currentMouthChoice, currentSkinColorChoice)">
 	
 		<img :style="clothesColor" class="legs" :src="legSrc(currentLegChooice)">
 		<img :style="clothesColor" class="feet" :src="feetSrc(currentFeetChooice)">		
@@ -48,17 +48,18 @@ export default {
 		getColor (deg) {
 			return `filter: hue-rotate(${deg}deg);`
 		},
-		headSrc(i) {
-			return require("../assets/warriorparts/base-head-" + i + ".svg")
+		headSrc(i, j) {
+			console.log(j)
+			return require("../assets/warriorparts/base-head-" + i + "-" + j + ".svg")
 		},
 		eyesSrc(i) {
 			return require("../assets/warriorparts/base-eyes-" + i + ".svg")
 		},
-		noseSrc(i) {
-			return require("../assets/warriorparts/base-nose-" + i + ".svg")
+		noseSrc(i, j) {
+			return require("../assets/warriorparts/base-nose-" + i + "-" + j + ".svg")
 		},
-		mouthSrc(i) {
-			return require("../assets/warriorparts/base-mouth-" + i + ".svg")
+		mouthSrc(i, j) {
+			return require("../assets/warriorparts/base-mouth-" + i + "-" + j + ".svg")
 		},
 		baseChestSrc(i) {
 			return require("../assets/warriorparts/base-chest-" + i + ".svg")
@@ -103,37 +104,37 @@ export default {
         return this.warriorDNA;
       },
       currentHairChoice(){
-        return (parseInt(this.currentDna.substring(0, 2)) % 6 + 1);
+        return (parseInt(this.currentDna.substring(0, 2)) % 9 + 1);
       },
       currentHeadChoice(){
         return (parseInt(this.currentDna.substring(2, 4)) % 4 + 1);
       },
       currentEyeChoice(){
-        return (parseInt(this.currentDna.substring(4, 6)) % 4 + 1);
+        return (parseInt(this.currentDna.substring(4, 6)) % 7 + 1);
       },
       currentNoseChoice(){
-        return (parseInt(this.currentDna.substring(6, 8)) % 5 + 1);
+        return (parseInt(this.currentDna.substring(6, 8)) % 7 + 1);
       },
       currentMouthChoice(){
-        return (parseInt(this.currentDna.substring(8, 10)) % 7 + 1);
+        return (parseInt(this.currentDna.substring(8, 10)) % 9 + 1);
       },
       currentArmChoice(){
-        return (parseInt(this.currentDna.substring(10, 12)) % 3 + 1);
+        return (parseInt(this.currentDna.substring(10, 12)) % 6 + 1);
       },
       currentLegChooice(){
-        return (parseInt(this.currentDna.substring(14, 15)) % 3 + 1);
+        return (parseInt(this.currentDna.substring(14, 15)) % 6 + 1);
       },
       currentChestChooice(){
-        return (parseInt(this.currentDna.substring(15, 16)) % 4 + 1);
+        return (parseInt(this.currentDna.substring(15, 16)) % 6 + 1);
       },
       currentFeetChooice(){
-        return (parseInt(this.currentDna.substring(16, 17)) % 3 + 1);
+        return (parseInt(this.currentDna.substring(16, 17)) % 6 + 1);
       },
       currentClothesColorChoice(){
         return (parseInt(this.currentDna.substring(17, 19)) / 100 * 360);
       },
       currentSkinColorChoice(){
-        return (parseInt(this.currentDna.substring(18, 19)) / 100 * 360);
+        return (parseInt(this.currentDna.substring(18, 19)) % 5 + 1);
       },
       currentHairColorChoice(){
         return (parseInt(this.currentDna.substring(18, 20)) / 100 * 360);
@@ -175,10 +176,10 @@ export default {
 .warrior-parts {
   position: relative;
   width:100%;
-  /*background-color:red; remove after setup
-  top: 50%; right: 50%;
-  transform: translate(50%,-50%);*/
-
+  /*top: 50%; left: 50%;
+  width:450%;
+  transform: translate(-40%,380px);*/
+}
   
   .hair {
    width: 55%;
@@ -240,5 +241,5 @@ export default {
   }
 
 
-}
+
 </style>

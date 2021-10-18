@@ -1,14 +1,16 @@
 <template>
-  <div>
-    <v-list>
-      <v-list-item>
-            <v-list-item-avatar dense tile>
+    <v-list-item>
+        <v-list-item-avatar dense tile>
             <Identicon :value="warriorDNA" v-if="warriorDNA"/>
-            </v-list-item-avatar>
-            
-            <v-list-item-title># {{warriorID}} | {{warriorName || 'Loading...'}}</v-list-item-title>
+        </v-list-item-avatar>
+        <div style="max-width: 45%;">
+            <v-list-item-content>
+                <v-list-item-title class="text-truncate"># {{warriorID}} | {{warriorName || 'Loading...'}}</v-list-item-title>
+            </v-list-item-content>
+        </div>
+        <v-spacer></v-spacer>
             <v-list-item-icon>
-                <v-menu close-on-click> 
+                <v-menu close-on-click>
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn 
                             fab 
@@ -17,28 +19,26 @@
                             elevation="0" 
                             v-bind="attrs" 
                             v-on="on"
-                        ><v-icon>mdi-cog-transfer-outline</v-icon></v-btn>
+                        >{{requestCount}}</v-btn>
                     </template>
-                    <v-card class="pa-3" tile width="350">
-                        <v-card-title class="text-overline">Select a warrior</v-card-title>
+                    <v-card class="pa-3" tile>
+                        <v-card-title class="text-overline">Open requests</v-card-title>
                         <v-divider/>
-                        <v-card-actions><ArmyList :armyAddr="currentWallet" @select="selectWarrior($event)"></ArmyList></v-card-actions>
+                        <v-card-actions><BattleRequestList :warriorID="warriorID"></BattleRequestList></v-card-actions>
                     </v-card>
                 </v-menu>
             </v-list-item-icon>
-      </v-list-item>
-    </v-list>
-  </div>
+    </v-list-item>
 </template>
 
 <script>
 import Identicon from './Identicon.vue';
-import ArmyList from './ArmyList.vue';
+import BattleRequestList from './BattleRequestList.vue';
 
 export default {
-  name: "WarriorPreviewItem",
+  name: "WarriorBattleRequestsItem",
   props: ['warriorID'],
-  components: {Identicon, ArmyList},
+  components: {Identicon, BattleRequestList},
   methods: {
     async bindContracts(){
           if(this.$wallet.$currentWalletAddr==null){
@@ -47,6 +47,7 @@ export default {
           }
           this.$bindCall('warriorName', { contract: await this.$wallet.loadContract('WarriorVisuals'), method:"warriorName", args:[ this.warriorID ] });
           this.$bindCall('warriorDNA', { contract: await this.$wallet.loadContract('WarriorVisuals'), method:"warriorDNA", args:[ this.warriorID ] });
+          this.$bindCall('battleRequests', { contract: await this.$wallet.loadContract('BattleBoard'), method:"defensiveRequestOf", args:[ this.warriorID, 0, 10 ] });
     },
     selectWarrior(id){
         this.$selectedWarrior = id;
@@ -63,13 +64,17 @@ export default {
       this.bindContracts();
   },
   computed: {
-      currentWallet:function(){
+      currentWallet(){
           return this.$wallet ? this.$wallet.$currentWalletAddr : null;
+      },
+      requestCount(){
+          return this.battleRequests.length >= 10 ? '10+' : this.battleRequests.length;
       }
   },
   data: () => ({
       warriorName: null,
       warriorDNA: null,
+      battleRequests: [],
   }),
 };
 </script>

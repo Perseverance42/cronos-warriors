@@ -2,10 +2,9 @@
   <div>
     <v-list>
       <v-list-item>
-            <v-list-item-avatar dense tile>
-            <Identicon :value="warriorDNA" v-if="warriorDNA"/>
+            <v-list-item-avatar>
+                <WarriorPreviewRender :warriorDNA="warriorDNA" v-if="warriorDNA"/>
             </v-list-item-avatar>
-            
             <v-list-item-title># {{warriorID}} | {{warriorName || 'Loading...'}}</v-list-item-title>
             <v-list-item-icon>
                 <v-menu close-on-click> 
@@ -32,13 +31,14 @@
 </template>
 
 <script>
-import Identicon from './Identicon.vue';
+
 import ArmyList from './ArmyList.vue';
+import WarriorPreviewRender from './WarriorPreviewRender.vue';
 
 export default {
   name: "WarriorPreviewItem",
   props: ['warriorID'],
-  components: {Identicon, ArmyList},
+  components: { ArmyList, WarriorPreviewRender},
   methods: {
     async bindContracts(){
           if(this.$wallet.$currentWalletAddr==null){

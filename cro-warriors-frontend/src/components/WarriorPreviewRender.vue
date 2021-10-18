@@ -2,12 +2,12 @@
   <div v-images-loaded="partsLoaded" class="warrior-char" v-if="warriorDNA">
     <div class="warrior-parts" v-show="imagesLoaded">
 	<!--Loads face on Base-->
-      <img :style="skinColor" class="chest" :src="baseChestSrc(1)">
+      <img :style="skinColor" class="chest" :src="baseChestSrc(currentSkinColorChoice)">
       <img :style="clothesColor" class="chest" :src="chestSrc(currentChestChooice)">
-      <img :style="skinColor" class="head" :src="headSrc(currentHeadChoice)">
-      <img :style="hairColor" class="eyes" :src="eyesSrc(currentEyeChoice)">
-      <img :style="skinColor" class="nose" :src="noseSrc(currentNoseChoice)">
-      <img :style="skinColor" class="mouth" :src="mouthSrc(currentMouthChoice)">
+      <img :style="skinColor" class="head" :src="headSrc(currentHeadChoice, currentSkinColorChoice)">
+      <img :style="clothesColor" class="eyes" :src="eyesSrc(currentEyeChoice)">
+      <img :style="skinColor" class="nose" :src="noseSrc(currentNoseChoice, currentSkinColorChoice)">
+      <img :style="skinColor" class="mouth" :src="mouthSrc(currentMouthChoice, currentSkinColorChoice)">
       <img :style="hairColor" class="hair" :src="hairSrc(currentHairChoice)">
     </div>
   </div>
@@ -35,19 +35,20 @@ export default {
 		getColor (deg) {
 			return `filter: hue-rotate(${deg}deg);`
 		},
-		headSrc(i) {
-			return require("../assets/warriorparts/base-head-" + i + ".svg")
+		headSrc(i, j) {
+			console.log(j)
+			return require("../assets/warriorparts/base-head-" + i + "-" + j + ".svg")
 		},
 		eyesSrc(i) {
 			return require("../assets/warriorparts/base-eyes-" + i + ".svg")
 		},
-		noseSrc(i) {
-			return require("../assets/warriorparts/base-nose-" + i + ".svg")
+		noseSrc(i, j) {
+			return require("../assets/warriorparts/base-nose-" + i + "-" + j + ".svg")
 		},
-		mouthSrc(i) {
-			return require("../assets/warriorparts/base-mouth-" + i + ".svg")
+		mouthSrc(i, j) {
+			return require("../assets/warriorparts/base-mouth-" + i + "-" + j + ".svg")
 		},
-    baseChestSrc(i) {
+		baseChestSrc(i) {
 			return require("../assets/warriorparts/base-chest-" + i + ".svg")
 		},
 		hairSrc(i) {
@@ -66,25 +67,31 @@ export default {
             return this.warriorDNA;
         },
         currentHairChoice(){
-            return (parseInt(this.currentDna.substring(0, 2)) % 6 + 1);
+          return (parseInt(this.currentDna.substring(0, 2)) % 9 + 1);
         },
         currentHeadChoice(){
-            return (parseInt(this.currentDna.substring(2, 4)) % 4 + 1);
+          return (parseInt(this.currentDna.substring(2, 4)) % 4 + 1);
         },
         currentEyeChoice(){
-            return (parseInt(this.currentDna.substring(4, 6)) % 4 + 1);
+          return (parseInt(this.currentDna.substring(4, 6)) % 7 + 1);
         },
         currentNoseChoice(){
-            return (parseInt(this.currentDna.substring(6, 8)) % 5 + 1);
+            return (parseInt(this.currentDna.substring(6, 8)) % 7 + 1);
         },
         currentMouthChoice(){
-            return (parseInt(this.currentDna.substring(8, 10)) % 7 + 1);
+            return (parseInt(this.currentDna.substring(8, 10)) % 9 + 1);
         },
         currentChestChooice(){
-          return (parseInt(this.currentDna.substring(15, 16)) % 4 + 1);
+          return (parseInt(this.currentDna.substring(15, 16)) % 6 + 1);
         },
         currentSkinColorChoice(){
-        return (parseInt(this.currentDna.substring(18, 19)) / 100 * 360);
+          return (parseInt(this.currentDna.substring(18, 19)) % 5 + 1);
+        },
+        currentClothesColorChoice(){
+          return (parseInt(this.currentDna.substring(17, 19)) / 100 * 360);
+        },
+        currentHairColorChoice(){
+          return (parseInt(this.currentDna.substring(18, 20)) / 100 * 360);
         },
         clothesColor () {
           return this.getColor(this.currentClothesColorChoice);

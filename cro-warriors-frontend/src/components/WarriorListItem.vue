@@ -5,7 +5,7 @@
                 <div v-if="!isLoading">
                     
                     <v-list-item-title>
-                        <v-avatar tile class="mb-2"><Identicon class="pa-0" :value="warriorDNA || 'cro'"/></v-avatar>
+                        <v-avatar color="accent" class="mb-2"><WarriorPreviewRender class="pa-0" :warriorDNA="warriorDNA || 'cro'"/></v-avatar>
                         {{warriorName}} #{{warriorID}}</v-list-item-title>
                     <v-list-item-subtitle> Level: {{warriorLevel}} | Health: {{warriorHealth}}</v-list-item-subtitle>
                 </div>
@@ -55,13 +55,13 @@
 </template>
 
 <script>
-import Identicon from './Identicon.vue';
+import WarriorPreviewRender from './WarriorPreviewRender.vue';
 import BattleBoard from '../scripts/battle-board.js';
 import { AlertBus } from '../scripts/alert-bus.js';
 
   export default {
     name: 'WarriorListItem',
-    components:{Identicon},
+    components:{WarriorPreviewRender},
     props: ['warriorID', 'context'],
     methods:{
         async bindCalls(){

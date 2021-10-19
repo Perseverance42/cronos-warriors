@@ -53,9 +53,20 @@
                     </v-row>
                     <v-row>
                         <v-col>
-                            <v-avatar size=250 color="accent" tile>
-                                <WarriorRender  :warriorDNA="dna" />    
-                            </v-avatar>
+                            <v-dialog width="auto " >
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-avatar size="250" color="accent" tile v-on="on" v-bind="attrs">
+                                        <WarriorRender  :warriorDNA="dna" />    
+                                    </v-avatar>
+                                </template>
+                                <v-card >
+                                    
+                                        <v-avatar size="80vh" color="accent" tile>
+                                            <WarriorRender  :warriorDNA="dna" />
+                                        </v-avatar>
+                                    
+                                </v-card>
+                            </v-dialog>
                         </v-col>
                     </v-row>
                     <v-row class="text-overline text-center" justify="center" >
@@ -172,11 +183,13 @@ import BattleBoard from '../scripts/battle-board.js';
 import { AlertBus } from '../scripts/alert-bus.js';
 import Compute from '../scripts/compute'
 
+
   export default {
     name: 'WarriorCard',
     props: ["warriorID"],
     components:{WarriorRender,BattleRequestList},
-    methods:{
+    methods:
+        {
         async bindContracts(){
             //bind get calls
             this.$bindCall('owner', { contract: await this.$wallet.loadContract('CronosWarriors'), method:"ownerOf", args:[ this.warriorID ] });

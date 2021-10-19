@@ -1,7 +1,7 @@
 <template>
     <v-list-item>
-        <v-list-item-avatar dense tile>
-            <Identicon :value="warriorDNA" v-if="warriorDNA"/>
+        <v-list-item-avatar dense color="accent">
+            <WarriorPreviewRender :warriorDNA="warriorDNA" v-if="warriorDNA"/>
         </v-list-item-avatar>
         <div style="max-width: 45%;">
             <v-list-item-content>
@@ -32,13 +32,13 @@
 </template>
 
 <script>
-import Identicon from './Identicon.vue';
+import WarriorPreviewRender from './WarriorPreviewRender.vue';
 import BattleRequestList from './BattleRequestList.vue';
 
 export default {
   name: "WarriorBattleRequestsItem",
   props: ['warriorID'],
-  components: {Identicon, BattleRequestList},
+  components: {WarriorPreviewRender, BattleRequestList},
   methods: {
     async bindContracts(){
           if(this.$wallet.$currentWalletAddr==null){

@@ -12,50 +12,61 @@
             v-on="on"
             elevation="3"> 
             <v-container>
-                <v-row><v-col>
-                <v-card-title>{{name}}</v-card-title>
-                <v-card-subtitle v-if="!isCurrentWalletOwner">{{owner || 'Loading...'}}</v-card-subtitle>
-                </v-col></v-row>
-                <v-card-text>
-                    <v-row class="pb-1" v-if="experience!=null">
-                        <v-tooltip bottom>
-                            <template v-slot:activator="{ on, attrs }">
-                                <v-progress-linear
-                                    v-on="on"
-                                    v-bind="attrs"
-                                    height="25"
-                                    color="green lighten-2"
-                                    :value="levelUpProgress"
-                                >
-                                    <template v-slot:default>
-                                        <strong>Level {{ Math.ceil(computedLevel || 0) }}</strong>
-                                    </template>
-                                </v-progress-linear>
-                            </template>
-                            <span>
-                                <table>
-                                    <tr><th>EP currently:</th><td class="text-right">{{experience}}</td></tr>
-                                    <tr><th>EP required:</th><td class="text-right">{{epNeededForNextLevel}}</td></tr>
-                                </table>
-                            </span>
-                        </v-tooltip>
-                    </v-row>
-                    <v-row v-if="experience && skills">
-                        <v-progress-linear
-                            height="25"
-                            color="red darken-2"
-                            value="100"
-                        >
-                            <template v-slot:default>
-                                <strong>HP {{ Math.ceil(computedHealth || 0) }}</strong>
-                            </template>
-                        </v-progress-linear>
-                    </v-row>
-                    <v-row>
-                        <v-col>
+                <v-row>
+					<v-col class="col-4">
+						<div class="levelDisplayContainer">
+							<p><strong>Level</strong></p>
+							<div>
+								<v-card-title class="levelText">{{ Math.ceil(computedLevel || 0) }}</v-card-title>
+							</div>
+							<div>
+								<v-row class="pb-1" v-if="experience!=null">
+									<v-tooltip bottom>
+										<template v-slot:activator="{ on, attrs }">
+											<v-progress-linear class="levelBar"
+												v-on="on"
+												v-bind="attrs"
+												height="10"
+												color="green lighten-2"
+												:value="levelUpProgress"
+											>
+											</v-progress-linear>
+										</template>
+										<span>
+											<table>
+												<tr><th>EP currently:</th><td class="text-right">{{experience}}</td></tr>
+												<tr><th>EP required:</th><td class="text-right">{{epNeededForNextLevel}}</td></tr>
+											</table>
+										</span>
+									</v-tooltip>
+
+								</v-row>
+							</div>
+						</div>
+					</v-col>
+					<v-spacer></v-spacer>
+					<v-col class="col-3">
+						<div class="hpDisplayContainer"> 
+							<v-row v-if="experience && skills">								
+								<p>
+									
+									<v-card-title class="hpText">{{ Math.ceil(computedHealth || 0) }}</v-card-title>	
+									HP									
+								</p>
+									
+								
+							</v-row>
+						</div>
+					</v-col>
+					
+				</v-row>                
+                    
+                    <v-row class="cardHeroBG">
+                        <v-col>						
+							<div class="oval"></div>
                             <v-dialog width="auto " >
                                 <template v-slot:activator="{ on, attrs }">
-                                    <v-avatar size="250" color="accent" tile v-on="on" v-bind="attrs">
+                                    <v-avatar size="270" color="" tile v-on="on" v-bind="attrs">
                                         <WarriorRender  :warriorDNA="dna" />    
                                     </v-avatar>
                                 </template>
@@ -67,33 +78,71 @@
                                     
                                 </v-card>
                             </v-dialog>
+						
                         </v-col>
                     </v-row>
-                    <v-row class="text-overline text-center" justify="center" >
-                        <v-col cols="6"> 
-                            <center>
-                                <table>
-                                    <tr><th>Attack: </th><td>{{skills==null?'': skills[1]}}</td></tr>
-                                    <tr><th>Defense: </th><td>{{skills==null?'': skills[2]}}</td></tr>
-                                    <tr><th>Battles won: </th><td>{{stats==null?'': stats[0]}}</td></tr>
-                                </table>
-                            </center>
-                        </v-col>
-                        <v-col  cols="6">
-                            <center>
-                                <table>
-                                    <tr><td>Stamina:</td><td>{{skills==null?'': skills[3]}}</td></tr>
-                                
-                                    <v-tooltip bottom>
-                                        <template v-slot:activator="{ on, attrs }">
-                                            <tr v-on="on" v-bind="attrs"><td>Dexterity:</td><td>{{skills==null?'': skills[4]}}</td></tr>
-                                        </template>
-                                        <span>Critical hit rate: {{computedCritRate/10}}%</span>
-                                    </v-tooltip>
-                                    <tr><th>Battles lost: </th><td>{{stats==null?'': stats[1]}}</td></tr>
-                                </table>
-                            </center>
-                        </v-col>
+					<v-row>
+						<v-col>
+							<v-card-title>{{name}}</v-card-title>
+							<v-card-subtitle v-if="!isCurrentWalletOwner">{{owner || 'Loading...'}}</v-card-subtitle>
+						</v-col>
+					</v-row>
+					<v-divider></v-divider>
+				<v-card-text>
+                    <v-row class="text-center" justify="center" >
+                        
+						<v-spacer></v-spacer>
+						<v-col cols="3" class="light-blue darken-4">
+							<div class="statStyle">
+								<center>
+									<strong class="skillText">{{skills==null?'': skills[1]}}</strong>
+									<p>Attack</p>
+								</center>
+							</div>
+						</v-col>
+						<v-spacer></v-spacer>
+						<v-col cols="3" class="light-blue darken-1">
+							<div class="statStyle">
+								<center>
+									<strong class="skillText">{{skills==null?'': skills[2]}}</strong>
+									<p>Defense</p> 
+								</center>
+							</div>
+						</v-col>
+						<v-spacer></v-spacer>
+						<v-col cols="3" class="light-blue darken-4">
+							<div class="statStyle">
+								<center>
+									<strong class="skillText">{{skills==null?'': skills[3]}}</strong>
+									<p>Stamina</p>
+								</center>
+							</div>
+						</v-col>
+						<v-spacer></v-spacer>
+						<v-col cols="3" class="light-blue darken-1">
+							<div class="statStyle">
+								<center>
+									<v-tooltip bottom>
+											<template v-slot:activator="{ on, attrs }">
+												<p v-on="on" v-bind="attrs"><strong class="skillText">{{skills==null?'': skills[4]}}</strong>
+												Dexterity
+												</p>
+											</template>
+											<span>Critical hit rate: {{computedCritRate/10}}%</span>
+										</v-tooltip> 
+								</center>
+							</div>
+						</v-col>
+						<v-spacer></v-spacer>
+						<v-row>	
+							<v-col class="col-12">
+                                <div class="winLossContainer">
+									won <strong class="hpText">{{stats==null?'': stats[0]}}</strong> / <strong class="hpText">{{stats==null?'': stats[1]}}</strong> lost
+								</div>
+							</v-col>
+						</v-row>
+                            
+                    
                     </v-row>
                     <v-row v-if="isCurrentWalletOwner">
                         <v-col>
@@ -147,7 +196,7 @@
                     @click="challangeWarrior(currentSelectedWarrior)"
                     :loading="isWaitingOnWallet"
                 >
-                Challange</v-btn>
+                Challenge</v-btn>
             </v-list-item>
             <v-list-item v-if="isCurrentWalletOwner">
                 <v-dialog
@@ -283,3 +332,96 @@ import Compute from '../scripts/compute'
     }),
   }
 </script>
+
+<style lang="scss" scoped>
+	.levelDisplayContainer {
+		margin-left:10px;
+		width:50%;
+		
+	}
+	
+	.hpDisplayContainer {
+		background-image: url("../assets/cardparts/hpDrop.svg");
+		background-position: center;
+		background-repeat: no-repeat;
+		background-size: 60px;
+		min-height:90px;
+		margin-top:10px;
+	}
+	
+	.winLossContainer {
+		margin:10px;
+		margin-bottom:0px;
+		text-transform: uppercase;
+	}
+	
+	.levelDisplayContainer p {
+		margin-left:auto;
+		margin-right:auto;
+		text-transform: uppercase;
+	}
+	
+	.hpDisplayContainer p {
+		margin-left:auto;
+		margin-right:auto;
+		text-transform: uppercase;
+		color:white;
+		padding:0px;
+		margin-bottom:0px
+	}
+	
+	.levelText {
+		font-size:60px;
+		margin-top: -20px;
+	}
+	
+	.hpText {
+		font-size:25px;
+		padding-bottom:0px;
+		padding-top:32px;
+		margin-bottom:0px;
+	}
+	
+	.skillText {
+		font-size:30px;
+		margin-top: 10px;
+		color: white;
+	}
+	
+	.statStyle {
+		max-height: 40px;
+	}
+	
+	.statStyle p {
+		color: white;
+		font-size: 10px;
+		font-weight: 600;
+		text-transform: uppercase;
+	}
+	
+	.levelBar {
+		margin-top:12px;
+		width:100%;
+	}
+	
+	.oval {
+		position: relative;
+		height: 20px;
+		width: 130px;
+		background-color: #2e4149;
+		border-radius: 50%;
+		margin-left:auto;
+		margin-right:auto;
+		top: 265px;
+		left: -6px;
+		opacity: 1;
+	}
+	
+	.cardHeroBG {
+		background-image: url("../assets/cardparts/warriorCardBG.svg");
+		background-position: center;
+		background-repeat: no-repeat;
+		background-size: 270px;
+	}
+
+</style>

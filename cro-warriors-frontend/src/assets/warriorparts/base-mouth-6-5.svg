@@ -5,9 +5,9 @@
 <style type="text/css">
 	.st0{fill:none;}
 	.st1{fill-rule:evenodd;clip-rule:evenodd;fill:url(#SVGID_1_);}
-	.st2{fill-rule:evenodd;clip-rule:evenodd;fill:url(#SVGID_00000163054423197533957800000007948238192697804445_);}
-	.st3{fill-rule:evenodd;clip-rule:evenodd;fill:url(#SVGID_00000034063164439301198520000008638012858023244979_);}
-	.st4{fill-rule:evenodd;clip-rule:evenodd;fill:#DB8A67;}
+	.st2{fill-rule:evenodd;clip-rule:evenodd;fill:url(#SVGID_00000139984010993802218440000013112729307418192536_);}
+	.st3{fill-rule:evenodd;clip-rule:evenodd;fill:url(#SVGID_00000125600576683074550480000008138033872517814967_);}
+	.st4{fill-rule:evenodd;clip-rule:evenodd;fill:#BF7358;}
 </style>
 <g id="Layer_2_00000071556876273666437120000000261237836506149787_">
 	<g id="base">
@@ -15,26 +15,26 @@
 	</g>
 	<g id="Mouth_06">
 		
-			<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="402.5" y1="1254.8862" x2="456.0879" y2="1254.8862" gradientTransform="matrix(1 0 0 -1 0 1576)">
+			<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="402.5" y1="3929.1138" x2="456.0879" y2="3929.1138" gradientTransform="matrix(1 0 0 1 0 -3608)">
 			<stop  offset="0" style="stop-color:#322000"/>
 			<stop  offset="1" style="stop-color:#502900"/>
 		</linearGradient>
 		<path class="st1" d="M402.5,305.3l5.8-3.5c0,0,27.2-8.7,42.9-0.2c4.5,12.9,5.5,31.2,4.7,36.8c0,0-24.6,9.1-18,4.8
 			c11.3-7.4,11.4-38.9-1.2-37.9s-31.4,3.4-31.4,3.4L402.5,305.3z"/>
 		
-			<linearGradient id="SVGID_00000137845407506518584560000016714975736674565275_" gradientUnits="userSpaceOnUse" x1="-1574.71" y1="1257.6" x2="-1542.1631" y2="1257.6" gradientTransform="matrix(-1 0 0 -1 -1169.41 1576)">
+			<linearGradient id="SVGID_00000064344707763694994750000012652867520254704011_" gradientUnits="userSpaceOnUse" x1="-4190.71" y1="3926.3999" x2="-4158.1631" y2="3926.3999" gradientTransform="matrix(-1 0 0 1 -3785.4102 -3608)">
 			<stop  offset="0" style="stop-color:#322000"/>
 			<stop  offset="1" style="stop-color:#502900"/>
 		</linearGradient>
-		<path style="fill-rule:evenodd;clip-rule:evenodd;fill:url(#SVGID_00000137845407506518584560000016714975736674565275_);" d="
+		<path style="fill-rule:evenodd;clip-rule:evenodd;fill:url(#SVGID_00000064344707763694994750000012652867520254704011_);" d="
 			M405.3,303.7l-4.9-2.1c0,0-19.9-6.3-24.5,0s-2.8,22.4-2.8,28.1c0,0,4.1,7.4,9.1,8.3c-6.7-11.6-6-32.5,2-31.4s21.1,2.1,21.1,2.1
 			L405.3,303.7z"/>
 		
-			<linearGradient id="SVGID_00000167386915682930501110000003648644613892481701_" gradientUnits="userSpaceOnUse" x1="372.59" y1="1228.7991" x2="456.6641" y2="1228.7991" gradientTransform="matrix(1 0 0 -1 0 1576)">
+			<linearGradient id="SVGID_00000117660339283543117770000009071050324343601834_" gradientUnits="userSpaceOnUse" x1="372.59" y1="3955.2009" x2="456.6641" y2="3955.2009" gradientTransform="matrix(1 0 0 1 0 -3608)">
 			<stop  offset="0" style="stop-color:#322000"/>
 			<stop  offset="1" style="stop-color:#502900"/>
 		</linearGradient>
-		<path style="fill-rule:evenodd;clip-rule:evenodd;fill:url(#SVGID_00000167386915682930501110000003648644613892481701_);" d="
+		<path style="fill-rule:evenodd;clip-rule:evenodd;fill:url(#SVGID_00000117660339283543117770000009071050324343601834_);" d="
 			M455.6,331c-7.5-4.6-25.5,10.4-38.2,11.5c-4.2,0.4,1.9-12-10.9-12.2s-6.3,12.1-10.1,11.1c-8.6-2.4-17.9-7.4-23.9-14.9
 			c1.2,5.8-0.4,4.8,11.5,25.8c10.2,12.3,30,17.1,36.1,15.2c15.6-4.8,28.4-8.3,35.4-20.4C455.6,339.3,457.8,335.8,455.6,331z"/>
 		<path class="st4" d="M382.1,312.5c0,0,5.5,3.1,17.5,2.2s36.1,1.4,40.2-1.5l1.8,1.7c0,0-25.1,2.5-34.8,3.3

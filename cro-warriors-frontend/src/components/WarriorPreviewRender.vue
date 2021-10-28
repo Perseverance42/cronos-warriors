@@ -54,7 +54,7 @@ export default {
 		hairSrc(i) {
 			return require("../assets/warriorparts/clothes-hair-" + i + ".svg")
 		},
-    chestSrc(i) {
+		chestSrc(i) {
 			return require("../assets/warriorparts/clothes-chest-" + i + ".svg")
 		}
     },
@@ -67,22 +67,22 @@ export default {
             return this.warriorDNA;
         },
         currentHairChoice(){
-          return (parseInt(this.currentDna.substring(0, 2)) % 9 + 1);
+          return (parseInt(this.currentDna.substring(0, 2)) % 12 + 1);
         },
         currentHeadChoice(){
           return (parseInt(this.currentDna.substring(2, 4)) % 4 + 1);
         },
         currentEyeChoice(){
-          return (parseInt(this.currentDna.substring(4, 6)) % 7 + 1);
+          return (parseInt(this.currentDna.substring(4, 6)) % 8 + 1);
         },
         currentNoseChoice(){
             return (parseInt(this.currentDna.substring(6, 8)) % 7 + 1);
         },
         currentMouthChoice(){
-            return (parseInt(this.currentDna.substring(8, 10)) % 9 + 1);
+            return (parseInt(this.currentDna.substring(8, 10)) % 11 + 1);
         },
         currentChestChooice(){
-          return (parseInt(this.currentDna.substring(15, 16)) % 6 + 1);
+          return (parseInt(this.currentDna.substring(15, 16)) % 8 + 1);
         },
         currentSkinColorChoice(){
           return (parseInt(this.currentDna.substring(18, 19)) % 5 + 1);

@@ -8,7 +8,7 @@
       <img :style="clothesColor" class="eyes" :src="eyesSrc(currentEyeChoice)">
       <img :style="skinColor" class="nose" :src="noseSrc(currentNoseChoice, currentSkinColorChoice)">
       <img :style="skinColor" class="mouth" :src="mouthSrc(currentMouthChoice, currentSkinColorChoice)">
-      <img :style="hairColor" class="hair" :src="hairSrc(currentHairChoice)">
+      <img :style="hairColor" class="hair" :src="hairSrc(currentHairChoice, currentSkinColorChoice)">
     </div>
   </div>
 </template>
@@ -35,24 +35,39 @@ export default {
 		getColor (deg) {
 			return `filter: hue-rotate(${deg}deg);`
 		},
-		headSrc(i, j) {
-			console.log(j)
-			return require("../assets/warriorparts/base-head-" + i + "-" + j + ".svg")
+		headSrc(baseHead, skinType) {
+			if (skinType > 5) {
+				return require("../assets/warriorparts/special-head-" + skinType + ".svg")
+			} else {
+				return require("../assets/warriorparts/base-head-" + baseHead + "-" + skinType + ".svg")
+			}
 		},
 		eyesSrc(i) {
 			return require("../assets/warriorparts/base-eyes-" + i + ".svg")
 		},
 		noseSrc(i, j) {
-			return require("../assets/warriorparts/base-nose-" + i + "-" + j + ".svg")
+			if (j > 5) {
+				return require("../assets/warriorparts/special-nose-" + j + ".svg")
+			} else {
+				return require("../assets/warriorparts/base-nose-" + i + "-" + j + ".svg")
+			}
 		},
 		mouthSrc(i, j) {
-			return require("../assets/warriorparts/base-mouth-" + i + "-" + j + ".svg")
+			if (j > 5) {
+				return require("../assets/warriorparts/special-mouth-" + j + ".svg")
+			} else {
+				return require("../assets/warriorparts/base-mouth-" + i + "-" + j + ".svg")
+			}
 		},
 		baseChestSrc(i) {
 			return require("../assets/warriorparts/base-chest-" + i + ".svg")
 		},
-		hairSrc(i) {
-			return require("../assets/warriorparts/clothes-hair-" + i + ".svg")
+		hairSrc(i, skinType) {
+			if (skinType > 5) {
+				return require("../assets/warriorparts/special-hair-" + skinType + ".svg")
+			} else {
+				return require("../assets/warriorparts/clothes-hair-" + i + ".svg")
+			}
 		},
 		chestSrc(i) {
 			return require("../assets/warriorparts/clothes-chest-" + i + ".svg")
@@ -67,7 +82,7 @@ export default {
             return this.warriorDNA;
         },
         currentHairChoice(){
-          return (parseInt(this.currentDna.substring(0, 2)) % 12 + 1);
+          return (parseInt(this.currentDna.substring(0, 2)) % 13 + 1);
         },
         currentHeadChoice(){
           return (parseInt(this.currentDna.substring(2, 4)) % 4 + 1);
@@ -85,7 +100,7 @@ export default {
           return (parseInt(this.currentDna.substring(15, 16)) % 8 + 1);
         },
         currentSkinColorChoice(){
-          return (parseInt(this.currentDna.substring(18, 19)) % 5 + 1);
+          return (parseInt(this.currentDna.substring(18, 19)) % 6 + 1);
         },
         currentClothesColorChoice(){
           return (parseInt(this.currentDna.substring(17, 19)) / 100 * 360);

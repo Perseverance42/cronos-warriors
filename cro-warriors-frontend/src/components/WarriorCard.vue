@@ -165,9 +165,9 @@
                                     </v-toolbar>
                                     <v-container fluid>
                                         <v-row justify="center">
-                                            <v-col><v-btn block color="primary" @click="increaseSkill('stamina')" :loading="isWaitingOnWallet">Stamina</v-btn></v-col>
-                                            <v-col><v-btn block color="accent"  @click="increaseSkill('attack')" :loading="isWaitingOnWallet">Attack</v-btn></v-col>
-                                            <v-col><v-btn block color="primary" @click="increaseSkill('defense')" :loading="isWaitingOnWallet">Defense</v-btn></v-col>
+                                            <v-col><v-btn block color="primary"  @click="increaseSkill('attack')" :loading="isWaitingOnWallet">Attack</v-btn></v-col>
+											<v-col><v-btn block color="accent" @click="increaseSkill('defense')" :loading="isWaitingOnWallet">Defense</v-btn></v-col>
+											<v-col><v-btn block color="primary" @click="increaseSkill('stamina')" :loading="isWaitingOnWallet">Stamina</v-btn></v-col>
                                             <v-col><v-btn block color="accent" @click="increaseSkill('dexterity')" :loading="isWaitingOnWallet">Dexterity</v-btn></v-col>
                                         </v-row>
                                     </v-container>

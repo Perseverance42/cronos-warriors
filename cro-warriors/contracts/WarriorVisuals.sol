@@ -27,7 +27,7 @@ contract WarriorVisuals is AccessControl {
     function mint(uint256 id, string memory name) external onlyRole(MINTER_ROLE) {
         assert(!_exists(id));
         require(VisualsLib.isValidName(name), 'Name is not valid');
-        uint128 dna = VisualsLib.randomDNA(name, cronosWarriors.totalSupply());
+        uint256 dna = VisualsLib.randomDNA(name, cronosWarriors.totalSupply());
         _visuals[id] = VisualsLib.Visuals(name, dna);
     }
     
@@ -44,7 +44,7 @@ contract WarriorVisuals is AccessControl {
         return _visuals[id].name;
     }
     
-    function warriorDNA(uint256 id) external view returns (uint128){
+    function warriorDNA(uint256 id) external view returns (uint256){
         return _visuals[id].dna;
     }
     

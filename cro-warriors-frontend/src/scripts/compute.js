@@ -1,9 +1,9 @@
 import BN from 'bn.js';
 const difficultyScale = new BN(10);
 const healthScale = new BN(10);
-const epScale     = new BN("100000000");
+const epScale     = new BN("10000000000");
 const epS1Root    = new BN("100000");
-const mintFee     = new BN("1000000000000000000");
+const mintFee     = new BN("100000000000000000000");
 const critScale   = new BN("1000000000000000000");
 
 const ZERO = new BN(0);

@@ -41,9 +41,10 @@ contract Treasury is AccessControl  {
     //gets accessed by WarriorFactory
     function mint(uint256 id) payable external onlyRole(MINTER_ROLE){
         assert(_experience[id] == 0);
-        require(msg.value == Compute.mintFee, 'Invalid mint fee!');
+        require(msg.value == Compute.mintFee + Compute.mintCost, 'Invalid mint fee!');
         
-        _experience[id] = msg.value;
+        _experience[id] = Compute.mintFee;
+        _reserve = _reserve + Compute.mintCost;
         emit FundsAdded(id, _experience[id]);
     }
     

@@ -149,32 +149,32 @@ async function main() {
 
   const w1 = await(warriorFactory.mint('Warrior 1',
     {
-      value: "1000000000000000000"
+      value: "100000000000000000000"
     }
   ));
   await w1.wait();
   let exp = await treasury.experience(1);
-  expect(exp.toString()).to.equal("1000000000000000000");
+  expect(exp.toString()).to.equal("90000000000000000000");
   console.log("Minted first Warrior");
 
   const w2 = await(warriorFactory.mint('Warrior 2',
     {
-      value: "1000000000000000000"
+      value: "100000000000000000000"
     }
   ));
   await w2.wait();
   exp = await treasury.experience(2);
-  expect(exp.toString()).to.equal("1000000000000000000");
+  expect(exp.toString()).to.equal("90000000000000000000");
   console.log("Minted second Warrior");
 
   const w3 = await(warriorFactory.mint('Warrior 3',
   {
-    value: "1000000000000000000"
+    value: "100000000000000000000"
   }
   ));
   await w3.wait();
   exp = await treasury.experience(3);
-  expect(exp.toString()).to.equal("1000000000000000000");
+  expect(exp.toString()).to.equal("90000000000000000000");
   console.log("Minted third Warrior");
 
 
@@ -202,7 +202,7 @@ async function main() {
   console.log("Ep Warrior 2 " + ep.toString());
 
   let reserve = await treasury.reserve();
-  expect(reserve.toNumber()).to.greaterThan(0);
+  expect(reserve).to.equals("30009000000000000000");
   console.log("Strategic reserve: " + reserve);
 
   let noBattleAnymore = await battleBoard.doesBattleRequestExist(1,2);

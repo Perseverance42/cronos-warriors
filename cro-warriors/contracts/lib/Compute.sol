@@ -11,13 +11,14 @@ library Compute {
     
     //used fore scaling experience (cro) down
     uint256 constant public decimalsEth = 18;
-    uint256 constant public decimalsEp = 8; 
+    uint256 constant public decimalsEp = 10; 
     uint256 constant public critScale = 10**decimalsEth;
     uint256 constant public epScale = 10**decimalsEp;
     
     //uint256 public epS1 = 10**(decimalsEth-decimalsEp);
     uint256 constant public epS1Root = 100000;
-    uint256 constant public mintFee = 10**decimalsEth;
+    uint256 constant public mintFee = 90*(10**decimalsEth);
+    uint256 constant public mintCost =10*(10**decimalsEth);
     
     function warriorLevel(uint256 experience) public pure returns(uint256){
         uint256 lvl = Math.secMinus(experience, mintFee);

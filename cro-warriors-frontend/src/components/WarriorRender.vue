@@ -111,16 +111,21 @@ export default {
 			return require("../assets/warriorparts/clothes-feet-" + i + ".svg")
 		},
     rarityResolve(gene, lootable){  
-        if(gene > 99) gene = gene % 100;
-
+        gene += 1; //offset from 00-99 to 1-100
+        gene /= 100.0; // scale to 0.001 - 1
+        let sum = 0;
         let ranges = new Array();
         for(let i=0;i<lootable.length;i++){
+          sum += lootable[i];
           ranges[i] = lootable[i] + (i == 0 ? 0 : ranges[i-1]+1);
-          console.log(ranges[i]);
-          if(gene <= ranges[i])
-            return i;
         }
-        return 1;
+        gene *= sum; //scale gene to lootable range
+        for(let i=0;i<ranges.length;i++){
+            if(gene <= ranges[i]){
+              return i+1;
+            }
+        }
+        return 1; //should be dead code
     }
     },
     watch:{
@@ -132,7 +137,7 @@ export default {
         return this.warriorDNA;
       },
       currentHairChoice(){
-        return this.rarityResolve(this.currentDna.substring(0, 2), this.parttable.hair);
+        return this.rarityResolve(this.currentDna.substring(0, 1), this.parttable.hair);
       },
       currentHeadChoice(){
         return (parseInt(this.currentDna.substring(2, 4)) % 4 + 1);
@@ -182,7 +187,7 @@ export default {
 			imagesLoaded: false,
       parttable: {
         hair: [
-          1, 10, 10, 10, 10, 10, 10, 10, 10, 10, 2, 2, 10, 1
+          1, 10, 10, 10, 80, 10, 10, 10, 10, 10, 60, 2, 10
         ]
       }
 		}

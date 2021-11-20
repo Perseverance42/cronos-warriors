@@ -2,11 +2,13 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import './WarriorFactory.sol';
+import "./lib/imported/StructuredLinkedList.sol";
 import './lib/Compute.sol';
 import './lib/Math.sol';
 
 contract Treasury is AccessControl  {
+    using StructuredLinkedList for StructuredLinkedList.List;
+
     /* Access control */
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant EXCHANGE_ROLE = keccak256("EXCHANGE_ROLE");
@@ -19,6 +21,9 @@ contract Treasury is AccessControl  {
     /* Properties */
     uint256 private _reserve;
     mapping (uint256 => uint256) private _experience;
+
+    uint8 public constant LEADERBOARD_LENGTH = 50;
+    StructuredLinkedList.List          private _leaderboard;
     
     constructor(){
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -62,6 +67,7 @@ contract Treasury is AccessControl  {
         _increaseReserve(battleTax);
         _experience[winner] = _experience[winner] + expToSwap;
         _experience[loser]  = _experience[loser]  - expToSwap;
+        _updateLeaderboard(winner);
         return expToSwap;
     }
     
@@ -71,6 +77,7 @@ contract Treasury is AccessControl  {
         assert(exp>0);
         receiver.transfer(exp);
         delete _experience[id];
+        _removeFromLeaderboard(id);
         emit FundsWithdrawn(receiver, id, exp);
     }
     
@@ -79,5 +86,52 @@ contract Treasury is AccessControl  {
         assert(amount<=_reserve);
         receiver.transfer(amount);
         emit FundsWithdrawn(receiver, 0, amount);
+    }
+
+        /* Leaderboard functions */
+    
+    function _updateLeaderboard(uint256 id) internal{
+        (bool exists, , uint256 next) = _leaderboard.getNode(id);
+        if(exists){
+            if(next > 0 && _experience[id] > _experience[next]){
+                _leaderboard.remove(id);
+                _leaderboard.insertAfter(next, id);
+            }
+        }else{
+            if(_experience[id] > _experience[_leaderboard.first]){
+               _leaderboard.insertAfter(_leaderboard.first, id);
+            }else if(_leaderboard.size<LEADERBOARD_LENGTH){
+                _leaderboard.insertBefore(_leaderboard.first, id);
+            }
+        }
+        if(_leaderboard.size>LEADERBOARD_LENGTH){
+            _leaderboard.remove(_leaderboard.first);
+        }
+    }
+
+    function _removeFromLeaderboard(uint256 id) internal{
+        (bool exists, , ) = _leaderboard.getNode(id);
+        if(exists){
+            _leaderboard.remove(id);
+        }
+    }
+    
+    function leaderboard(uint256 start, uint8 size) external view returns(uint256[] memory){
+        if(start==0) start = _leaderboard.last;
+        size = size <= _leaderboard.size ? size : uint8(_leaderboard.size);
+        uint256[] memory res = new uint256[](size);
+        bool exists;
+        uint256 previous;
+        for(uint8 i=0;i<size;i++){
+           (exists, previous,) = _leaderboard.getNode(start); //does return exists, previous, next
+            
+           if(exists){
+                res[i] = start;
+                start = previous;
+           }else{
+               break;
+           }
+        }
+        return res;
     }
 }

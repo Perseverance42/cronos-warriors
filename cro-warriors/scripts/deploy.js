@@ -145,6 +145,10 @@ async function main() {
   await addModuleAccess(treasury, combatModule, "0x28d62fc77014de57a1bbaa8212ff0979fa61ab00d377b4b8d9762048fb419961");
   await addModuleAccess(warriorStats, combatModule, "0x5ef52737852c52d2211e81450fc3850cd8f44f8344ad3b406fdca6ea6d0bac7e");
  
+  //enable owner wallet to edit tokenURI
+  const signers = await hre.ethers.getSigners()
+  let grantRole = await warriors.grantRole("0xa62d8e55240185837238af9adc11e51727e005b95707f32446366dbe58f727e2", signers[0].address);
+  await grantRole.wait();
   //Modules are initialized now
 
   const w1 = await(warriorFactory.mint('Warrior 1',

@@ -1,238 +1,257 @@
+// We require the Hardhat Runtime Environment explicitly here. This is optional
+// but useful for running the script in a standalone fashion through `node <script>`.
+//
+// When running the script with `npx hardhat run <script>` you'll find the Hardhat
+// Runtime Environment's members available in the global scope.
 const { expect } = require("chai");
-const { ethers } = require("hardhat");
-const {BigNumber} = require("ethers");
+const hre = require("hardhat");
 
-
-let mathLib, computeLib, visualsLib, skillsLib, statsLib;
-let cronosWariors, treasury, warriorFactory, warriorSkills, warriorStats, warriorVisuals, combatModule, battleBoard;
-
-let warriorsMinted = [];
-
-
-
-describe("Lib Deployment", function () {
-  it("Should return all required libraries", async function () {
-    const MathLib = await hre.ethers.getContractFactory("Math");
-    mathLib = await MathLib.deploy();
-    await mathLib.deployed();
-
-    expect(await mathLib.secMinus(100,1000)).to.equal(0);
-
-    const ComputeLib = await hre.ethers.getContractFactory("Compute",{
-      libraries:{ Math: mathLib.address}
-    });
-    computeLib = await ComputeLib.deploy();
-    await computeLib.deployed();
-
-    expect(await computeLib.warriorLevel(1000)).to.equal(1);
-
-    const VisualsLib = await hre.ethers.getContractFactory("VisualsLib");
-    visualsLib = await VisualsLib.deploy();
-    await visualsLib.deployed();
-    
-    const SkillsLib = await hre.ethers.getContractFactory("SkillsLib");
-    skillsLib = await SkillsLib.deploy();
-    await skillsLib.deployed();
-    
-    const StatsLib = await hre.ethers.getContractFactory("StatsLib");
-    statsLib = await StatsLib.deploy();
-    await statsLib.deployed();
-
-    console.log("Libs deployed!")
-  });
-});
-
-describe("Contract Deployment", function () {
-  it("Should return all required Contracts in a non initialized state", async function () {
-    const CronosWarriors = await hre.ethers.getContractFactory("CronosWarriors");
-  
-    cronosWariors = await CronosWarriors.deploy();
-    await cronosWariors.deployed();
-    console.log("Cronos Warriors deployed to: ", cronosWariors.address);
-
-    
-
-    const WarriorVisuals = await hre.ethers.getContractFactory("WarriorVisuals", {
-      libraries: {
-        VisualsLib: visualsLib.address
-      }
-    });
-    warriorVisuals = await WarriorVisuals.deploy();
-    await warriorVisuals.deployed(cronosWariors.address);
-    console.log("Warrior Visuals deployed to: ", warriorVisuals.address);
-
-    const WarriorStats = await hre.ethers.getContractFactory("WarriorStats", {
-      libraries: {
-        StatsLib: statsLib.address
-      }
-    });
-    warriorStats = await WarriorStats.deploy();
-    await warriorStats.deployed();
-    console.log("Warrior Stats deployed to: ", warriorStats.address);
-
-    const Treasury = await hre.ethers.getContractFactory("Treasury", {
-      libraries: {
-        Math: mathLib.address,
-        Compute: computeLib.address
-      },
-    });
-    treasury = await Treasury.deploy();
-    await treasury.deployed();
-    console.log("Treasury deployed at: "+treasury.address);
-
-    const WarriorSkills = await hre.ethers.getContractFactory("WarriorSkills", {
-      libraries: {
-        Math: mathLib.address,
-        SkillsLib: skillsLib.address,
-        Compute: computeLib.address
-      },
-    });
-    warriorSkills = await WarriorSkills.deploy( cronosWariors.address, treasury.address );
-    await warriorSkills.deployed();
-    console.log("Warrior Skills deployed at: "+warriorSkills.address);
-
-    const CombatModule = await hre.ethers.getContractFactory("CombatModule", {
-      libraries: {
-        Math: mathLib.address,
-        Compute: computeLib.address  
-      },
-    });
-    combatModule = await CombatModule.deploy(warriorSkills.address, warriorStats.address, treasury.address);
-    await combatModule.deployed();
-    console.log("Combat Module deployed to: "+combatModule.address);
-
-    const BattleBoard = await hre.ethers.getContractFactory("BattleBoard");
-    battleBoard = await BattleBoard.deploy(cronosWariors.address, combatModule.address);
-    await battleBoard.deployed();
-    console.log("BattleBoard deployed to: "+battleBoard.address);
-
-    const WarriorFactory = await hre.ethers.getContractFactory("WarriorFactory");
-    warriorFactory = await WarriorFactory.deploy(cronosWariors.address, warriorSkills.address, warriorStats.address, warriorVisuals.address, treasury.address);
-    await warriorFactory.deployed();
-    console.log("Warrior Factory deployed to: ", warriorFactory.address);
-
-
-  });
-});
-
-/*
-describe("Access control basic negative test", function () {
-  it("All requests should be denied", async function () {
-    // Minting
-    let request = cronosWariors.mint(0);
-    await expect(request).to.be.reverted;
-
-    request = treasury.mint(0);
-    await expect(request).to.be.reverted;
-
-    request = warriorSkills.mint(0);
-    await expect(request).to.be.reverted;
-
-    request = warriorStats.mint(0);
-    await expect(request).to.be.reverted;
-
-    request = warriorVisuals.mint(0);
-    await expect(request).to.be.reverted;
-
-    request = warriorStats.mint(0);
-    await expect(request).to.be.reverted;
-
-    // Burning
-
-    request = cronosWariors.burn(0);
-    await expect(request).to.be.reverted;
-
-    request = treasury.withdrawExperience(0, 1);
-    await expect(request).to.be.reverted;
-
-    request = warriorSkills.burn(0);
-    await expect(request).to.be.reverted;
-
-    request = warriorStats.burn(0);
-    await expect(request).to.be.reverted;
-
-    request = warriorVisuals.burn(0);
-    await expect(request).to.be.reverted;
-
-    request = warriorStats.burn(0);
-    await expect(request).to.be.reverted;
-
-    //Fighting
-
-    combatModule.fight(0,1);
-    await expect(request).to.be.reverted;
-  });
-});
-*/
 async function addModuleAccess(modular, module, role){
-  let grantRole = await modular.grantRole(role, module.address);
-  await grantRole.wait();
-  console.log(modular.address + " can now be accessed by " + module.address);
+    console.log(typeof(role));
+    let grantRole = await modular.grantRole(role, module.address);
+    grantRole.wait();
+    console.log(modular.address + " can now be accessed by " + module.address);
 }
 
-describe("Init access control", function () {
-  it("Should init access control on all contracts", async function () {
-    //Warrior factory controls mint/burn of storage
-    await addModuleAccess(cronosWariors, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
+async function main() {
+  // Hardhat always runs the compile task when running scripts with its command
+  // line interface.
+  //
+  // If this script is run directly using `node` you may want to call compile
+  // manually to make sure everything is compiled
+  // await hre.run('compile');
 
-    await addModuleAccess(warriorSkills, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
-    
-    await addModuleAccess(warriorStats, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
-    await addModuleAccess(warriorVisuals, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
-    
-    //Factory needs access to Treasury
-    await addModuleAccess(treasury, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
+  //deploy libs first
+  const MathLib = await hre.ethers.getContractFactory("Math");
+  const mathlib = await MathLib.deploy();
+  await mathlib.deployed();
+
+  const ComputeLib = await hre.ethers.getContractFactory("Compute",{
+    libraries: {
+      Math: mathlib.address,
+    },
+    });
+  const computelib = await ComputeLib.deploy();
+  await computelib.deployed();
   
-    //Battle Board starts fights in combat module
-    await addModuleAccess(combatModule, battleBoard, "0x3e080ec955b0872a48616505668afef3d5feb6f6ed7066618b240a262412ea75");
-    
-    //Combat module changes stats and swaps ep
-    await addModuleAccess(treasury, combatModule, "0x28d62fc77014de57a1bbaa8212ff0979fa61ab00d377b4b8d9762048fb419961");
-    await addModuleAccess(warriorStats, combatModule, "0x5ef52737852c52d2211e81450fc3850cd8f44f8344ad3b406fdca6ea6d0bac7e");
-    
-  });
-});
-
-describe("Mint two Warriors", function () {
-  it("Should mint two warriors", async function () {
-    let w1 = await(warriorFactory.mint('Warrior 1',
-    {
-      value: "1000000000000000000"
+  const VisualsLib = await hre.ethers.getContractFactory("VisualsLib");
+  const visualLib = await VisualsLib.deploy();
+  await visualLib.deployed();
+  
+  const SkillsLib = await hre.ethers.getContractFactory("SkillsLib");
+  const skillsLib = await SkillsLib.deploy();
+  await skillsLib.deployed();
+  
+  const StatsLib = await hre.ethers.getContractFactory("StatsLib");
+  const statsLib = await StatsLib.deploy();
+  await statsLib.deployed();
+  
+  console.log("Libs deployed!")
+  
+  //Cronos Warriors Contract gets used as root for most stuff so it needs to be deployed first
+  const CronosWarriors = await hre.ethers.getContractFactory("CronosWarriors");
+  
+  const warriors = await CronosWarriors.deploy();
+  await warriors.deployed();
+  console.log("Cronos Warriors deployed to:", warriors.address);
+  
+  const WarriorVisuals = await hre.ethers.getContractFactory("WarriorVisuals", {
+    libraries: {
+      VisualsLib: visualLib.address
     }
-    ));
-    await w1.wait();
-
-    let exp = await treasury.experience(1);
-    expect(exp.toString()).to.equal("1000000000000000000");
-    let name = await warriorVisuals.warriorName(1);
-    expect(name).to.equal("Warrior 1");
-    let skills = await warriorSkills.warriorSkills(1);
-    expect(skills).to.eql([BigNumber.from(0) ,BigNumber.from(1),BigNumber.from(1),BigNumber.from(1)]);
-    let stats = await warriorStats.warriorStats(1);
-    expect(stats).to.eql([BigNumber.from(0) ,BigNumber.from(0)]);
-    let owner = await cronosWariors.ownerOf(1);
-    expect(owner).to.equal('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
-
-    warriorsMinted.push(w1);
-
-    w1 = await(warriorFactory.mint('Warrior 2',
-    {
-      value: "1000000000000000000"
-    }
-    ));
-    await w1.wait();
-
-    exp = await treasury.experience(2);
-    expect(exp.toString()).to.equal("1000000000000000000");
-    name = await warriorVisuals.warriorName(2);
-    expect(name).to.equal("Warrior 2");
-    skills = await warriorSkills.warriorSkills(2);
-    expect(skills).to.eql([BigNumber.from(0) ,BigNumber.from(1),BigNumber.from(1),BigNumber.from(1)]);
-    stats = await warriorStats.warriorStats(2);
-    expect(stats).to.eql([BigNumber.from(0) ,BigNumber.from(0)]);
-    owner = await cronosWariors.ownerOf(2);
-    expect(owner).to.equal('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
-
-    warriorsMinted.push(w1);
   });
-});
+  const warriorVisuals = await WarriorVisuals.deploy(warriors.address);
+  await warriorVisuals.deployed();
+  console.log("Warrior Visuals deployed @"+warriorVisuals.address);
+  
+  const WarriorStats = await hre.ethers.getContractFactory("WarriorStats", {
+    libraries: {
+      StatsLib: statsLib.address
+    }
+  });
+  const warriorStats = await WarriorStats.deploy();
+  await warriorStats.deployed();
+  console.log("Warrior Stats deployed @"+warriorStats.address);
+  
+  const Treasury = await hre.ethers.getContractFactory("Treasury", {
+    libraries: {
+      Math: mathlib.address,
+      Compute: computelib.address
+    },
+  });
+  const treasury = await Treasury.deploy();
+  await treasury.deployed();
+  console.log("Treasury deployed @"+treasury.address);
+  
+  const WarriorSkills = await hre.ethers.getContractFactory("WarriorSkills", {
+    libraries: {
+      Math: mathlib.address,
+      SkillsLib: skillsLib.address,
+      Compute: computelib.address,
+      Math: mathlib.address
+    },
+  });
+  const warriorSkills = await WarriorSkills.deploy( warriors.address, treasury.address );
+  await warriorSkills.deployed();
+  console.log("Warrior Skills deployed @"+warriorSkills.address);
+
+  const CombatModule = await hre.ethers.getContractFactory("CombatModule", {
+    libraries: {
+      Math: mathlib.address,
+      Compute: computelib.address  
+    },
+  });
+  const combatModule = await CombatModule.deploy(warriorSkills.address, warriorStats.address, treasury.address);
+  await combatModule.deployed();
+  console.log("Combat Module deployed to:"+combatModule.address);
+  
+  const BattleBoard = await hre.ethers.getContractFactory("BattleBoard");
+  const battleBoard = await BattleBoard.deploy(warriors.address, combatModule.address);
+  await battleBoard.deployed();
+  console.log("BattleBoard deployed to: "+battleBoard.address);
+  
+  const WarriorFactory = await hre.ethers.getContractFactory("WarriorFactory");
+  const warriorFactory = await WarriorFactory.deploy(warriors.address, warriorSkills.address, warriorStats.address, warriorVisuals.address, treasury.address);
+  await warriorFactory.deployed();
+  console.log("Warrior Factory deployed to: ", warriorFactory.address);
+  
+
+  const WarriorProxy = await hre.ethers.getContractFactory("WarriorProxy");
+  const warriorProxy = await WarriorProxy.deploy(warriors.address, treasury.address, warriorFactory.address, warriorSkills.address, warriorStats.address, warriorVisuals.address);
+  await warriorProxy.deployed();
+  console.log("Warrior Proxy deployed to: ", warriorFactory.address);
+    /**
+     * 
+     * Deployments done 
+     * 
+     * */
+
+
+  console.log("Setting up module access control...");
+ 
+  //Warrior factory controls mint/burn of storage
+  await addModuleAccess(warriors, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
+  await addModuleAccess(warriorSkills, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
+  await addModuleAccess(warriorStats, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
+  await addModuleAccess(warriorVisuals, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
+  
+  //Factory needs access to Treasury
+  await addModuleAccess(treasury, warriorFactory, "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6");
+ 
+  //Battle Board starts fights in combat module
+  await addModuleAccess(combatModule, battleBoard, "0x3e080ec955b0872a48616505668afef3d5feb6f6ed7066618b240a262412ea75");
+  
+  //Combat module changes stats and swaps ep
+  await addModuleAccess(treasury, combatModule, "0x28d62fc77014de57a1bbaa8212ff0979fa61ab00d377b4b8d9762048fb419961");
+  await addModuleAccess(warriorStats, combatModule, "0x5ef52737852c52d2211e81450fc3850cd8f44f8344ad3b406fdca6ea6d0bac7e");
+ 
+  //enable owner wallet to edit tokenURI
+  const signers = await hre.ethers.getSigners()
+  let grantRole = await warriors.grantRole("0xa62d8e55240185837238af9adc11e51727e005b95707f32446366dbe58f727e2", signers[0].address);
+  await grantRole.wait();
+  //enable owner wallet to edit Treasury
+  
+  grantRole = await treasury.grantRole("0xb7b0a8b00357f0e4c4a4839008cf90d61a23fe1c55511ea70753532d8bab02c5", signers[0].address);
+  await grantRole.wait();
+  
+  //Modules are initialized now
+  const w1 = await(warriorFactory.mint('Warrior 1',
+    {
+      value: "100000000000000000000"
+    }
+  ));
+  await w1.wait();
+  let exp = await treasury.experience(1);
+  expect(exp.toString()).to.equal("90000000000000000000");
+  console.log("Minted first Warrior");
+
+  const w2 = await(warriorFactory.mint('Warrior 2',
+    {
+      value: "100000000000000000000"
+    }
+  ));
+  await w2.wait();
+  exp = await treasury.experience(2);
+  expect(exp.toString()).to.equal("90000000000000000000");
+  console.log("Minted second Warrior");
+
+  const w3 = await(warriorFactory.mint('Warrior 3',
+  {
+    value: "100000000000000000000"
+  }
+  ));
+  await w3.wait();
+  exp = await treasury.experience(3);
+  expect(exp.toString()).to.equal("90000000000000000000");
+  console.log("Minted third Warrior");
+
+
+  let warriorData = await warriorProxy.warriorData(1);
+  console.log(warriorData);
+
+  let battleRequest = await battleBoard.challangeWarrior(1,2);
+  await battleRequest.wait();
+
+  let inBattle = await battleBoard.doesBattleRequestExist(1,2);
+  expect(inBattle).to.equal(true);
+
+  battleRequest = await battleBoard.challangeWarrior(3,2);
+  await battleRequest.wait();
+
+  console.log('Battle was requested');
+
+  const battleAccept = await battleBoard.acceptBattleRequest(2,1);
+  await battleAccept.wait();
+
+  let ep = await treasury.experience(1);
+  console.log("Ep Warrior 1 " + ep.toString());
+
+  ep = await treasury.experience(2);
+  console.log("Ep Warrior 2 " + ep.toString());
+
+  let reserve = await treasury.reserve();
+  expect(reserve).to.equals("30009000000000000000");
+  console.log("Strategic reserve: " + reserve);
+
+  let noBattleAnymore = await battleBoard.doesBattleRequestExist(1,2);
+  expect(noBattleAnymore).to.equal(false);
+  console.log("Battle request was cleared");
+
+  battleRequest = await battleBoard.challangeWarrior(1,2);
+  await battleRequest.wait();
+
+  battleRequest = await battleBoard.doesBattleRequestExist(1,2);
+  expect(battleRequest).to.equal(true);
+
+  console.log("New battle request was submited")
+
+  let battleRequestList = await battleBoard.defensiveRequestOf(2,1,10);
+  console.log(battleRequestList);
+  expect(battleRequestList[0].toNumber()).to.equal(1);
+  expect(battleRequestList[1].toNumber()).to.equal(3);
+  
+  console.log("Battle Board linked list seems to work");
+
+  let battleDeny = await battleBoard.denyBattleRequest(2,1);
+  await battleDeny.wait();
+
+  battleRequest = await battleBoard.doesBattleRequestExist(1,2);
+  expect(battleRequest).to.equal(false);
+
+  battleRequestList = await battleBoard.defensiveRequestOf(2,0,10);
+  console.log(battleRequestList);
+  expect(battleRequestList[0].toNumber()).to.equal(3);
+
+  console.log("Battle request was successfully denied");
+
+  console.log("done!");
+}
+
+// We recommend this pattern to be able to use async/await everywhere
+// and properly handle errors.
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

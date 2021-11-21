@@ -6,6 +6,8 @@
 const { expect } = require("chai");
 const hre = require("hardhat");
 
+
+
 async function addModuleAccess(modular, module, role){
     console.log(typeof(role));
     let grantRole = await modular.grantRole(role, module.address);
@@ -13,7 +15,22 @@ async function addModuleAccess(modular, module, role){
     console.log(modular.address + " can now be accessed by " + module.address);
 }
 
+async function mintWarriorAndSend(warriors, factory, sender, receiver, name){
+    //Modules are initialized now
+    const w1 = await(factory.mint(name,
+    {
+      value: "100000000000000000000"
+    }
+    ));
+    let receipt = await w1.wait();
+    const id = receipt.events[2].args[0];
+    const send = await warriors.transferFrom(sender, receiver, id);
+    receipt = send.wait();
+
+    console.log("Minted "+ name + " and send to " + receiver);
+}
 async function main() {
+  const signers = await hre.ethers.getSigners()
   // Hardhat always runs the compile task when running scripts with its command
   // line interface.
   //
@@ -62,7 +79,7 @@ async function main() {
   });
   const warriorVisuals = await WarriorVisuals.deploy(warriors.address);
   await warriorVisuals.deployed();
-  console.log("Warrior Visuals deployed @"+warriorVisuals.address);
+  console.log("Warrior Visuals deployed "+warriorVisuals.address);
   
   const WarriorStats = await hre.ethers.getContractFactory("WarriorStats", {
     libraries: {
@@ -71,7 +88,7 @@ async function main() {
   });
   const warriorStats = await WarriorStats.deploy();
   await warriorStats.deployed();
-  console.log("Warrior Stats deployed @"+warriorStats.address);
+  console.log("Warrior Stats deployed "+warriorStats.address);
   
   const Treasury = await hre.ethers.getContractFactory("Treasury", {
     libraries: {
@@ -81,7 +98,7 @@ async function main() {
   });
   const treasury = await Treasury.deploy();
   await treasury.deployed();
-  console.log("Treasury deployed @"+treasury.address);
+  console.log("Treasury deployed "+treasury.address);
   
   const WarriorSkills = await hre.ethers.getContractFactory("WarriorSkills", {
     libraries: {
@@ -93,7 +110,7 @@ async function main() {
   });
   const warriorSkills = await WarriorSkills.deploy( warriors.address, treasury.address );
   await warriorSkills.deployed();
-  console.log("Warrior Skills deployed @"+warriorSkills.address);
+  console.log("Warrior Skills deployed "+warriorSkills.address);
 
   const CombatModule = await hre.ethers.getContractFactory("CombatModule", {
     libraries: {
@@ -145,96 +162,22 @@ async function main() {
   await addModuleAccess(treasury, combatModule, "0x28d62fc77014de57a1bbaa8212ff0979fa61ab00d377b4b8d9762048fb419961");
   await addModuleAccess(warriorStats, combatModule, "0x5ef52737852c52d2211e81450fc3850cd8f44f8344ad3b406fdca6ea6d0bac7e");
  
-  //Modules are initialized now
-
-  const w1 = await(warriorFactory.mint('Warrior 1',
-    {
-      value: "100000000000000000000"
-    }
-  ));
-  await w1.wait();
-  let exp = await treasury.experience(1);
-  expect(exp.toString()).to.equal("90000000000000000000");
-  console.log("Minted first Warrior");
-
-  const w2 = await(warriorFactory.mint('Warrior 2',
-    {
-      value: "100000000000000000000"
-    }
-  ));
-  await w2.wait();
-  exp = await treasury.experience(2);
-  expect(exp.toString()).to.equal("90000000000000000000");
-  console.log("Minted second Warrior");
-
-  const w3 = await(warriorFactory.mint('Warrior 3',
-  {
-    value: "100000000000000000000"
-  }
-  ));
-  await w3.wait();
-  exp = await treasury.experience(3);
-  expect(exp.toString()).to.equal("90000000000000000000");
-  console.log("Minted third Warrior");
-
-
-  let warriorData = await warriorProxy.warriorData(1);
-  console.log(warriorData);
-
-  let battleRequest = await battleBoard.challangeWarrior(1,2);
-  await battleRequest.wait();
-
-  let inBattle = await battleBoard.doesBattleRequestExist(1,2);
-  expect(inBattle).to.equal(true);
-
-  battleRequest = await battleBoard.challangeWarrior(3,2);
-  await battleRequest.wait();
-
-  console.log('Battle was requested');
-
-  const battleAccept = await battleBoard.acceptBattleRequest(2,1);
-  await battleAccept.wait();
-
-  let ep = await treasury.experience(1);
-  console.log("Ep Warrior 1 " + ep.toString());
-
-  ep = await treasury.experience(2);
-  console.log("Ep Warrior 2 " + ep.toString());
-
-  let reserve = await treasury.reserve();
-  expect(reserve).to.equals("30009000000000000000");
-  console.log("Strategic reserve: " + reserve);
-
-  let noBattleAnymore = await battleBoard.doesBattleRequestExist(1,2);
-  expect(noBattleAnymore).to.equal(false);
-  console.log("Battle request was cleared");
-
-  battleRequest = await battleBoard.challangeWarrior(1,2);
-  await battleRequest.wait();
-
-  battleRequest = await battleBoard.doesBattleRequestExist(1,2);
-  expect(battleRequest).to.equal(true);
-
-  console.log("New battle request was submited")
-
-  let battleRequestList = await battleBoard.defensiveRequestOf(2,1,10);
-  console.log(battleRequestList);
-  expect(battleRequestList[0].toNumber()).to.equal(1);
-  expect(battleRequestList[1].toNumber()).to.equal(3);
+  //enable owner wallet to edit tokenURI
+  let grantRole = await warriors.grantRole("0xa62d8e55240185837238af9adc11e51727e005b95707f32446366dbe58f727e2", signers[0].address);
+  await grantRole.wait();
+  //enable owner wallet to edit Treasury
   
-  console.log("Battle Board linked list seems to work");
-
-  let battleDeny = await battleBoard.denyBattleRequest(2,1);
-  await battleDeny.wait();
-
-  battleRequest = await battleBoard.doesBattleRequestExist(1,2);
-  expect(battleRequest).to.equal(false);
-
-  battleRequestList = await battleBoard.defensiveRequestOf(2,0,10);
-  console.log(battleRequestList);
-  expect(battleRequestList[0].toNumber()).to.equal(3);
-
-  console.log("Battle request was successfully denied");
+  grantRole = await treasury.grantRole("0xb7b0a8b00357f0e4c4a4839008cf90d61a23fe1c55511ea70753532d8bab02c5", signers[0].address);
+  await grantRole.wait();
+  
+  //testnet genesis warriors
+  await mintWarriorAndSend(warriors, warriorFactory, signers[0].address, "0x186643D210995010150B8e84Bb58513D0D5dDA3c", "Crominator");
+  await mintWarriorAndSend(warriors, warriorFactory, signers[0].address, "0x4c12170bf8e986e43d04add0184489959faa695f", "Crolosus"); 
+  await mintWarriorAndSend(warriors, warriorFactory, signers[0].address, "0x04Fd207BCC982C0041b41817E3db7aac4222608c", "Crocatus");
+  await mintWarriorAndSend(warriors, warriorFactory, signers[0].address, "0xd98ca1cc5e97672bd0d420677f3881722cc19b10", "Cronostradamus");
+  await mintWarriorAndSend(warriors, warriorFactory, signers[0].address, "0xdAf13551F4B47DBf8964724F941E0163eC19c01D", "Cronotrigger");
+  await mintWarriorAndSend(warriors, warriorFactory, signers[0].address, "0x9dBebFE53Ad6954FF5640fF561cAE0aFCa3ee0AA", "Crobro");
+  await mintWarriorAndSend(warriors, warriorFactory, signers[0].address, "0xb48d1128e9130E3d2345910E2cC2C5136446C365", "Spartacus");
 
   console.log("done!");
 }

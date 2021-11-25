@@ -71,7 +71,26 @@ export default {
 		},
 		chestSrc(i) {
 			return require("../assets/warriorparts/clothes-chest-" + i + ".svg")
+		},
+		
+		rarityResolve(gene, lootable){  
+			gene += 1; //offset from 00-99 to 1-100
+			gene /= 100.0; // scale to 0.001 - 1
+			let sum = 0;
+			let ranges = new Array();
+			for(let i=0;i<lootable.length;i++){
+				sum += lootable[i];
+				ranges[i] = lootable[i] + (i == 0 ? 0 : ranges[i-1]+1);
+			}
+			gene *= sum; //scale gene to lootable range
+			for(let i=0;i<ranges.length;i++){
+				if(gene <= ranges[i]){
+					return i+1;
+				}
+			}
+			return 1; //should be dead code
 		}
+		
     },
     watch:{
     },
@@ -100,8 +119,9 @@ export default {
           return (parseInt(this.currentDna.substring(15, 16)) % 8 + 1);
         },
         currentSkinColorChoice(){
-          return (parseInt(this.currentDna.substring(18, 19)) % 6 + 1);
-        },
+			//return (parseInt(this.currentDna.substring(18, 19)) % 6 + 1);
+			return this.rarityResolve(this.currentDna.substring(18, 19), this.parttable.skinTypeTable);
+		},
         currentClothesColorChoice(){
           return (parseInt(this.currentDna.substring(17, 19)) / 100 * 360);
         },
@@ -118,9 +138,20 @@ export default {
             return this.getColor(this.currentHairColorChoice);
         }
     },
-    data: () => ({
-        imagesLoaded: false,
-    }),
+    data() {
+      return {
+			imagesLoaded: false,
+      parttable: {
+        hair: [
+          1, 10, 10, 10, 80, 10, 10, 10, 10, 10, 60, 2, 10
+        ],
+		skinTypeTable: [
+          19, 19, 19, 19, 19, 5
+        ]
+      }
+	}
+    }
+    
   }
 </script>
 

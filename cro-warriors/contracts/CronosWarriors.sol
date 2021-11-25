@@ -11,9 +11,12 @@ import "@openzeppelin/contracts/access/IAccessControl.sol";
  * CronosWarriors is "only" used to manage ownership of warriors and make them tradeable on all ER721 enabled marketplaces
  **/
 contract CronosWarriors is ERC721Enumerable, AccessControl  {
+
+    mapping(uint256 => string) private _tokenURI;
     
     /* Access control */
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant URI_ROLE = keccak256("URI_SETTER");
     
     constructor() ERC721( "Cronos Warriors", "WAR" ) {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -25,6 +28,16 @@ contract CronosWarriors is ERC721Enumerable, AccessControl  {
     
     function burn(uint256 id) public onlyRole(MINTER_ROLE){
         _burn(id);
+        delete _tokenURI[id];
+    }
+
+    function setTokenURI(uint256 tokenID, string memory uri) external onlyRole(URI_ROLE){
+        _tokenURI[tokenID] = uri;
+    }
+
+    function tokenURI(uint256 tokenID) public view virtual override returns (string memory) {
+        require(_exists(tokenID), "ERC721Metadata: URI query for nonexistent token");
+        return _tokenURI[tokenID];
     }
     
     /* Getters */

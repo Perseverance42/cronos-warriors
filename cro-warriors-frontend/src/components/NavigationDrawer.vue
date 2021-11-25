@@ -124,7 +124,6 @@ export default {
     navigation: [
       { icon: "mdi-home", label: "Your Legacy", route: "/" },
       { icon: "mdi-seal", label: "Leaderboard", route: "/leaderboard" },
-      { icon: "mdi-stadium", label: "Arena", route: "/arena" },
       { icon: "mdi-wallet", label: "Minting", route: "/mint" },
       { icon: "mdi-map", label: "Roadmap", route: "/roadmap" }
     ],

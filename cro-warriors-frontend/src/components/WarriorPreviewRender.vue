@@ -5,7 +5,7 @@
       <img :style="skinColor" class="chest" :src="baseChestSrc(currentSkinColorChoice)">
       <img :style="clothesColor" class="chest" :src="chestSrc(currentChestChooice)">
       <img :style="skinColor" class="head" :src="headSrc(currentHeadChoice, currentSkinColorChoice)">
-      <img :style="clothesColor" class="eyes" :src="eyesSrc(currentEyeChoice)">
+      <img :style="eyeColorS" class="eyes" :src="eyesSrc(currentEyeChoice)">
       <img :style="skinColor" class="nose" :src="noseSrc(currentNoseChoice, currentSkinColorChoice)">
       <img :style="skinColor" class="mouth" :src="mouthSrc(currentMouthChoice, currentSkinColorChoice)">
       <img :style="hairColor" class="hair" :src="hairSrc(currentHairChoice, currentSkinColorChoice)">
@@ -101,32 +101,37 @@ export default {
             return this.warriorDNA;
         },
         currentHairChoice(){
-          return (parseInt(this.currentDna.substring(0, 2)) % 13 + 1);
+        return this.rarityResolve(this.currentDna.substring(0, 1), this.parttable.hair);
         },
         currentHeadChoice(){
-          return (parseInt(this.currentDna.substring(2, 4)) % 4 + 1);
+        return this.rarityResolve(this.currentDna.substring(2, 3), this.parttable.head);
+        //return (parseInt(this.currentDna.substring(2, 4)) % 4 + 1);
         },
         currentEyeChoice(){
-          return (parseInt(this.currentDna.substring(4, 6)) % 8 + 1);
+          return this.rarityResolve(this.currentDna.substring(4, 5), this.parttable.eye);
+          //return (parseInt(this.currentDna.substring(4, 6)) % 8 + 1);
         },
         currentNoseChoice(){
-            return (parseInt(this.currentDna.substring(6, 8)) % 7 + 1);
+          return this.rarityResolve(this.currentDna.substring(6, 7), this.parttable.nose);
+          //return (parseInt(this.currentDna.substring(6, 8)) % 7 + 1);
         },
         currentMouthChoice(){
-            return (parseInt(this.currentDna.substring(8, 10)) % 11 + 1);
+          return this.rarityResolve(this.currentDna.substring(8, 9), this.parttable.mouth);
+          //return (parseInt(this.currentDna.substring(8, 10)) % 11 + 1);
         },
         currentChestChooice(){
-          return (parseInt(this.currentDna.substring(15, 16)) % 8 + 1);
+          return this.rarityResolve(this.currentDna.substring(14, 15), this.parttable.chest);
+          //return (parseInt(this.currentDna.substring(15, 16)) % 8 + 1);
         },
         currentSkinColorChoice(){
-			//return (parseInt(this.currentDna.substring(18, 19)) % 6 + 1);
-			return this.rarityResolve(this.currentDna.substring(18, 19), this.parttable.skinTypeTable);
-		},
+          //return (parseInt(this.currentDna.substring(18, 19)) % 6 + 1);
+        return this.rarityResolve(this.currentDna.substring(21, 22), this.parttable.skinTypeTable);
+        },
         currentClothesColorChoice(){
-          return (parseInt(this.currentDna.substring(17, 19)) / 100 * 360);
+        return (parseInt(this.currentDna.substring(18, 20)) / 100.0 * 360.0);
         },
         currentHairColorChoice(){
-          return (parseInt(this.currentDna.substring(18, 20)) / 100 * 360);
+        return (parseInt(this.currentDna.substring(23, 24)) / 100 * 360);
         },
         clothesColor () {
           return this.getColor(this.currentClothesColorChoice);
@@ -136,6 +141,9 @@ export default {
         },
         hairColor () {
             return this.getColor(this.currentHairColorChoice);
+        },
+        eyeColor(){
+          return this.getColor(this.currentEyeColorChoice);
         }
     },
     data() {
@@ -145,9 +153,33 @@ export default {
         hair: [
           1, 10, 10, 10, 80, 10, 10, 10, 10, 10, 60, 2, 10
         ],
-		skinTypeTable: [
+        head: [
+          10,10,10,10
+        ],
+        eye:[
+          50,30,30,20,10,20,20,20
+        ],
+        nose:[
+          10,10,10,10,10,10,10
+        ],
+        mouth:[
+          10, 10, 10, 10, 10, 10, 10, 10, 7, 10, 10
+        ],
+        arm:[
+          10, 10, 10, 10, 8, 10, 10, 10, 10
+        ],
+        leg:[
+          10, 10, 7, 10, 8, 10, 10, 10
+        ],
+        chest:[
+          10, 10, 10, 10, 7, 7, 10, 8
+        ],
+        feet:[
+          10, 10, 10, 10, 10, 10, 10
+        ],
+        skinTypeTable: [
           19, 19, 19, 19, 19, 5
-        ]
+        ],
       }
 	}
     }

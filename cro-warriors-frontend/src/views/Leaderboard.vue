@@ -19,7 +19,7 @@ import WarriorCard from '../components/WarriorCard.vue';
           setTimeout(this.bindContracts, 1000);
           return
         }
-        this.$bindCall('leaderboard', { contract: await this.$wallet.loadContract('WarriorStats'), method:"leaderboard", args:[ 0, 10 ] });
+        this.$bindCall('leaderboard', { contract: await this.$wallet.loadContract('Treasury'), method:"leaderboard", args:[ 0, 10 ] });
       }
     },
     mounted(){

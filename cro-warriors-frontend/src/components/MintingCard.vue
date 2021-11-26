@@ -4,8 +4,8 @@
             <v-row><v-col><v-card-title>Mint your own Cronos Warrior here</v-card-title></v-col></v-row>
             <v-card-text>
                 <v-row><v-col>
-                    <p>Minting a new warrior does cost 1CRO + transaction fee</p>
-                    <v-text-field v-model="inWarriorName" label="Warrior name:"></v-text-field>
+                    <p>Minting a new warrior does cost 50TCRO + transaction fee</p>
+                    <v-text-field v-model="inWarriorName" label="Warrior name: (can not be changed)"></v-text-field>
                     <v-btn block tile :disabled="!isWalletConnected" :loading="isWaitingOnWallet" color="green"  @click="mintWarrior()">Mint</v-btn>
                 </v-col></v-row>
             </v-card-text>

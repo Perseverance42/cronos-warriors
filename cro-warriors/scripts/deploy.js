@@ -19,7 +19,7 @@ async function mintWarriorAndSend(warriors, factory, sender, receiver, name){
     //Modules are initialized now
     const w1 = await(factory.mint(name,
     {
-      value: "100000000000000000000"
+      value: "50000000000000000000"
     }
     ));
     let receipt = await w1.wait();

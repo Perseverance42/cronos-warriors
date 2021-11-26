@@ -8,7 +8,7 @@ const factory = {
             if(!Wallet.isReady()) reject(new Error('No Wallet'));  
 
             Wallet.loadContract(contractKey).then(contractInstance=>{
-                contractInstance.methods.mint(warriorName).send({from: Wallet.$currentWalletAddr, value: "100000000000000000000"}).then(result=>{
+                contractInstance.methods.mint(warriorName).send({from: Wallet.$currentWalletAddr, value: "50000000000000000000"}).then(result=>{
                     console.log("WarriorFactory mint: ", result);
                     resolve(result);
                 }).catch(e=>{

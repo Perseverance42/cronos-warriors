@@ -6,7 +6,7 @@ import './Math.sol';
 
 library Compute {
     
-    uint8   constant public difficultyScale = 10; 
+    uint8   constant public difficultyScale = 25; 
     uint8   constant public healthScale = 10;
     
     //used fore scaling experience (cro) down
@@ -17,8 +17,8 @@ library Compute {
     
     //uint256 public epS1 = 10**(decimalsEth-decimalsEp);
     uint256 constant public epS1Root = 100000;
-    uint256 constant public mintFee = 90*(10**decimalsEth);
-    uint256 constant public mintCost =10*(10**decimalsEth);
+    uint256 constant public mintFee = 45*(10**decimalsEth);
+    uint256 constant public mintCost = 5*(10**decimalsEth);
     
     function warriorLevel(uint256 experience) public pure returns(uint256){
         uint256 lvl = Math.secMinus(experience, mintFee);

@@ -9,16 +9,9 @@
                     <ArmyList v-if="!selectedWarrior" :armyAddr="this.$wallet.$currentWalletAddr" @select="selectWarrior($event)" height="300"/>
                     <v-fade-transition v-else>
                     <span >
-                        <v-row justify="center" class="text-overline">
-                            <table>
-                                <tr><th class="text-right">Name:</th><td>{{selectedWarriorName}}</td></tr>
-                                <tr><th class="text-right">ID:</th><td>{{selectedWarrior}}</td></tr>       
-                            </table>
+                        <v-row justify="center" class="mb-5">
+                            <WarriorCard :warriorID="selectedWarrior"></WarriorCard>
                         </v-row>
-                        <v-row justify="center">
-                            <v-avatar size="200"><Identicon :value="selectedWarriorDNA || 'cro'" /></v-avatar>
-                        </v-row>
-                    
                     <v-dialog
                         v-model="burnDialog"
                         width="500"
@@ -56,7 +49,7 @@
 import WarriorFactory from '../scripts/warrior-factory.js';
 import ArmyList from './ArmyList.vue';
 import {AlertBus} from '../scripts/alert-bus.js';
-import Identicon from '../components/Identicon.vue'
+import WarriorCard from '../components/WarriorCard.vue'
 import WarriorVisuals from '../scripts/warrior-visuals.js';
 import Treasury from '../scripts/treasury.js';
 
@@ -64,7 +57,7 @@ export default {
     name: 'BurningCard',
     components:{
         ArmyList,
-        Identicon
+        WarriorCard
     },
     methods:{
         async burnWarrior(){

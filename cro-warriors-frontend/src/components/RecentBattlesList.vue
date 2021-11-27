@@ -84,9 +84,10 @@ import QrcodeVue from 'qrcode.vue'
            const battleBoard = await this.$wallet.loadContract('CombatModule');
 
            this.$wallet.$web3.eth.getBlockNumber((_, number)=>{
+               console.log("block:", number)
                battleBoard.getPastEvents('FightDone', {
-                    fromBlock: 0,
-                    toBlock: number-1
+                    fromBlock: number-50000,
+                    toBlock: 'latest'
                 }, (_, events)=>{
                     this.battles = events;
                     //history fetched listen for new Events now

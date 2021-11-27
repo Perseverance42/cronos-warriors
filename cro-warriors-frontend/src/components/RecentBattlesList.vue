@@ -34,7 +34,7 @@
                                                 :value="'https://cronos.crypto.org/explorer/testnet3/tx/'+item.transactionHash" 
                                                 size="180"></qrcode-vue>
                                             Transaction Hash:<br/>
-                                            <v-btn text :href="'https://cronos.crypto.org/testnet3/explorer/tx/'+item.transactionHash" target="_blank">{{item.transactionHash}}</v-btn>
+                                            <v-btn text :href="'https://cronos.crypto.org/explorer/testnet3/tx/'+item.transactionHash" target="_blank">{{item.transactionHash}}</v-btn>
                                         </center>
                                     </v-card>
                                 </template>

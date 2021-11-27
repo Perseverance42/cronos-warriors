@@ -5,7 +5,7 @@
       <img :style="skinColor" class="chest" :src="baseChestSrc(currentSkinColorChoice)">
       <img :style="clothesColor" class="chest" :src="chestSrc(currentChestChooice)">
       <img :style="skinColor" class="head" :src="headSrc(currentHeadChoice, currentSkinColorChoice)">
-      <img :style="eyeColorS" class="eyes" :src="eyesSrc(currentEyeChoice)">
+      <img :style="eyeColor" class="eyes" :src="eyesSrc(currentEyeChoice)">
       <img :style="skinColor" class="nose" :src="noseSrc(currentNoseChoice, currentSkinColorChoice)">
       <img :style="skinColor" class="mouth" :src="mouthSrc(currentMouthChoice, currentSkinColorChoice)">
       <img :style="hairColor" class="hair" :src="hairSrc(currentHairChoice, currentSkinColorChoice)">

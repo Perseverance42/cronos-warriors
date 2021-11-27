@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.3.2",
+    "dotenv": "^10.0.0",
     "solidity-linked-list": "^5.0.0"
   }
 }

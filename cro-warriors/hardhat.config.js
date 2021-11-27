@@ -17,20 +17,24 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.8.0",
-  defaultNetwork: "hardhat",
+  solidity: "0.8.4",
+  defaultNetwork: "devnode",
   networks:{
     hardhat:{
 
     },
     devnode: {
       url:"http://localhost:8545"
+    },
+    testnetCronos:{
+      url:"http://dragon-alpha:8545",
+      chainId: 338
     }
   },
   settings: {
     optimizer: {
       enabled: true,
-      runs: 200,
+      runs: 1000,
     },
   },
 };

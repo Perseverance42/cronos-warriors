@@ -54,6 +54,14 @@ const wallet = {
         wallet.$web3 = web3;
         wallet.$currentWalletAddr = walletAddr;
         Vue.use(VueWeb3, {web3: new Web3(web3.currentProvider)});
+        wallet.enforceNetwork();
+        window.ethereum.on('accountsChanged', function () {
+            window.location.reload();
+        });
+        window.ethereum.on('networkChanged', function () {
+            wallet.enforceNetwork();
+            window.location.reload();
+        });
         EventBus.$emit("init");
     },
     isReady(){
@@ -77,6 +85,45 @@ const wallet = {
         });
     },weiToCroDecimal(experience){
         return Web3.utils.fromWei(experience, 'ether');
+    }, async enforceNetwork(){
+        // Check if MetaMask is installed
+        // MetaMask injects the global API into window.ethereum
+        if (window.ethereum) {
+            try {
+            // check if the chain to connect to is installed
+            await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: '0x152' }], // chainId must be in hexadecimal numbers
+            });
+            } catch (error) {
+            // This error code indicates that the chain has not been added to MetaMask
+            // if it is not, then install it into the user MetaMask
+            if (error.code === 4902) {
+                try {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [
+                    {
+                        chainId: '0x152',
+                        rpcUrls: ['https://cronos-testnet-3.crypto.org:8545/'],
+                        nativeCurrency: {
+                            name: 'TCRO',
+                            symbol: 'TCRO', // 2-6 characters long
+                            decimals: 18
+                        }
+                    },
+                    ],
+                });
+                } catch (addError) {
+                console.error(addError);
+                }
+            }
+            console.error(error);
+            }
+        } else {
+            // if no window.ethereum then MetaMask is not installed
+            alert('MetaMask is not installed. Please consider installing it: https://metamask.io/download.html');
+        } 
     }
 }
 

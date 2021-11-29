@@ -73,6 +73,22 @@ const battleBoard = {
                 reject(e);
             });
         });
+    },
+    isBattleRequestValid(attackerID, defenderID){
+        return new Promise(function(resolve,reject){
+            if(!Wallet.isReady()) reject(new Error('No Wallet'));  
+            Wallet.loadContract(contractKey).then(contractInstance=>{
+                contractInstance.methods.isBattleRequestValid(attackerID, defenderID).then(result=>{
+                    resolve(result);
+                }).catch(e=>{
+                    console.error("BattleBoard isBattleRequestValid: ", e);
+                    reject(e);
+                })
+            }).catch(e=>{
+                console.error("BattleBoard withdrawBattleRequest: ", e);
+                reject(e);
+            });
+        });
     }
 }
 export default battleBoard;

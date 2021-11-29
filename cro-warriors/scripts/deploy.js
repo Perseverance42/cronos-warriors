@@ -123,7 +123,7 @@ async function main() {
   console.log("Combat Module deployed to:"+combatModule.address);
   
   const BattleBoard = await hre.ethers.getContractFactory("BattleBoard");
-  const battleBoard = await BattleBoard.deploy(warriors.address, combatModule.address);
+  const battleBoard = await BattleBoard.deploy(warriors.address, combatModule.address, warriorSkills.address);
   await battleBoard.deployed();
   console.log("BattleBoard deployed to: "+battleBoard.address);
   

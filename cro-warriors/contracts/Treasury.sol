@@ -85,6 +85,7 @@ contract Treasury is AccessControl  {
         assert(amount>0);
         assert(amount<=_reserve);
         receiver.transfer(amount);
+        _reserve = _reserve - amount;
         emit FundsWithdrawn(receiver, 0, amount);
     }
 

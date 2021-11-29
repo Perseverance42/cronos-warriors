@@ -68,6 +68,7 @@ contract Treasury is AccessControl  {
         _experience[winner] = _experience[winner] + expToSwap;
         _experience[loser]  = _experience[loser]  - expToSwap;
         _updateLeaderboard(winner);
+        _updateLeaderboard(loser);
         return expToSwap;
     }
     

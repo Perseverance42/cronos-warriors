@@ -39,7 +39,7 @@
                                 
                                 <v-card-text class="py-5">
                                     <div v-if="alert.details.code">
-                                        <p>The Request returned an error: {{alert.details.code}}</p>
+                                        <p>The request returned an error: {{alert.details.code}}</p>
                                         <code>{{alert.details.message}}</code>
                                     </div>
                                     <div v-else>

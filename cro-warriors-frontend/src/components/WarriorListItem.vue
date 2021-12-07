@@ -32,9 +32,9 @@
                             dark
                             :disabled="!currentSelectedWarrior"
                             :loading="isWaitingOnWallet"
-                            @click="challangeWarrior"
+                            @click="challengeWarrior"
                             >
-                            Challange</v-btn>            
+                            Challenge</v-btn>            
                 </v-list-item-title>
             </v-list-item>
             <v-list-item>
@@ -79,18 +79,18 @@ import { AlertBus } from '../scripts/alert-bus.js';
                 this.isMenuShowing = true
             })
         },
-        challangeWarrior(){
+        challengeWarrior(){
             if(this.currentSelectedWarrior == null){
                 AlertBus.$emit("alert",{ type:"error", message:"Please select one of your warriors first!"} );
                 return;
             }
             this.isWaitingOnWallet = true;
-            BattleBoard.challangeWarrior(this.currentSelectedWarrior, this.warriorID).then(result=>{
-                console.log("Warrior was challanged!", result);
-                AlertBus.$emit("alert",{ type:"info", message:"Successfully challanged warrior.", timeout:3000 });
+            BattleBoard.challengeWarrior(this.currentSelectedWarrior, this.warriorID).then(result=>{
+                console.log("Warrior was challenged!", result);
+                AlertBus.$emit("alert",{ type:"info", message:"Successfully challenged warrior.", timeout:3000 });
                 this.isWaitingOnWallet = false;
             }).catch(e =>{
-                AlertBus.$emit("alert",{ type:"error", message:"Failed to challange warrior.", details: e } );
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to challenge warrior.", details: e } );
                 this.isWaitingOnWallet = false;
             });
         }

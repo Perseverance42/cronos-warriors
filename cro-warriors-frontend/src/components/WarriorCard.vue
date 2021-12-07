@@ -161,7 +161,7 @@
                             <template v-slot:default>
                                 <v-card>
                                     <v-toolbar color="primary" dense>
-                                        <span class="text-overline">Select which Skill you want to increase.</span>
+                                        <span class="text-overline">Select which skill you want to increase.</span>
                                     </v-toolbar>
                                     <v-container fluid>
                                         <v-row justify="center">
@@ -193,7 +193,7 @@
                     block
                     color="red"
                     dark
-                    @click="challangeWarrior(currentSelectedWarrior)"
+                    @click="challengeWarrior(currentSelectedWarrior)"
                     :loading="isWaitingOnWallet"
                 >
                 Challenge</v-btn>
@@ -264,9 +264,9 @@ import Compute from '../scripts/compute'
                 this.isWaitingOnWallet = false;
             });
         },
-        challangeWarrior(attacker){
+        challengeWarrior(attacker){
             this.isWaitingOnWallet = true;
-            BattleBoard.challangeWarrior(attacker, this.warriorID).then(result=>{
+            BattleBoard.challengeWarrior(attacker, this.warriorID).then(result=>{
                 console.log("Warrior was challanged!", result);
                 AlertBus.$emit("alert",{ type:"info", message:"Successfully challanged warrior.", timeout:3000 });
                 this.isWaitingOnWallet = false;

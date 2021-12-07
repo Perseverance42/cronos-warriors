@@ -4,7 +4,7 @@
             <v-row><v-col><v-card-title>Burn your warrior here</v-card-title></v-col></v-row>
             <v-card-text>
                 <v-row><v-col>
-                    <p class="text-left">Burning your warrior does permanently destroy it and releases the collected eperience as CRO.</p>
+                    <p class="text-left">Burning your warrior does permanently destroy it and releases the collected experience as CRO.</p>
 
                     <ArmyList v-if="!selectedWarrior" :armyAddr="this.$wallet.$currentWalletAddr" @select="selectWarrior($event)" height="300"/>
                     <v-fade-transition v-else>
@@ -25,7 +25,7 @@
                             </v-sheet>
                             <v-card-text>
                                 Burning your warrior will irreversably destroy it. <br/>
-                                Burning this warrior will release {{croReleasedOnBurn}} CRO to the owner wallet.
+                                Burning this warrior will release {{croReleasedOnBurn}} CRO to the owners wallet.
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>

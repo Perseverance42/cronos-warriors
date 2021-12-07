@@ -18,11 +18,10 @@ contract BattleBoard {
     /* Modules which get accessed */
     CronosWarriors public cronosWarriors;
     CombatModule   public combatModule;
-    
-    uint256 private _battleRequestTimeout = 500;
-    
+    WarriorSkills  public warriorSkills;
+
     /* Battle request queue */
-    mapping (uint256 => mapping(uint256=>uint256)) _requestTimeouts;
+    mapping (uint256 => mapping(uint256=>uint256))  _battleRequests; //stores points skilled of the defender
     mapping (uint256 => StructuredLinkedList.List ) _offensiveBattleRequests; //maps attacker to defender
     mapping (uint256 => StructuredLinkedList.List ) _defensiveBattleRequests; //maps defneder to attacker
     
@@ -31,9 +30,10 @@ contract BattleBoard {
         _;
     }
     
-    constructor (address cronosWarriorsAddr, address combatModuleAddr){
+    constructor (address cronosWarriorsAddr, address combatModuleAddr, address warriorSkillsAddr){
         cronosWarriors = CronosWarriors(cronosWarriorsAddr);
         combatModule   = CombatModule(combatModuleAddr);
+        warriorSkills  = WarriorSkills(warriorSkillsAddr);
     }
 
     /** Getters **/
@@ -42,15 +42,11 @@ contract BattleBoard {
     }
     
     function _doesBattleRequestExist(uint256 attacker, uint256 defender) internal view returns(bool){
-        return _requestTimeouts[attacker][defender] != 0;
+        return _battleRequests[attacker][defender] != 0;
     }
 
-    function isBattleRequestTimedOut(uint256 attacker, uint256 defender) public view returns(bool){
-        return _requestTimeouts[attacker][defender] == 0 || _requestTimeouts[attacker][defender] <= block.number;
-    }
-    
-    function battleRequestTimeout() external view returns(uint256){
-        return _battleRequestTimeout;
+    function isBattleRequestValid(uint256 attacker, uint256 defender) public view returns(bool){
+        return warriorSkills.skills(defender).pointsSpend + 1 == _battleRequests[attacker][defender];
     }
     
     function defensiveRequestOf(uint256 id, uint256 start, uint8 pageSize) external view returns(uint256[] memory){
@@ -108,13 +104,15 @@ contract BattleBoard {
     /** Setters */
 
     function _createBattleRequest(uint256 attacker, uint256 defender) internal {
-        require(!_doesBattleRequestExist(attacker,defender), 'Request already exists!');
         require(attacker!=defender, "Attacker can not attack itself!");
+        if(_doesBattleRequestExist(attacker, defender)){
+            _deleteBattleRequest(attacker, defender);
+        }
         
         _offensiveBattleRequests[attacker].pushFront(defender);
         _defensiveBattleRequests[defender].pushFront(attacker);
         
-        _requestTimeouts[attacker][defender] = block.number + _battleRequestTimeout;
+        _battleRequests[attacker][defender] = warriorSkills.skills(defender).pointsSpend + 1; //0 is reserved for non existing requests
         emit FightRequested(attacker, defender);
     }
 
@@ -122,7 +120,7 @@ contract BattleBoard {
         require(_doesBattleRequestExist(attacker, defender), 'Request does not exist');
          _offensiveBattleRequests[attacker].remove(defender);
          _defensiveBattleRequests[defender].remove(attacker);
-         delete _requestTimeouts[attacker][defender];
+         delete _battleRequests[attacker][defender];
     }
     
     function challangeWarrior(uint256 attacker, uint256 defender) external onlyOwnerOf(attacker) {
@@ -137,7 +135,7 @@ contract BattleBoard {
     
     function acceptBattleRequest(uint256 defender, uint256 attacker) external onlyOwnerOf(defender){
         require(_doesBattleRequestExist(attacker, defender), 'This battle was not requested!');
-        require(!isBattleRequestTimedOut(attacker, defender), 'This request timed out');
+        require(isBattleRequestValid(attacker, defender), 'This Battle Request is invalid!');
         
         _deleteBattleRequest(attacker, defender);
         emit FightRequestResponded(attacker, defender, true);

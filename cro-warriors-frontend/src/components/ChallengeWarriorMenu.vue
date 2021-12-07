@@ -22,7 +22,7 @@
 import WarriorListItem from './WarriorListItem.vue';
 
   export default {
-    name: 'ChallangeWarriorMenu',
+    name: 'ChallengeWarriorMenu',
     components:{WarriorListItem},
     methods:{
 

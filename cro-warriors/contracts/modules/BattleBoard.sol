@@ -123,7 +123,7 @@ contract BattleBoard {
          delete _battleRequests[attacker][defender];
     }
     
-    function challangeWarrior(uint256 attacker, uint256 defender) external onlyOwnerOf(attacker) {
+    function challengeWarrior(uint256 attacker, uint256 defender) external onlyOwnerOf(attacker) {
         _createBattleRequest(attacker, defender);
     }
     

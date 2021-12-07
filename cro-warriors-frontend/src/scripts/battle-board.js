@@ -3,20 +3,20 @@ import Wallet from './wallet.js';
 const contractKey = "BattleBoard";
 
 const battleBoard = {
-    challangeWarrior(attackerID, defenderID){
+    challengeWarrior(attackerID, defenderID){
         return new Promise(function(resolve,reject){
             if(!Wallet.isReady()) reject(new Error('No Wallet'));  
 
             Wallet.loadContract(contractKey).then(contractInstance=>{
-                contractInstance.methods.challangeWarrior(attackerID, defenderID).send({from: Wallet.$currentWalletAddr}).then(result=>{
-                    console.log("BattleBoard challangeWarrior: ", result);
+                contractInstance.methods.challengeWarrior(attackerID, defenderID).send({from: Wallet.$currentWalletAddr}).then(result=>{
+                    console.log("BattleBoard challengeWarrior: ", result);
                     resolve(result);
                 }).catch(e=>{
-                    console.error("BattleBoard challangeWarrior: ", e);
+                    console.error("BattleBoard challengeWarrior: ", e);
                     reject(e);
                 });
             }).catch(e=>{
-                console.error("BattleBoard challangeWarrior: ", e);
+                console.error("BattleBoard challengeWarrior: ", e);
                 reject(e);
             });
         });

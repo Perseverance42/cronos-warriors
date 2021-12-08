@@ -178,6 +178,14 @@
                                 <v-btn text disabled >Points available: 0</v-btn>
                             </span>
                         </v-col>
+                        
+                    </v-row>
+                    <v-row v-if="isCurrentWalletOwner && canWarriorBeReplenished">
+                        <v-col>
+                        <span class="text-overline">
+                            <v-btn text @click="replenishWarrior" :loading="isWaitingOnWallet">Replenish warrior ep</v-btn>
+                        </span>
+                        </v-col>
                     </v-row>
                 </v-card-text>            
             </v-container>
@@ -228,6 +236,7 @@
 import WarriorRender from './WarriorRender.vue';
 import BattleRequestList from './BattleRequestList.vue';
 import WarriorSkills from '../scripts/warrior-skills.js';
+import WarriorFactory from '../scripts/warrior-factory.js';
 import BattleBoard from '../scripts/battle-board.js';
 import { AlertBus } from '../scripts/alert-bus.js';
 import Compute from '../scripts/compute'
@@ -275,6 +284,18 @@ import Compute from '../scripts/compute'
                 this.isWaitingOnWallet = false;
             });
         },
+        replenishWarrior(){
+            this.isWaitingOnWallet = true;
+            WarriorFactory.replenishWarrior(this.warriorID).then(result=>{
+                console.log("Warrior was replenished!", result);
+                AlertBus.$emit("alert",{ type:"info", message:"Successfully replenished warrior.", timeout:3000 });
+                setTimeout(this.bindContracts, 1000);
+                this.isWaitingOnWallet = false;
+            }).catch(e =>{
+                AlertBus.$emit("alert",{ type:"error", message:"Failed to replenish warrior.", details: e } );
+                this.isWaitingOnWallet = false;
+            });
+        },
         selectWarrior(id){
             this.$selectedWarrior = id;
         }
@@ -296,6 +317,9 @@ import Compute from '../scripts/compute'
         },
         currentSelectedWarrior(){
             return this.$selectedWarrior;
+        },
+        canWarriorBeReplenished(){
+            return this.experience && Compute.mintFee.gt(new Compute.BN(this.experience));
         },
         pointsAvailable(){
             return this.skills==null ? 0 : this.computedLevel.toNumber() - this.skills[0];

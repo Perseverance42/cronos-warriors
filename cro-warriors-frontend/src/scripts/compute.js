@@ -68,7 +68,9 @@ const compute = {
         let lvl = this.warriorLevel(experience);
         dexterity = new BN(dexterity);
         return (dexterity.mul(critScale)).div(lvl.add(TEN).mul(critScale).div(THOUSAND));
-    }
+    },
+    BN : BN,
+    mintFee : mintFee,
 }
 
 export default compute;

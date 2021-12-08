@@ -61,4 +61,9 @@ contract WarriorFactory {
         cronosWarriors.burn(id);
         emit WarriorBurned(id, msg.sender, recipient);
     }
+
+    function replenish(uint256 id) payable external {
+        require(msg.sender==cronosWarriors.ownerOf(id), 'Only owner can do this!');
+        treasury.replenish{value:msg.value}(id);
+    }
 }

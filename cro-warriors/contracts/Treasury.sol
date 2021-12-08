@@ -52,7 +52,16 @@ contract Treasury is AccessControl  {
         _reserve = _reserve + Compute.mintCost;
         emit FundsAdded(id, _experience[id]);
     }
-    
+
+    function replenish(uint256 id) payable external onlyRole(MINTER_ROLE){
+        uint256 ep = _experience[id];
+        assert(ep < Compute.mintFee);
+        uint256 replenishFee = Compute.mintFee - ep;
+        require(msg.value == replenishFee, 'Invalid replenishment value!');
+        _experience[id] = _experience[id] + msg.value;
+        assert(_experience[id] == Compute.mintFee); //sanity check
+    }
+
     //gets accessed by CombatModule
     function swapExperienceFor(uint256 winner, uint256 loser) external onlyRole(EXCHANGE_ROLE) returns(uint256){
         uint256 expToSwap = Compute.experienceToSwap(_experience[winner], _experience[loser]);

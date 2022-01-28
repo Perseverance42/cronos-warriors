@@ -7,39 +7,39 @@ export const EventBus = new Vue();
 
 const availableContracts = {
     "WarriorSkills" : {
-        address : "0xCf622473FEA959f6288b4b4E2b2553C20a139A58",
+        address : "0xA9111058aC3359c640aA8e39Fc94d53fD8c5AC2F",
         artifact : () => import("../artifacts/WarriorSkills.json")
     },
     "WarriorVisuals" : {
-        address : "0x6C3D276C5Ca1e6dc1d108Ca47F042B9356B69C5C",
+        address : "0x28c6002Eae84F858f4402c17cEB4565D382CE206",
         artifact : () => import("../artifacts/WarriorVisuals.json")
     },
     "CronosWarriors" : {
-        address: "0x6777a24aef6374265B4A900c9Db57673cFF426Ab",
+        address: "0x9FD69B9ed7317BF8aBE639B6C5D2B0D646A630C8",
         artifact: () => import("../artifacts/CronosWarriors.json")
     },
     "WarriorFactory" : {
-        address: "0xDd5cdf8FBE6AE1d743f25EECaC16937F5d718e25",
+        address: "0xE47De92f71D21B97d196be433EE6939e17d5cEB4",
         artifact: () => import("../artifacts/WarriorFactory.json")
     },
     "Treasury":{
-        address: "0xEefAFa8d1790495621520fa92f458B2e1541b039",
+        address: "0x7C21Acac884713690a7f1CB03dD40C19888B5F10",
         artifact: () => import("../artifacts/Treasury.json")
     },
     "BattleBoard":{
-        address: "0x876f14A7841850dDF4eB6E2C10c5583D3d7aC660",
+        address: "0xD8ecb434b43631c67e5Bda4a59Fa880467828a9C",
         artifact: () => import("../artifacts/BattleBoard.json")
     },
     "WarriorStats":{
-        address: "0xbD0313FA548e58ecAe35ce055aE87704872b20d4",
+        address: "0x994f57295b5EfD35c92b0345495029BE792c85f7",
         artifact: () => import("../artifacts/WarriorStats.json")
     },
     "WarriorProxy":{
-        address: "0xDd5cdf8FBE6AE1d743f25EECaC16937F5d718e25",
+        address: "0xE47De92f71D21B97d196be433EE6939e17d5cEB4",
         artifact: () => import("../artifacts/WarriorProxy.json")
     },
     "CombatModule":{
-        address: "0x6c0B85a1D976A7a11c52c6e564Ab0e9b5e390fc7",
+        address: "0x91204b3eD1eb628716636A5654F5420373d21641",
         artifact: () => import("../artifacts/CombatModule.json")
     }
 }

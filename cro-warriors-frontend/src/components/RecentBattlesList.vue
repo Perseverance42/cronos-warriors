@@ -86,7 +86,7 @@ import QrcodeVue from 'qrcode.vue'
            this.$wallet.$web3.eth.getBlockNumber((_, number)=>{
                console.log("block:", number)
                battleBoard.getPastEvents('FightDone', {
-                    fromBlock: number-50000,
+                    fromBlock: number-10000,
                     toBlock: 'latest'
                 }, (_, events)=>{
                     this.battles = events;
